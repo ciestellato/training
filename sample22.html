@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキストの回り込み</title>
+    <style>
+        img {
+            height: 200px;
+            float: left;
+        }
+        p.text1 {
+            line-height: 140%;
+        }
+        p.text2 {
+            line-height: 140%;
+        }
+    </style>
+</head>
+
+<body>
+    <p class="text1"><img src="basic/image/flower2.jpg" alt="花">
+        float は、テキストの回り込みを指定します。
+        float の指定をしないと画像の下にテキストが表示されます。
+        float は、画像以外の要素にも設定することができます。</p>
+    <p class="text2">画像（flower2.jpg）を左側に配置し（float:left）、
+        文字を右側に回り込ませました。float プロパティの指定を
+        right にすれば、画像と文字の関係は逆になります。float は、
+        画像以外の要素にも設定することができます。</p>
+
+</body>
+
+</html>
