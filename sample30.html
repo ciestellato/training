@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript:変数の計算</title>
+</head>
+<body>
+    <script>
+        let nyujou;
+        nyujou = prompt("入場者数を入力してください。");
+        window.alert("入場者は、"+nyujou+"人です");
+        let taijou = prompt("退場者数を入力してください");
+        window.alert("退場者数は"+taijou+"人です");
+        nyujou = nyujou - taijou;
+        window.document.write("現在場内には", nyujou, "人います<br>");
+
+        let myoji = "吉田";
+        let namae = "みどり";
+        namae = myoji + namae;
+        window.document.write("最初の入場者は",namae,"さんです");
+    </script>
+</body>
+</html>
