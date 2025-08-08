@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript:添え字番号によるelement操作</title>
+    <style>
+        body {
+            background-color: #F8F4E1;
+            color: #543310;
+        }
+    </style>
+</head>
+<body>
+    <h2>チケット購入リスト(単価5,500円)</h2>
+    <p>
+        フォーム１<br>
+        <form>
+            お客様番号<input type="text" size="20"><br>
+            氏名<input type="text" size="20"><br>
+            個数<input type="text" size="8"><br>
+            合計<input type="text" size="8">
+            プレゼント放送希望あり<input type="checkbox">
+        </form>
+    </p>
+    <hr>
+    <p>
+        フォーム２<br>
+        <form>
+            お客様番号<input type="text" size="20"><br>
+            氏名<input type="text" size="20"><br>
+            個数<input type="text" size="8"><br>
+            合計<input type="text" size="8">
+            プレゼント放送希望あり<input type="checkbox">
+        </form>
+    </p>
+
+    <script>
+        let price = 5500;
+        window.alert("実行");
+        window.document.forms[0].elements[0].value = "101";
+        window.document.forms[0].elements[1].value = "斎藤きよこ";
+        window.document.forms[0].elements[2].value = 5;
+        window.document.forms[0].elements[3].value = price * window.document.forms[0].elements[2].value;
+        window.document.forms[0].elements[4].checked = false;
+        window.document.forms[1].elements[0].value = "102";
+        window.document.forms[1].elements[1].value = "吉田正人";
+        window.document.forms[1].elements[2].value = 3;
+        window.document.forms[1].elements[3].value = price * window.document.forms[1].elements[2].value;
+        window.document.forms[1].elements[4].checked = true;
+    </script>
+
+</body>
+</html>

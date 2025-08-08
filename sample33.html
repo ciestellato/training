@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript:if then型</title>
+</head>
+<body>
+    <script>
+        let cash = window.prompt("財布にいくら入ってますか？");
+        window.alert("財布に" + cash + "円あります");
+        let purchase = 3000;
+        window.alert(purchase + "円の買い物をします");
+
+        if (cash < purchase) {
+            window.document.write("お金が足りません<br>");
+        }
+
+        window.document.write("買い物を終了します");
+    </script>
+</body>
+</html>

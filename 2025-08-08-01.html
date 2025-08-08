@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>オリジナル練習問題</title>
+    <style>
+        body {
+            background-color: #F8F4E1;
+            color: #543310;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function warizan(num1, num2) {
+            return num1 / num2;
+        }
+
+        document.write(warizan(10, 5),"<br>");
+
+        let ans1 = prompt("割られる数を入力してください");
+        let ans2 = prompt("割る数を入力してください");
+        document.write(warizan(parseInt(ans1), parseInt(ans2)));
+    </script>
+</body>
+</html>

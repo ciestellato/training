@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript:練習問題・プロパティ</title>
+</head>
+<body>
+    <h2>好きな食べ物アンケート</h2>
+    <script>
+        let food = "パスタ";
+        if (window.confirm(food + "が好きな人はOKをクリックしてください")) {
+            window.document.write(food + "が好きです<br>");
+            window.document.bgColor="#FEFBC7";
+            window.document.fgColor="#E14434";
+        }
+        food = "ラーメン";
+        if (window.confirm(food + "が好きな人はOKをクリックしてください")) {
+            window.document.write(food + "が好きです<br>");
+            window.document.bgColor="#FB9E3A";
+            window.document.fgColor="#FCEF91";
+
+        }
+        food = "ピザ";
+        if (window.confirm(food + "が好きな人はOKをクリックしてください")) {
+            window.document.write(food + "が好きです<br>");
+            window.document.bgColor="#E00543";
+            window.document.fgColor="#A6CB12";
+        }
+        window.document.write("ありがとうございました");
+    </script>
+</body>
+</html>

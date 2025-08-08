@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript:if then else型</title>
+</head>
+<body>
+    <h2>英語のテスト結果についてお聞きします</h2>
+    <script>
+        if (window.confirm("80点以なら、OKをクリックしてください")){
+            window.document.write("成績はAです。");
+        } else if (window.confirm("70点以上なら、OKを押してください")) {
+            window.document.write("成績はBです。");
+        } else if (window.confirm("60点以上なら、OKをクリックしてください")) {
+            window.document.write("成績はCです。");
+        } else {
+            window.document.write("不合格です")
+        }
+
+        window.document.write("<br>終了します");
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript:formオブジェクト</title>
+    <style>
+        body {
+            background-color: #F8F4E1;
+            color: #543310;
+        }
+    </style>
+</head>
+
+<body>
+    <p>
+        フォーム1<br>
+    <form name="form1">
+        お客様番号<input type="text" name="number" size="20"><br>
+        氏名<input type="text" name="name" size="20">
+    </form>
+    </p>
+    <hr>
+    <p>
+        フォーム2<br>
+    <form name="form2">
+        お客様番号<input type="text" name="number" size="20"><br>
+        氏名<input type="text" name="name" size="20">
+    </form>
+    </p>
+
+    <script>
+        alert("実行");
+        window.document.form1.number.value = "101";
+        window.document.form1.name.value = "斎藤きよこ";
+        window.document.form2.number.value = "102";
+        window.document.form2.name.value = "吉田正人";
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript:if then else 多重型</title>
+    <style>
+        body {
+            background-color: #FEFFC4;
+            color: #3674B5;
+        }
+        h2 {
+            background-color: #FFBC4C;
+            color: #FEFFC4;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>パスポートチケット料金表</h2>
+    <table>
+        <tr>
+            <td>大人</td>
+            <td>18歳以上</td>
+            <td>6,900円</td>
+        </tr>
+        <tr>
+            <td>中人</td>
+            <td>12歳以上18歳未満</td>
+            <td>6,000円</td>
+        </tr>
+        <tr>
+            <td>小人</td>
+            <td>4歳以上12歳未満</td>
+            <td>4,500円</td>
+        </tr>
+    </table>
+
+    <script>
+        const age = window.prompt("何歳ですか？");
+        let ans;
+        if (age >= 18) {
+            ans = "大人料金です";
+        } else {
+            if (age >= 12) {
+                ans = "中人料金です";
+            } else {
+                if (age >= 3) {
+                    ans = "小人料金です";
+                } else {
+                    ans = "3歳以下は無料です"
+                }
+            }
+        }
+        window.document.write(ans);
+    </script>
+</body>
+
+</html>
