@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .card-container {
+            display: flex;
+            /* 子要素（カード）をFlexboxで並べる */
+            flex-wrap: wrap;
+            /* 画面が狭くなったら折り返す */
+            gap: 20px;
+            /* カードとカードの間の余白 */
+            padding: 20px;
+            justify-content: center;
+            /* カードを中央寄せにする */
+        }
+
+        /* 個々のカードのスタイル */
+        .card {
+            width: 300px;
+            /* カードの幅を固定 */
+            border: 1px solid #ddd;
+            /* 薄い灰色の枠線 */
+            border-radius: 8px;
+            /* 角を丸くする */
+            overflow: hidden;
+            /* カードの角からはみ出る要素を隠す */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* ほんのり影をつける */
+            transition: transform 0.3s ease;
+            /* マウスホバー時のアニメーション */
+            background-color: white;
+            /* 背景色 */
+        }
+
+        /* カードにマウスを乗せたときのスタイル */
+        .card:hover {
+            transform: translateY(-5px);
+            /* 上に少し移動させる */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            /* 影を濃くする */
+        }
+
+        /* カード内の画像スタイル */
+        .card img {
+            width: 100%;
+            /* 画像の幅をカードの幅に合わせる */
+            height: 200px;
+            /* 画像の高さを固定 */
+            object-fit: cover;
+            /* 画像が歪まないようにフィットさせる */
+        }
+
+        /* カード内のコンテンツ（タイトル、本文など）のスタイル */
+        .card-content {
+            padding: 15px;
+        }
+
+        .card-content h3 {
+            margin-top: 0;
+            /* h3タグのデフォルトの余白を調整 */
+        }
+
+        .card-content p {
+            color: #555;
+            /* 文字色を濃いグレーに設定 */
+            font-size: 0.9em;
+            /* フォントサイズを親要素の90%に設定 */
+            line-height: 1.6;
+            /* 行の高さを文字サイズの1.6倍に設定し、読みやすくする */
+        }
+
+        /* 「もっと見る」ボタンのスタイル */
+        .read-more {
+            display: inline-block;
+            /* インライン要素をブロック要素のように扱い、幅や高さを設定可能にする */
+            margin-top: 10px;
+            /* 上側の外側余白を10pxに設定 */
+            padding: 8px 15px;
+            /* 内側の余白を上下8px、左右15pxに設定 */
+            background-color: #007BFF;
+            /* 背景色を青色に設定 */
+            color: white;
+            /* 文字色を白に設定 */
+            text-decoration: none;
+            /* テキストの下線を非表示にする */
+            border-radius: 5px;
+            /* 角を丸くする */
+            font-size: 0.9em;
+            /* フォントサイズを親要素の90%に設定 */
+        }
+
+        .read-more:hover {
+            background-color: #0056b3;
+            /* マウスを乗せた時の背景色を少し濃い青色に変更 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card-container">
+
+        <div class="card">
+            <img src="images/item1.png" alt="カードの画像">
+            <div class="card-content">
+                <h3>カードのタイトル</h3>
+                <p>ここにカードの詳細な説明文が入ります。この文章はカードの内容を簡潔に伝えます。</p>
+                <a href="#" class="read-more">もっと見る</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="images/item2.png" alt="カードの画像">
+            <div class="card-content">
+                <h3>カードのタイトル</h3>
+                <p>ここにカードの詳細な説明文が入ります。この文章はカードの内容を簡潔に伝えます。</p>
+                <a href="#" class="read-more">もっと見る</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="images/item3.png" alt="カードの画像">
+            <div class="card-content">
+                <h3>カードのタイトル</h3>
+                <p>ここにカードの詳細な説明文が入ります。この文章はカードの内容を簡潔に伝えます。</p>
+                <a href="#" class="read-more">もっと見る</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

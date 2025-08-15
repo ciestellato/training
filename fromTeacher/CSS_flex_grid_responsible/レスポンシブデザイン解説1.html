@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5分でわかるレスポンシブ対応</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #005a9c;
+        }
+
+        .code-block {
+            background-color: #e9e9e9;
+            padding: 15px;
+            border-left: 5px solid #005a9c;
+            overflow-x: auto;
+            margin: 20px 0;
+            white-space: pre;
+        }
+
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 0 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>5分でわかるレスポンシブ対応</h1>
+        <p>
+            WebサイトをPC、タブレット、スマートフォンなど、様々な画面サイズに合わせて表示させる<strong>レスポンシブ対応</strong>について解説します。
+        </p>
+
+        <h2>概要</h2>
+        <ul>
+            <li>**ビューポート（viewport）**で画面の表示領域を制御します。</li>
+            <li>画面サイズに応じてCSSを切り替えるには**メディアクエリ（@media）**を使います。</li>
+            <li>画面幅によってCSSファイルを別々に読み込む場合は**@import**やHTMLの<code>&lt;link&gt;</code>タグを使います。</li>
+        </ul>
+
+        ---
+
+        <h2>レスポンシブ対応とは？</h2>
+        <p>
+            レスポンシブ対応とは、PC、タブレット、スマートフォンなどの異なる画面サイズに合わせて、Webサイトのレイアウトを柔軟に調整することです。
+        </p>
+        <p>
+            PCでは横長、スマホでは縦長のレイアウトで表示されるサイトを見たことがありますよね。このレスポンシブ対応には、「ビューポート」と「メディアクエリ」という2つの重要な要素が必要です。
+        </p>
+
+        ---
+
+        <h2>ビューポートとは？</h2>
+        <p>
+            ビューポートとは、Webサイトを表示するための領域のことです。ビューポートを指定することで、ブラウザに「この画面領域で表示してね」と指示します。
+        </p>
+
+        <h3>ビューポートの指定方法</h3>
+        <p>
+            レスポンシブ対応を行う場合、HTMLの<code>&lt;head&gt;</code>タグ内に以下のように記述します。
+        </p>
+        <div class="code-block">
+            &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+        </div>
+        <p>
+            <code>content</code>の中には2つの重要なプロパティがあります。
+        </p>
+        <ul>
+            <li><strong>width=device-width</strong>: 表示するデバイスの画面幅に合わせて、ビューポートの幅を調整します。</li>
+            <li><strong>initial-scale=1.0</strong>: ページが読み込まれたときの初期ズーム倍率を1.0倍（等倍）に設定します。</li>
+        </ul>
+        <p>
+            もしこの設定がないと、モバイルデバイスのブラウザはPCサイトを縮小して表示しようとします。
+            その結果、文字が小さくなり、ユーザーが拡大しないと読めなくなってしまいます。
+        </p>
+
+        ---
+
+        <h2>メディアクエリとは？</h2>
+        <p>
+            メディアクエリとは、表示されている画面サイズに応じて適用するCSSスタイルを切り替える機能です。
+        </p>
+        <p>
+            CSSファイル内で<code>@media</code>ルールを使うことで、画面の幅を条件にスタイルを適用できます。
+        </p>
+
+        <h3>PC表示のメディアクエリ</h3>
+        <p>
+            PCのような大画面にスタイルを適用する場合、画面の最小幅を指定する<code>min-width</code>を使います。
+        </p>
+        <div class="code-block">
+            @media screen and (min-width: 1024px) {
+            p {color: red;}
+            }
+        </div>
+        <p>
+            この例では、画面幅が1024px以上になると、<code>p</code>タグの文字色が赤に変わります。この画面幅の境界値を<strong>ブレイクポイント</strong>と呼びます。
+        </p>
+
+        <h3>スマホ表示のメディアクエリ</h3>
+        <p>
+            スマホのような小さい画面にスタイルを適用する場合、画面の最大幅を指定する<code>max-width</code>を使います。
+        </p>
+        <div class="code-block">
+            @media screen and (max-width: 767px) {
+            p {color: blue;}
+            }
+        </div>
+        <p>
+            この例では、画面幅が767px以下になると、<code>p</code>タグの文字色が青に変わります。
+        </p>
+
+        <h3>タブレット表示のメディアクエリ</h3>
+        <p>
+            タブレットのように中間の画面サイズにスタイルを適用する場合、<code>min-width</code>と<code>max-width</code>を<code>and</code>で繋げます。
+        </p>
+        <div class="code-block">
+            @media screen and (min-width: 768px) and (max-width: 1023px) {
+            p {color: green;}
+            }
+        </div>
+        <p>
+            この例では、画面幅が768pxから1023pxの間にのみ、<code>p</code>タグの文字色が緑に変わります。
+        </p>
+
+        ---
+
+        <h2>メディアクエリの記述順</h2>
+        <p>
+            メディアクエリには「デスクトップファースト」と「モバイルファースト」の2つの記述方法があります。
+        </p>
+
+        <h3>デスクトップファースト</h3>
+        <p>
+            大きい画面（PC）のスタイルをデフォルトにし、小さい画面（タブレット、スマホ）のスタイルで上書きしていく方法です。
+        </p>
+        <div class="code-block">
+            /* PC（デフォルト） */
+            p {color: red;}
+
+            /* タブレット */
+            @media screen and (max-width: 1023px) {
+            p {color: green;}
+            }
+
+            /* スマホ */
+            @media screen and (max-width: 768px) {
+            p {color: blue;}
+            }
+        </div>
+
+        <h3>モバイルファースト</h3>
+        <p>
+            小さい画面（スマホ）のスタイルをデフォルトにし、大きい画面のスタイルをメディアクエリで追加していく方法です。
+        </p>
+        <div class="code-block">
+            /* スマホ（デフォルト） */
+            p {color: blue;}
+
+            /* タブレット */
+            @media screen and (min-width: 768px) {
+            p {color: green;}
+            }
+
+            /* PC */
+            @media screen and (min-width: 1024px) {
+            p {color: red;}
+            }
+        </div>
+        <p>
+            現在はモバイル端末からのアクセスが増えているため、**モバイルファースト**の記述方法が主流となっています。
+        </p>
+        <p class="note">
+            1つのCSSファイル内でデスクトップファーストとモバイルファーストを混在させると、コードが複雑になり管理が難しくなるので注意しましょう。
+        </p>
+
+        ---
+
+        <h2>別ファイルで画面幅ごとのスタイルを指定したい場合</h2>
+        <p>
+            メディアクエリをCSSファイル内で記述するのではなく、画面幅ごとにCSSファイルを分けて管理することもできます。
+        </p>
+
+        <h3>HTMLで読み込むCSSを変更する方法</h3>
+        <p>
+            <code>&lt;link&gt;</code>タグの<code>media</code>属性を使って、画面サイズに応じたCSSファイルを読み込みます。
+        </p>
+        <div class="code-block">
+            &lt;link rel="stylesheet" href="mobile.css"&gt;
+            &lt;link rel="stylesheet" href="tablet.css" media="screen and (min-width: 768px)"&gt;
+            &lt;link rel="stylesheet" href="pc.css" media="screen and (min-width: 1024px)"&gt;
+        </div>
+
+        <h3>CSSで別ファイルを読み込む方法</h3>
+        <p>
+            メインのCSSファイル内で<code>@import</code>ルールを使って、メディアクエリの条件付きで別のCSSファイルを読み込みます。
+        </p>
+        <div class="code-block">
+            /* main.css */
+            @import url("./tablet.css") screen and (min-width: 768px);
+            @import url("./pc.css") screen and (min-width: 1024px);
+        </div>
+        <p>
+            この方法の場合、HTMLではメインのCSSファイルのみを読み込みます。
+        </p>
+    </div>
+
+</body>
+
+</html>

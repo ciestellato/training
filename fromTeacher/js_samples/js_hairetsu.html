@@ -1,0 +1,28 @@
+<script>
+
+    // javascriptでの配列生成
+    const hairetsu = new Array(3);
+    hairetsu[0] = 10;
+    hairetsu[1] = 20;
+    hairetsu[2] = "abc";
+    document.write(hairetsu, "<br>");
+
+    // 値を直接代入
+    const numbers = [10, 20, 30];
+    document.write(numbers, "<br>");
+
+    // 空の配列を作成
+    const fruits = [];
+    document.write(fruits, "<br>");
+    // 配列の末尾に要素を追加
+    fruits.push('Apple');
+    document.write(fruits, "<br>");
+    // 配列の末尾に要素を追加
+    fruits.push('Banana', 'Orange', 'Mellon');
+    document.write(fruits, "<br>");
+
+    // for...of ループは、配列の各要素を直接取得できる
+    for (const f of fruits) {
+        document.write("*", f, "<br>");
+    }
+</script>

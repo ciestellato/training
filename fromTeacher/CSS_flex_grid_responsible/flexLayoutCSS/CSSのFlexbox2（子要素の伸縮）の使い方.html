@@ -1,0 +1,58 @@
+<p>承知いたしました。前回のFlexboxの基本的な説明に続き、さらに便利な使い方を2ステップ目で解説します。</p>
+<hr />
+<h3>ステップ2：アイテムのサイズと並び順をコントロールする</h3>
+<p>Flexboxは、子要素（Flexアイテム）の<strong>サイズ</strong>や<strong>並び順</strong>を、CSSだけで簡単に変更することができます。</p>
+<h4>1. <code>flex-grow</code> と <code>flex-shrink</code> (アイテムの伸縮)</h4>
+<p>親要素に余白がある場合にアイテムを<strong>広げたり</strong>、逆にスペースが足りない場合に<strong>縮めたり</strong>する設定です。</p>
+<ul>
+    <li><code>flex-grow: 1;</code>
+        <ul>
+            <li><strong>余ったスペースを均等に埋める</strong>設定です。複数のアイテムに<code>flex-grow: 1;</code>を指定すると、余白を均等に分け合って広がります。</li>
+        </ul>
+    </li>
+    <li><code>flex-shrink: 1;</code>
+        <ul>
+            <li><strong>スペースが足りない場合に縮む</strong>設定です。デフォルトで<code>1</code>が指定されており、通常はこのままで問題ありません。</li>
+        </ul>
+    </li>
+</ul>
+<p><strong>サンプルコード</strong></p>
+<pre><code class="css language-css">.flex-item-grow {
+  flex-grow: 1; /* 親要素の余白を埋めて広がる */
+}
+
+.flex-item-no-grow {
+  flex-grow: 0; /* 広がらない */
+}
+</code></pre>
+<p>上の例では、<code>flex-item-grow</code>を持つアイテムだけが、残りの余白を埋めるように幅が広がります。</p>
+<hr />
+<h4>2. <code>order</code> (アイテムの並び順)</h4>
+<p><code>order</code>プロパティを使うと、HTMLの記述順に関係なく、アイテムを好きな順番に並べ替えることができます。</p>
+<ul>
+    <li><code>order: 1;</code>, <code>order: 2;</code>…<ul>
+            <li><code>order</code>の値が<strong>小さい順</strong>に左から並びます。デフォルトの値は<code>0</code>です。</li>
+            <li>例えば、3番目のアイテムを最初に表示したい場合は、そのアイテムに<code>order: -1;</code>を設定すれば実現できます。</li>
+        </ul>
+    </li>
+</ul>
+<p><strong>サンプルコード</strong></p>
+<pre><code class="html language-html">&lt;div class="flex-container"&gt;
+  &lt;div class="flex-item item-a"&gt;アイテムA (order: 0)&lt;/div&gt;
+  &lt;div class="flex-item item-b"&gt;アイテムB (order: 2)&lt;/div&gt;
+  &lt;div class="flex-item item-c"&gt;アイテムC (order: 1)&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="css language-css">.item-a {
+  order: 0;
+}
+.item-b {
+  order: 2; /* 2番目に表示される */
+}
+.item-c {
+  order: 1; /* 1番目に表示される */
+}
+</code></pre>
+<p>このCSSを適用すると、「アイテムA」「アイテムC」「アイテムB」の順に表示されます。</p>
+<hr />
+<p>Flexboxは、これらのプロパティを組み合わせることで、複雑なレイアウトもシンプルに作成できるのが大きな強みです。まずは<code>display: flex;</code>と、今回ご紹介したプロパティを試してみてください。</p>

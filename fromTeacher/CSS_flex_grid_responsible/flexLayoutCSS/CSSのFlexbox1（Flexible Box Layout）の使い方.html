@@ -1,0 +1,83 @@
+<p>HTMLとCSSのFlexbox（Flexible Box Layout）の使い方を、簡単なサンプルを使って説明します。</p>
+<hr />
+<h3>Flexboxとは？</h3>
+<p><strong>Flexbox</strong>は、ウェブページの要素を<strong>柔軟に配置</strong>するためのCSSのレイアウト機能です。特に、要素を横や縦に並べたり、中央に寄せたり、均等に配置したりする際に非常に便利です。以前は複雑なCSSやHTMLの構成が必要でしたが、Flexboxを使うとシンプルに実現できます。</p>
+<p>Flexboxのレイアウトは、**親要素（Flexコンテナ）<strong>と</strong>子要素（Flexアイテム）**という2つの要素で構成されます。</p>
+<ol>
+<li><strong>Flexコンテナ:</strong> 子要素を管理する親要素です。</li>
+<li><strong>Flexアイテム:</strong> コンテナ内で配置される子要素です。</li>
+</ol>
+<hr />
+<h3>基本的な使い方とサンプル</h3>
+<p>以下に、基本的なHTMLとCSSのサンプルを示します。</p>
+<h4>1. HTMLの準備</h4>
+<p>まず、Flexboxで配置したい子要素を、親要素で囲みます。この親要素が<strong>Flexコンテナ</strong>になります。</p>
+<pre><code class="html language-html">&lt;div class="flex-container"&gt;
+  &lt;div class="flex-item"&gt;アイテム1&lt;/div&gt;
+  &lt;div class="flex-item"&gt;アイテム2&lt;/div&gt;
+  &lt;div class="flex-item"&gt;アイテム3&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<h4>2. CSSでFlexboxを有効にする</h4>
+<p>Flexboxを使うには、親要素（<code>.flex-container</code>）に<code>display: flex;</code>というCSSプロパティを指定するだけです。これだけで、子要素は自動的に<strong>横並び</strong>になります。</p>
+<pre><code class="css language-css">.flex-container {
+  /* これがFlexboxを有効にする最も重要な設定です */
+  display: flex; 
+
+  /* 見やすくするために背景色や余白を設定 */
+  background-color: #f0f0f0;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.flex-item {
+  background-color: #4CAF50;
+  color: white;
+  padding: 20px;
+  margin: 5px;
+  font-size: 1.2em;
+  text-align: center;
+}
+</code></pre>
+<p>このCSSを適用すると、<code>div.flex-item</code>が横一列に並んで表示されます。</p>
+<hr />
+<h3>よく使うプロパティ</h3>
+<p>Flexboxには、子要素の配置を細かく制御するための便利なプロパティがいくつかあります。これらは主に**親要素（Flexコンテナ）**に指定します。</p>
+<h4>1. <code>justify-content</code> (水平方向の配置)</h4>
+<p>子要素を<strong>水平方向</strong>にどのように配置するかを決めます。</p>
+<ul>
+<li><code>justify-content: center;</code><ul>
+<li><strong>中央寄せ</strong>にします。</li></ul></li>
+<li><code>justify-content: space-between;</code><ul>
+<li><strong>両端にアイテムを配置</strong>し、その間の余白を均等にします。</li></ul></li>
+<li><code>justify-content: space-around;</code><ul>
+<li>アイテムの<strong>周りの余白</strong>を均等にします。</li></ul></li>
+</ul>
+<h4>2. <code>align-items</code> (垂直方向の配置)</h4>
+<p>子要素を<strong>垂直方向</strong>にどのように配置するかを決めます。</p>
+<ul>
+<li><code>align-items: center;</code><ul>
+<li><strong>中央寄せ</strong>にします。</li></ul></li>
+<li><code>align-items: flex-start;</code><ul>
+<li>上端に寄せます。</li></ul></li>
+<li><code>align-items: flex-end;</code><ul>
+<li>下端に寄せます。</li></ul></li>
+</ul>
+<h4>3. <code>flex-direction</code> (配置の向き)</h4>
+<p>子要素を並べる方向を決めます。</p>
+<ul>
+<li><code>flex-direction: row;</code><ul>
+<li>**横方向（デフォルト）**に並べます。</li></ul></li>
+<li><code>flex-direction: column;</code><ul>
+<li><strong>縦方向</strong>に並べます。</li></ul></li>
+</ul>
+<h3>応用例：中央寄せ</h3>
+<p><code>justify-content</code>と<code>align-items</code>を両方使うことで、アイテムを<strong>コンテナの真ん中に完璧に中央寄せ</strong>できます。</p>
+<pre><code class="css language-css">.flex-container {
+  display: flex;
+  justify-content: center; /* 水平方向の中央寄せ */
+  align-items: center; /* 垂直方向の中央寄せ */
+  height: 200px; /* 親要素の高さを指定しないと垂直方向の中央寄せは機能しません */
+}
+</code></pre>
+<p>このCSSを使えば、子要素がコンテナのちょうど真ん中に配置されます。</p>

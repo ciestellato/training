@@ -1,0 +1,82 @@
+<p>承知いたしました。Flexboxのステップ1とステップ2に続き、さらに高度な機能である<strong>折り返し</strong>と<strong>個別のアイテム調整</strong>について、ステップ3として解説します。</p>
+<hr />
+<h3>ステップ3：アイテムの折り返しと個別調整</h3>
+<p>Flexboxでは、画面幅が足りないときにアイテムを自動的に折り返したり、特定のアイテムだけを個別にカスタマイズしたりできます。</p>
+<h4>1. <code>flex-wrap</code> (アイテムの折り返し)</h4>
+<p>親要素に<code>display: flex;</code>を設定すると、デフォルトではアイテムは1行に収まるように縮小されます。しかし、<code>flex-wrap</code>プロパティを使うことで、アイテムを複数行に<strong>折り返す</strong>ことができます。
+</p>
+<ul>
+    <li><code>flex-wrap: nowrap;</code>
+        <ul>
+            <li><strong>折り返さない</strong>（デフォルト設定）。アイテムは1行に収まるように縮小されます。</li>
+        </ul>
+    </li>
+    <li><code>flex-wrap: wrap;</code>
+        <ul>
+            <li>アイテムを複数行に<strong>折り返します</strong>。画面幅が足りなくなると、自動的に次の行に送られます。これは、レスポンシブデザインで特に役立ちます。</li>
+        </ul>
+    </li>
+</ul>
+<p><strong>サンプルコード</strong></p>
+<pre><code class="css language-css">.flex-container {
+  display: flex;
+  flex-wrap: wrap; /* これを設定するとアイテムが折り返されます */
+  gap: 10px; /* アイテム間の余白 */
+  width: 300px; /* 親要素の幅を意図的に狭く設定 */
+}
+
+.flex-item {
+  width: 120px; /* アイテムの幅を固定 */
+  height: 50px;
+  background-color: #3498db;
+  color: white;
+  text-align: center;
+  line-height: 50px;
+}
+</code></pre>
+<p>このコードでは、親要素の幅が300pxなので、幅120pxのアイテムは2つしか横に並べられません。<code>flex-wrap: wrap;</code>のおかげで、3つ目のアイテムは自動的に下の行に折り返されます。</p>
+<hr />
+<h4>2. <code>align-self</code> (特定のアイテムだけを調整)</h4>
+<p><code>align-items</code>はコンテナ内のすべてのアイテムを垂直方向に調整しましたが、**<code>align-self</code>**を使うと、<strong>特定のFlexアイテムだけ</strong>を個別に調整できます。
+</p>
+<ul>
+    <li><code>align-self: flex-start;</code>
+        <ul>
+            <li>そのアイテムだけを上端に寄せます。</li>
+        </ul>
+    </li>
+    <li><code>align-self: center;</code>
+        <ul>
+            <li>そのアイテムだけを中央寄せにします。</li>
+        </ul>
+    </li>
+    <li><code>align-self: flex-end;</code>
+        <ul>
+            <li>そのアイテムだけを下端に寄せます。</li>
+        </ul>
+    </li>
+</ul>
+<p><strong>サンプルコード</strong></p>
+<pre><code class="css language-css">.flex-container {
+  display: flex;
+  align-items: center; /* すべてのアイテムを垂直方向の中央に寄せる */
+  height: 150px;
+  background-color: #f0f0f0;
+}
+
+.flex-item {
+  width: 80px;
+  background-color: #e74c3c;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  margin: 5px;
+}
+
+.special-item {
+  align-self: flex-end; /* このアイテムだけを下端に寄せる */
+  background-color: #2ecc71;
+}
+</code></pre>
+<p>このCSSを適用すると、すべてのアイテムは中央に配置されますが、<code>special-item</code>クラスを持つアイテムだけが下端に配置されます。</p>
+<p>これらのプロパティを組み合わせることで、より複雑で柔軟なレイアウトを簡単に作成できます。Flexboxの強力な機能の多くは、この3つのステップでほぼカバーできるので、まずはこれらの使い方をマスターしてみてください。</p>

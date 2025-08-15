@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .flex-container {
+            /* これがFlexboxを有効にする最も重要な設定です */
+            display: flex;
+
+            /* 見やすくするために背景色や余白を設定 */
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .flex-item-grow {
+            flex-grow: 1;
+            /* 親要素の余白を埋めて広がる */
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            margin: 5px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .flex-item-no-grow {
+            flex-grow: 0;
+            /* 広がらない */
+        }
+
+        /* 並び順をCSSで変える */
+        .item-a {
+            order: 0;
+        }
+
+        .item-b {
+            order: 2;
+            /* 2番目に表示される */
+        }
+
+        .item-c {
+            order: 1;
+            /* 1番目に表示される */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex-container">
+        <div class="flex-item-grow item-a">アイテムA (order: 0)</div>
+        <div class="flex-item-grow item-b">アイテムB (order: 2)</div>
+        <div class="flex-item-grow item-c">アイテムC (order: 1)</div>
+    </div>
+</body>
+
+</html>

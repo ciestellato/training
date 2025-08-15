@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .grid-container {
+            /* これがGridを有効にする最も重要な設定です */
+            display: grid;
+            /* 親要素をGridコンテナとして設定し、子要素を2次元グリッドで配置する */
+
+            /* 3つの列を作成し、それぞれの幅を均等に設定 */
+            grid-template-columns: 1fr 1fr 1fr;
+            /* 親要素の幅を3等分して、3つの列（カラム）を定義する */
+
+            /* 行を作成し、高さを設定 */
+            grid-template-rows: 100px;
+            /* 行（ロウ）を作成し、それぞれの高さを100pxに設定する */
+
+            /* 行と列の間の余白を設定 */
+            gap: 10px;
+            /* 行と列の間に10pxの隙間（ガター）を設定する */
+
+            /* 見やすくするための追加スタイル */
+            background-color: #f0f0f0;
+            /* 背景色を薄いグレーに設定 */
+            padding: 10px;
+            /* 内側の余白を10pxに設定 */
+        }
+
+        .grid-item {
+            background-color: #4CAF50;
+            /* 背景色を緑色に設定 */
+            color: white;
+            /* 文字色を白色に設定 */
+            text-align: center;
+            /* テキストを水平方向に中央揃えにする */
+            line-height: 100px;
+            /* 行の高さを100pxに設定し、テキストを垂直方向にも中央揃えにする */
+            font-size: 2em;
+            /* フォントサイズを親要素の2倍に設定 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-container">
+        <div class="grid-item">1</div>
+        <div class="grid-item">2</div>
+        <div class="grid-item">3</div>
+        <div class="grid-item">4</div>
+        <div class="grid-item">5</div>
+        <div class="grid-item">6</div>
+        <div class="grid-item">6</div>
+    </div>
+</body>
+
+</html>

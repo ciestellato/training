@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フォームの入力値表示</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input,
+        select,
+        textarea {
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>ユーザー情報入力フォーム</h1>
+
+    <form name="userForm">
+        <!-- 姓と名の入力フィールド -->
+        <div>
+            <label for="lastName">姓:</label>
+            <input type="text" name="lastName">
+        </div>
+
+        <div>
+            <label for="firstName">名:</label>
+            <input type="text" name="firstName">
+        </div>
+
+        <!-- メールアドレスの入力フィールド -->
+        <div>
+            <label for="email">メールアドレス:</label>
+            <input type="email" name="email">
+        </div>
+
+        <!-- 性別のラジオボタン -->
+        <div>
+            <label>性別:</label>
+            <input type="radio" name="gender" value="男" style="display:inline-block;">
+            <label style="display:inline-block; margin-right:10px;">男</label>
+            <input type="radio" name="gender" value="女" style="display:inline-block;">
+            <label style="display:inline-block;">女</label>
+        </div>
+
+        <!-- 趣味のチェックボックス -->
+        <div>
+            <label>趣味:</label><br>
+            <label style="display:inline;">コンピュータ</label>
+            <input type="checkbox" name="hobbies" value="コンピュータ">
+            <label style="display:inline;">読書</label>
+            <input type="checkbox" name="hobbies" value="読書">
+            <label style="display:inline;">スポーツ</label>
+            <input type="checkbox" name="hobbies" value="スポーツ">
+            <label style="display:inline;">アウトドア</label>
+            <input type="checkbox" name="hobbies" value="アウトドア">
+            <label style="display:inline;">散歩</label>
+            <input type="checkbox" name="hobbies" value="散歩">
+        </div>
+        <!-- ボタン -->
+        <div>
+            <button type="button" onclick="displayValues()">送信</button>
+            <button type="reset">キャンセル</button>
+            <button type="button" onclick="setDummyData()">ダミーデータをセット</button>
+        </div>
+    </form>
+
+
+    <script>
+
+        // ダミーデータをフォームにセットする関数
+        function setDummyData() {
+            // name属性を使ってフォーム要素を取得
+            const form = document.userForm;
+
+            // 各入力フィールドにダミーデータを設定
+            form.lastName.value = '山田';
+            form.firstName.value = '太郎';
+            form.email.value = 'taro.yamada@example.com';
+        }
+
+        // 入力値データを取得して表示する関数
+        function displayValues() {
+            // name属性を使ってフォーム要素を取得
+            const form = document.userForm;
+
+            // 各入力値に直接アクセス
+            const lastName = form.lastName.value;
+            const firstName = form.firstName.value;
+            const email = form.email.value;
+
+            // 性別（ラジオボタン）の値を取得する部分
+            let gender = '未選択'; // 初期値を「未選択」に設定
+
+            // ラジオボタンのname属性は同じなので、form.genderで全要素が取得できる
+            // 取得した各ラジオボタンをループ処理
+            for (const radio of form.gender) {
+                // `checked`プロパティは、選択されている場合に`true`を返す
+                if (radio.checked) {
+                    gender = radio.value; // 選択されたラジオボタンの`value`を取得
+                    break; // 選択されたらループを抜ける（ラジオボタンは1つしか選択されないため）
+                }
+            }
+
+            // 趣味（チェックボックス）の値を取得する部分
+            const hobbies = []; // 選択された趣味を格納するための空の配列
+
+            // チェックボックスのname属性は同じなので、form.hobbiesで全要素が取得できる
+            // 取得した各チェックボックスをループ処理
+            for (const checkbox of form.hobbies) {
+                // `checked`プロパティは、チェックされている場合に`true`を返す
+                if (checkbox.checked) {
+                    hobbies.push(checkbox.value); // チェックされている要素の`value`を配列に追加
+                }
+            }
+
+            // 結果を表示するテキストを生成
+            const outputText = `
+姓: ${lastName}
+名: ${firstName}
+メールアドレス: ${email}
+性別: ${gender}
+趣味: ${
+                // `hobbies`配列に要素があるかチェック（`length > 0`）
+                // 配列に要素があれば（true）、`join(', ')`で要素をカンマとスペースで連結して文字列にする
+                // 配列に要素がなければ（false）、'未選択'という文字列を返す
+                hobbies.length > 0 ? hobbies.join(', ') : '未選択'
+                }
+            `;
+
+            // alert()に置き換える
+            alert(outputText);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        /* ---------- ●PCでは横並びで表示 -------- */
+        .container {
+            display: flex;
+            /* 子要素をFlexboxコンテナとして横に並べる */
+            margin: 0 auto;
+            /* 左右のマージン（間隔）を自動調整し、要素を中央に配置する */
+        }
+
+        .header {
+            height: 100px;
+            /* ヘッダーの高さを100pxに設定 */
+            background-color: #eee;
+            /* ヘッダーの背景色を薄いグレーに設定 */
+            padding: 20px;
+            /* ヘッダーの内側に20pxの余白を設定 */
+        }
+
+        .main {
+            flex: 3;
+            /* Flexboxの比率を3とし、他の要素より広くする */
+            background-color: #f9f9f9;
+            /* メインコンテンツの背景色を設定 */
+            padding: 20px;
+            /* メインコンテンツの内側に20pxの余白を設定 */
+        }
+
+        .sidebar {
+            flex: 1;
+            /* Flexboxの比率を1とし、メインコンテンツより狭くする */
+            background-color: #ddd;
+            /* サイドバーの背景色を濃いグレーに設定 */
+            padding: 20px;
+            /* サイドバーの内側に20pxの余白を設定 */
+        }
+
+        /* ---------- ●幅の狭いスマホなどでは縦並びで表示 -------- */
+
+        /* 画面幅が768px以下の場合（タブレット・スマホ） */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                /* 縦並びにする */
+            }
+
+            .sidebar {
+                order: -1;
+                /* サイドバーをヘッダーのすぐ下に移動する */
+            }
+        }
+
+        /* 画面幅が480px以下の場合（スマホ） */
+        @media (max-width: 480px) {
+
+            .header,
+            .main,
+            .sidebar {
+                font-size: 14px;
+                /* フォントサイズを小さくする */
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">ヘッダー</div>
+        <div class="main">メインコンテンツ</div>
+        <div class="sidebar">サイドバー</div>
+    </div>
+
+</body>
+
+</html>

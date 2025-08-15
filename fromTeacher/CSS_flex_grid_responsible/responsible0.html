@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!-- 以下の設定がないと、モバイルデバイスのブラウザはPCサイトを縮小して表示しようとします。
+     その結果、文字が小さくなり、ユーザーが拡大しないと読めなくなってしまいます。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>レスポンシブデザインのサンプル</title>
+
+    <style>
+        /* デフォルト（PC）スタイル */
+        body {
+            background-color: lightcoral;
+            font-size: 1.5em;
+        }
+
+        /* タブレット向け（1023px以下） */
+        @media (max-width: 1023px) {
+            body {
+                background-color: lightgreen;
+                font-size: 1em;
+            }
+        }
+
+        /* スマホ向け（767px以下） */
+        @media (max-width: 767px) {
+            body {
+                background-color: lightblue;
+                font-size: 0.7em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>このページの背景色は、画面サイズによって変わります。</h1>
+
+    <p>
+        メディアクエリで使用するブレイクポイント（画面幅の閾値）は、以下のサイズが一般的です。<br>
+        ・スマートフォン: 767px以下 (max-width: 767px)<br>
+        ・タブレット: 768px〜1023px<br>
+        ・PC: 1024px以上 (min-width: 1024px)<br>
+    </p>
+</body>
+
+</html>

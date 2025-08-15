@@ -1,0 +1,104 @@
+/* モバイル優先CSS定義 */
+
+/* 全体に共通の基本スタイル (モバイルファースト) */
+
+/* モバイル向けのメニュー（デフォルト） */
+nav ul {
+    list-style: none;
+    /* リストの点（・）を非表示にする */
+    padding: 0;
+    /* デフォルトのパディングをリセット */
+    margin: 0;
+    /* デフォルトのマージンをリセット */
+}
+
+nav li a {
+    display: block;
+    /* リンク全体をタップしやすくする */
+    padding: 15px;
+    /* 上下の余白 */
+    border-bottom: 1px solid #ccc;
+    /* 下線を追加 */
+    text-decoration: none;
+    /* 下線を非表示にする */
+    color: #333;
+}
+
+.news-list {
+    /* ニュース記事を非表示にする */
+    display: none;
+}
+
+.product-list {
+    display: flex;
+    /* Flexboxコンテナとして設定し、子要素を柔軟に配置 */
+    flex-direction: column;
+    /* アイテムを縦方向に並べる（モバイル向け） */
+    gap: 20px;
+    /* アイテム間の余白を20pxに設定 */
+    padding: 10px;
+    /* コンテナの内側の余白を10pxに設定 */
+}
+
+.product-item {
+    text-align: center;
+    /* 子要素（画像やテキスト）を中央寄せにする */
+    border: 1px solid #ccc;
+    /* 枠線を薄い灰色で設定 */
+    padding: 15px;
+    /* 枠線とコンテンツの間の余白を15pxに設定 */
+    border-radius: 8px;
+    /* 角を丸くする */
+}
+
+.product-item img {
+    max-width: 100%;
+    /* 画像の最大幅を親要素の100%に設定 */
+    height: auto;
+    /* 幅に合わせて高さを自動調整する */
+}
+
+
+/* --- PC向けのスタイル (横並び) --- */
+/* 768px以上の画面幅に適用 */
+@media screen and (min-width: 768px) {
+
+    /* PC向けのメニュー（横並び） */
+    nav ul {
+        display: flex;
+        /* Flexboxコンテナとして設定 */
+        justify-content: flex-start;
+        /* アイテムを右寄せにする */
+    }
+
+    nav li a {
+        padding: 10px 20px;
+        /* 左右の余白を増やす */
+        border-bottom: none;
+        /* 下線を非表示にする */
+    }
+
+    .product-list {
+        flex-direction: row;
+        /* アイテムを横方向に並べる（PC向け） */
+        flex-wrap: wrap;
+        /* 画面幅が足りなくなったら、アイテムを次の行に折り返す */
+        justify-content: space-around;
+        /* アイテムを均等に配置し、両端にも余白を作る */
+    }
+
+    .product-item {
+        /* 1行に3つのアイテムを並べるために幅を計算(※30.333%を若干修正した！) */
+        width: calc(30.333% - 13.333px);
+        /* 100% / 3 - (gap * 2 / 3) を設定 */
+    }
+
+    .news-list {
+        /* display: block; 要素をブロックレベル要素として表示する。
+       横幅は 親要素いっぱいに広がる。
+       前後に他の要素があれば、その前後に改行が入る */
+        display: block;
+        /* ニュースを表示する */
+    }
+
+}

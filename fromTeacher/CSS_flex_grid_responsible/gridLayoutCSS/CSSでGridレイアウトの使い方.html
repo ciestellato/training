@@ -1,0 +1,68 @@
+<p>CSS Gridのサンプルコードについて、初心者の方にも分かりやすいように解説します。</p>
+<p>このコードは、ウェブページで要素を格子状に並べるためのCSS Gridという機能を使っています。例えるなら、<strong>エクセル（Excel）の表</strong>のようなものを作るイメージです。
+    Flexレイアウトが１次元のレイアウトを得意とするのに対して、Gridレイアウトが２次元のレイアウトを得意とします。</p>
+<hr />
+<h3>1. <code>grid-container</code>（親要素）の設定</h3>
+<p>まず、<code>grid-container</code>というクラスが付いた<code>&lt;div&gt;</code>が、グリッドの全体を管理する「<strong>親要素</strong>」となります。この親要素に、グリッドを動かすための設定を書いていきます。
+</p>
+<ul>
+    <li>
+        <p><strong><code>display: grid;</code></strong>: 👨‍💻これが一番重要！この1行で、この要素がCSS
+            Gridとして動き出すことを宣言しています。この要素の中に含まれる子要素（<code>.grid-item</code>）は、自動的にグリッドのセルに配置されるようになります。</p>
+    </li>
+    <li>
+        <p><strong><code>grid-template-columns: 1fr 1fr 1fr;</code></strong>: 🔢横方向の列（カラム）をどう並べるかを決めています。</p>
+        <ul>
+            <li><code>1fr</code>は「<strong>利用できる空間を1つ分使う</strong>」という意味です。</li>
+            <li><code>1fr 1fr 1fr</code>と書くことで、<strong>3つの列を均等な幅</strong>で作りなさい、という指示になります。</li>
+        </ul>
+    </li>
+    <li>
+        <p><strong><code>grid-template-rows: 100px 100px;</code></strong>: 📏縦方向の行（ロウ）をどう並べるかを決めています。</p>
+        <ul>
+            <li><code>100px</code>と書くことで、<strong>高さを100ピクセル</strong>に設定しています。</li>
+            <li><code>100px 100px</code>と書くと、<strong>高さ100pxの行を2つ</strong>作りなさい、という指示になります。</li>
+        </ul>
+    </li>
+    <li>
+        <p><strong><code>gap: 10px;</code></strong>: 🖼️それぞれのマス（セル）の間隔を調整しています。</p>
+        <ul>
+            <li><code>10px</code>は「<strong>10ピクセル分の隙間</strong>」を空けるという意味です。</li>
+            <li>行と列の間すべてに、10pxの隙間ができます。</li>
+        </ul>
+    </li>
+</ul>
+<p>これらの設定により、<strong>「横3列、縦2行」</strong> のグリッドが完成します。</p>
+<hr />
+<h3>2. <code>grid-item</code>（子要素）の設定</h3>
+<p>次に、<code>.grid-container</code>の中にある<code>grid-item</code>というクラスが付いた<code>&lt;div&gt;</code>が、グリッドの中に配置される「<strong>子要素</strong>」です。これらの要素は、自動的にグリッドのマス目の中に順番に入っていきます。
+</p>
+<ul>
+    <li><strong><code>background-color: #4CAF50;</code></strong>: 背景色を緑色にしています。</li>
+    <li><strong><code>color: white;</code></strong>: 文字の色を白色にしています。</li>
+    <li><strong><code>text-align: center;</code></strong>: 文字をセルの<strong>中央</strong>に配置しています。</li>
+    <li><strong><code>line-height: 100px;</code></strong>:
+        これは少し特別な設定です。<code>line-height</code>を<code>grid-template-rows</code>で指定した高さと同じ<code>100px</code>にすることで、文字が<strong>垂直方向にも中央</strong>に揃います。
+    </li>
+    <li><strong><code>font-size: 2em;</code></strong>: フォントのサイズを大きくして、見やすくしています。</li>
+</ul>
+<p>このHTMLとCSSを組み合わせると、下のようなレイアウトが完成します。</p>
+<p><strong>実行結果イメージ</strong></p>
+<table border="1">
+    <thead>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+        </tr>
+    </tbody>
+</table>
+<p><code>grid-container</code>に設定した<code>gap</code>のおかげで、それぞれのセルの間に10pxの隙間ができていますね。</p>
+<p>CSS Gridは、このように親要素に設定を集中させるだけで、中の要素のレイアウトをとても簡単に組むことができる便利な機能です。</p>
