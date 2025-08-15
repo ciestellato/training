@@ -1,0 +1,80 @@
+@charset "UTF-8";
+/* ベース設定 */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #FAEDCA;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* ヘッダー */
+header {
+  background-color: #F2C078;
+  padding: 20px;
+  text-align: center;
+  color: #333;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5em;
+}
+
+/* ナビゲーション */
+nav {
+  background-color: #C1DBB3;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+nav a {
+  color: #FE5D26;
+  text-decoration: none;
+  margin: 0 15px;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* メインコンテンツ */
+main {
+  padding: 40px 20px;
+}
+
+/* セクション */
+section {
+  margin-bottom: 40px;
+  background-color: #ffffff;
+  border-left: 8px solid #FE5D26;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* ボタン */
+.button {
+  background-color: #FE5D26;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #d94e1f;
+}
+
+/* フッター */
+footer {
+  background-color: #C1DBB3;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9em;
+  color: #333;
+}

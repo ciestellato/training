@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海外旅行案内</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        let isColor = false;
+        function changeImg(){
+            window.setTimeout("document.topimg.src='../basic/image/pic14.jpg'",2000);
+        }
+    </script>
+</head>
+<body onload="changeImg()">
+    <div class="honbun">
+        <h1>ABCトラベル</h1>
+        <p>
+            <img src="../basic/image/picmono14.jpg" alt="海外の素敵な場所案内" height="300" name="topimg">
+        </p>
+        <p class="text">
+            おすすめの海外リゾート今すぐクリック！
+        </p>
+        <p>
+            <img src="../basic/image/hawaii.gif" alt="ハワイ" width="156" height="156" class="menu">
+            <img src="../basic/image/singapore.gif" alt="シンガポール" width="156" height="156" class="menu">
+            <img src="../basic/image/malaysia.gif" alt="マレーシア" width="156" height="156" class="menu">
+        </p>
+        <p class="foot">&copy;ABC.TRAVEL CO.,LTD.</p>
+    </div>
+</body>
+</html>

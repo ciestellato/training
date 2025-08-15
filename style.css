@@ -1,0 +1,58 @@
+@charset "UTF-8";
+/* ベーススタイル */
+body {
+  background-color: #FEFBC7;
+  color: #333;
+  font-family: 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 2rem;
+}
+
+/* 見出し */
+h1, h2, h3 {
+  color: #5EABD6;
+  margin-bottom: 1rem;
+}
+
+/* 段落 */
+p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+/* リンク */
+a {
+  color: #5EABD6;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #E14434;
+}
+
+/* ボタン風スタイル */
+.button {
+  display: inline-block;
+  background-color: #FFB4B4;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #E14434;
+}
+
+/* セクションの装飾 */
+section {
+  background-color: #fff;
+  border-left: 5px solid #5EABD6;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}

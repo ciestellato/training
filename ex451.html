@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>アンケートフォーム</title>
+    <script>
+        function sendForm() {
+            let hen_sei = window.document.forms[0].elements[0].value;
+            let hen_mei = window.document.forms[0].elements[1].value;
+            let hen_mail = window.document.forms[0].elements[2].value;
+            if (window.document.forms[0].elements[3].checked == true) {
+                hen_seibesu = "男性";
+            } else {
+                hen_seibesu = "女性";
+            }
+
+            function ch_Name(va) {
+                if(va=="com"){return "コンピュータ"};
+                if(va=="rd"){return "読書"};
+                if(va=="sp"){return "スポーツ"};
+                if(va=="od"){return "アウトドア"};
+                if(va=="sn"){return "散歩"};
+                if(va=="mu"){return "音楽"};
+                if(va=="eat"){return "グルメ"};
+            }
+            
+            let hen_hyouji = "";
+            for (let i=5;i<=11;i++){
+                if (window.document.forms[0].elements[i].checked==true){
+                    hen_hyouji=hen_hyouji+ch_Name(window.document.forms[0].elements[i].value)+",";
+                }
+            }
+            window.document.write("姓名:",hen_sei + hen_mei, "<br>メールアドレス:",hen_mail,
+                "<br>性別:",hen_seibesu,"<br>趣味:",hen_hyouji
+            );
+        }
+    </script>
+    <style>
+        body{
+            background-color: #568F87;
+            color: #F5BABB;
+        }
+        p{
+            background-color: #F5BABB;
+            color: #064232;
+        }
+        .button{
+            background-color: #064232;
+            color: #F5BABB;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+    <form>
+        <p>
+            姓<input type="text" name="sei" maxlength="10">
+            名<input type="text" name="mei" maxlength="10"><br>
+            メールアドレス<input type="email" name="mail" maxlength="30">
+        </p>
+        <p>
+            性別<br>
+            男性<input type="radio" name="ra" value="m">
+            女性<input type="radio" name="ra" value="f">
+        </p>
+        <p>
+            趣味<br>
+            <input type="checkbox" name="shumi" value="com">コンピュータ<br>
+            <input type="checkbox" name="shumi" value="rd">読書<br>
+            <input type="checkbox" name="shumi" value="sp">スポーツ<br>
+            <input type="checkbox" name="shumi" value="od">アウトドア<br>
+            <input type="checkbox" name="shumi" value="sn">散歩<br>
+            <input type="checkbox" name="shumi" value="mu">音楽<br>
+            <input type="checkbox" name="shumi" value="eat">グルメ
+        </p>
+        <p>
+            <input type="submit" value="送信" onclick="sendForm()" class="button">
+            <input type="reset" value="キャンセル" class="button">
+        </p>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>onclick</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        let i = 0;
+        function change(){
+            i++;
+            if(i==7){i=0};
+            document.shashin.src="basic/image/pic"+i+".jpg";
+        }
+    </script>
+</head>
+<body>
+    <img src="basic/image/pic0.JPG" alt="画像" name="shashin" height="300">
+    <form>
+        <input type="button" value="写真が変わります" width="30" onclick="change()">
+    </form>
+</body>
+</html>
