@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="港区のお散歩情報。素敵な場所をたくさん紹介しています。">
+    <meta name="keywords" content="港区,お散歩,東京タワー,レインボーブリッジ">
+    <title>お散歩情報</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        function sendForm() {
+            const form = document.forms['inquiry'];
+            const familyName = form.elements['familyName'].value;
+            const firstName = form.elements['firstName'].value;
+            const mail = form.elements['mail'].value;
+            const sex = form.elements['sex'].value;
+            const comment = form.elements['comment'].value;
+
+            // 趣味の取得
+            const hobbies = Array.from(form.querySelectorAll('input[name="hobby"]:checked'))
+                .map(el => ch_Name(el.value))
+                .join(', ');
+
+            // 結果表示
+            const result = `
+                <h3>* 下記の内容で受け付けました *</h3>
+                <p>姓名: ${familyName} ${firstName}</p>
+                <p>メールアドレス: ${mail}</p>
+                <p>性別: ${sex}</p>
+                <p>興味: ${hobbies}</p>
+                <p>ご意見・ご感想: ${comment}</p>
+            `;
+            document.getElementById('result').innerHTML = result;
+        }
+
+        function ch_Name(val) {
+            const map = {
+                grm: "グルメ",
+                tmp: "テーマパーク",
+                bty: "美容",
+                shp: "ショッピング",
+                wal: "散歩"
+            };
+            return map[val] || "";
+        }
+
+        function setDummy() {
+            const f = document.forms['inquiry'];
+            f.elements['familyName'].value = "山田";
+            f.elements['firstName'].value = "太郎";
+            f.elements['mail'].value = "yamada@example.com";
+            f.elements['sex'].value = "m";
+            f.elements['comment'].value = "楽しいサイトですね！";
+        }
+    </script>
+</head>
+
+<body>
+    <div id="page">
+        <header>
+            <h1>お散歩しませんか？</h1>
+        </header>
+        <nav>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="bridge.html">レインボーブリッジ</a></li>
+                <li><a href="tower.html">東京タワー</a></li>
+                <li><a href="schedule.html">イベント情報</a></li>
+                <li><a href="form.html" class="now">お問い合わせ</a></li>
+            </ul>
+        </nav>
+        <article>
+            <h2>当サイトへのご意見・ご感想をお寄せください。</h2>
+            <p>メールアドレスをご記入いただいた方には、お得な情報をお送りいたします。</p>
+
+            <form name="inquiry" onsubmit="return false;">
+                <p>
+                    姓<input type="text" name="familyName" size="20">
+                    名<input type="text" name="firstName" size="20"><br>
+                    メールアドレス<input type="email" name="mail" size="40">
+                </p>
+                <p>
+                    性別<br>
+                    男性<input type="radio" name="sex" value="m">
+                    女性<input type="radio" name="sex" value="f">
+                    無回答<input type="radio" name="sex" value="n" checked>
+                </p>
+                <p>
+                    興味のあること<br>
+                    <input type="checkbox" name="hobby" value="grm">グルメ<br>
+                    <input type="checkbox" name="hobby" value="tmp">テーマパーク<br>
+                    <input type="checkbox" name="hobby" value="bty">美容<br>
+                    <input type="checkbox" name="hobby" value="shp">ショッピング<br>
+                    <input type="checkbox" name="hobby" value="wal">散歩
+                </p>
+                <p>
+                    ご意見・ご感想<br>
+                    <textarea name="comment" cols="80" rows="3"></textarea>
+                </p>
+                <p>
+                    <input type="button" value="送信" onclick="sendForm()">
+                    <input type="reset" value="クリア">
+                    <input type="button" value="ダミー" onclick="setDummy()">
+                </p>
+            </form>
+
+            <div id="result" style="margin-top:20px; background:#f0f0f0; padding:10px;"></div>
+        </article>
+        <footer>
+            Copyright &copy; 2012- 散歩girl, All rights reserved.
+        </footer>
+    </div>
+</body>
+
+</html>
