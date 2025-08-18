@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>子要素を横並びにする</title>
+    <style>
+        .flex-container {
+            /* これがFlexboxを有効にする最も重要な設定です */
+            display: flex;
+
+            /* 見やすくするために背景色や余白を設定 */
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .flex-item {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            margin: 5px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex-container">
+        <div class="flex-item">アイテム1</div>
+        <div class="flex-item">アイテム2</div>
+        <div class="flex-item">アイテム3</div>
+    </div>
+</body>
+
+</html>
