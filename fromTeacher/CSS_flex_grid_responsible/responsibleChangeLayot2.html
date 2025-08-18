@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>レスポンシブ記事レイアウト</title>
+
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <style>
+        /* style.css */
+
+        /* ページ全体の余白をなくし、背景色を設定 */
+        body {
+            margin: 0;
+            /* ブラウザのデフォルト余白を除去 */
+            font-family: sans-serif;
+            /* 読みやすいフォントを指定 */
+            background-color: #f9f9f9;
+            /* 薄いグレーの背景色 */
+        }
+
+        /* 記事を囲むコンテナの設定 */
+        .container {
+            display: flex;
+            /* Flexboxでレイアウト */
+            flex-wrap: wrap;
+            /* 子要素を折り返し可能にする */
+            justify-content: center;
+            /* 中央揃えにする */
+            gap: 20px;
+            /* 要素間の余白を20pxに設定 */
+            padding: 20px;
+            /* コンテナ内の余白を設定 */
+        }
+
+        header {
+            margin-top: 20px;
+            text-align: center;
+            /* 文章を中央揃えに */
+            font-size: 25px;
+            font-weight: bold;
+            color: blue;
+        }
+
+        /* 各記事のスタイル */
+        .article {
+            background-color: #fff;
+            /* 白背景でカード風に */
+            border: 1px solid #ccc;
+            /* 薄いグレーの枠線 */
+            padding: 30px;
+            /* 内側の余白を広めに設定 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            /* ほんのり影をつける */
+            text-align: center;
+            /* 文章を中央揃えに */
+            font-size: 18px;
+            /* 読みやすい文字サイズ */
+            flex: 1 1 calc(33.333% - 40px);
+            /* 3列レイアウト（余白考慮） */
+            box-sizing: border-box;
+            /* paddingやborderを含めて幅を計算 */
+        }
+
+
+        /* タブレットサイズ（768px以上1024px以下）のレイアウト変更 */
+        @media screen and (min-width: 768px) and (max-width: 1024px) {
+            .article {
+                flex: 1 1 calc(50% - 40px);
+                /* 2列表示にする（余白を考慮） */
+            }
+        }
+
+
+
+        /* モバイルサイズ（768px以下）のレイアウト変更 */
+        @media screen and (max-width: 768px) {
+            .article {
+                flex: 1 1 100%;
+                /* 幅100%で1列表示に切り替え */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>Webデザインの進化</header>
+    <div class="container">
+        <div class="article">最新のウェブ技術は日々進化しており、開発者は常に新しいトレンドに対応する必要があります。</div>
+        <div class="article">ユーザー体験を向上させるためには、デザインだけでなくパフォーマンスにも配慮することが重要です。</div>
+        <div class="article">モバイルファーストの考え方は、現代のWeb制作において欠かせない基本的なアプローチです。</div>
+        <div class="article">CSSのFlexboxやGridを活用することで、柔軟で美しいレイアウトを簡単に構築できます。</div>
+        <div class="article">JavaScriptを使えば、インタラクティブな機能を追加して、より魅力的なサイトが作れます。</div>
+        <div class="article">アクセシビリティを意識した設計は、すべてのユーザーにとって使いやすいWebを実現します。</div>
+    </div>
+</body>
+
+</html>

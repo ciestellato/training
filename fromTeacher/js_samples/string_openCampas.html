@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+        // テキストボックスに表示するメッセージ
+        const message = "オープンキャンパス開催中！次回は１月８日です。";
+
+        // メッセージの表示位置（何文字目まで表示するか）を管理する変数
+        let number = 1;
+
+        // メッセージを1文字ずつ表示する関数
+        function campmsg() {
+            // まだメッセージの最後まで到達していない場合
+            if (number <= message.length) {
+                // メッセージの先頭から「number」文字分だけ切り出して表示
+                document.form1.text1.value = message.substring(0, number);
+
+                // 次回の表示で1文字増やす
+                number = number + 1;
+            } else {
+                // メッセージの全体を表示し終えたら、最初に戻る
+                number = 1; // メッセージの長さを超えたらリセット
+            }
+        }
+    </script>
+</head>
+
+<!-- ページ読み込み時に campmsg 関数を300ミリ秒ごとに繰り返し実行する -->
+<!-- これにより、メッセージが1文字ずつ表示されるアニメーション効果が生まれる -->
+
+<body onload="setInterval(campmsg, 300);">
+
+    <h1>ABC大学へようこそ。オープンキャンパス情報</h1>
+
+    <form name="form1">
+        <input type="text" size="40" name="text1" style="border: width 1px; ;">
+    </form>
+</body>
+
+
+
+</html>

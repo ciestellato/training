@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>タイトル</title>
+	<meta name="description" content="説明">
+	<style>
+		body {
+		color: black;
+			}
+	</style>
+</head>
+<body>
+<h1 id="githubサービスに自作したウェブページをアップして公開する手順（2025年版）">GitHubサービスに自作したウェブページをアップして公開する手順（2025年版）</h1>
+<h2 id="🛠-githubアカウント作成手順">🛠 GitHubアカウント作成手順</h2>
+<h3 id="✅-1-github公式サイトにアクセス">✅ 1. GitHub公式サイトにアクセス</h3>
+<p>🔗 <a href="https://github.com">https://github.com</a></p>
+<hr>
+<h3 id="✅-2-「sign-up」ボタンをクリック">✅ 2. 「Sign up」ボタンをクリック</h3>
+<p>右上にある「Sign up」または「Get started for free」をクリックします。</p>
+<hr>
+<h3 id="✅-3-ユーザー情報を入力">✅ 3. ユーザー情報を入力</h3>
+<p>以下の項目を順番に入力します：</p>
+<ul>
+<li><p><strong>Username（ユーザー名）</strong><br>→ 公開される名前。URLにも使われます（例：<code>https://github.com/namae123</code>）</p>
+</li>
+<li><p><strong>Email address（メールアドレス）</strong><br>→ 有効なメールアドレスを入力</p>
+</li>
+<li><p><strong>Password（パスワード）</strong><br>→ 英数字・記号を含む強力なパスワードを設定（※パスワードは忘れないようメモしてください）</p>
+</li>
+</ul>
+<hr>
+<h3 id="✅-4-「verify-your-account」であなたがロボットではなく人間かを確認">✅ 4. 「Verify your account」であなたがロボットではなく人間かを確認</h3>
+<p>簡単なパズルや画像認証が表示されるので、指示に従ってクリアします。</p>
+<hr>
+<h3 id="✅-5-プラン選択（無料でok）">✅ 5. プラン選択（無料でOK）</h3>
+<p>「Free」プランを選択すれば、個人開発には十分です。</p>
+<hr>
+<h3 id="✅-6-メール認証">✅ 6. メール認証</h3>
+<p>登録したメールアドレスに確認メールが届くので、リンクをクリックして認証完了！</p>
+<hr>
+<h3 id="🎉-完了！githubアカウントが作成されました">🎉 完了！GitHubアカウントが作成されました</h3>
+<p>ログイン後は、リポジトリ作成やGitHub Pagesの公開など、いろいろな機能が使えます。</p>
+<hr>
+<h2 id="💡補足tips">💡補足Tips</h2>
+<ul>
+<li>GitHubは英語表記が多いですが、Chromeなどのブラウザで「日本語翻訳」機能を使うと安心です。</li>
+<li>ユーザー名は後から変更できますが、URLが変わるので注意！</li>
+</ul>
+<hr>
+<p>、いい流れですね！VS CodeのフォルダをGitHubにプッシュするには、まずGitをインストールしてから、ローカルフォルダをGitHubリポジトリに接続する必要があります。以下に<strong>完全ステップガイド</strong>をまとめました👇</p>
+<hr>
+<h2 id="🧰-ステップ①：gitのインストール">🧰 ステップ①：Gitのインストール</h2>
+<h3 id="✅-windowsにgitをインストール">✅ WindowsにGitをインストール</h3>
+<ol>
+<li><p>公式サイトへアクセス<br>🔗 <a href="https://git-scm.com/">https://git-scm.com/</a></p>
+</li>
+<li><p>「Download for Windows」をクリック</p>
+</li>
+</ol>
+<p><img src="images/git_download.png" alt="ダウンロード画面"></p>
+<ol start="3">
+<li><p>インストーラーを実行 → 基本は「Next」連打でOK<br>※「Git Bash」も一緒にインストールされます（便利です）</p>
+</li>
+<li><p>インストール完了後、VS Codeを再起動</p>
+</li>
+</ol>
+<hr>
+<h2 id="📁-ステップ②：vs-codeでフォルダをgit管理にする">📁 ステップ②：VS CodeでフォルダをGit管理にする</h2>
+<ol>
+<li><p>VS Codeで対象フォルダを開く</p>
+</li>
+<li><p>ターミナルを開く（<code>Ctrl + Shift + ~</code>）</p>
+</li>
+<li><p>以下のコマンドを順番に入力：</p>
+</li>
+</ol>
+<pre><code class="language-bash">git init
+</code></pre>
+<p>→ フォルダがGit管理されます</p>
+<pre><code class="language-bash">git add .
+</code></pre>
+<p>→ すべてのファイルをステージング</p>
+<pre><code class="language-bash">git commit -m "初回コミット"
+</code></pre>
+<p>→ コミット（保存）</p>
+<hr>
+<h2 id="🌐-ステップ③：githubで新しいリポジトリを作成">🌐 ステップ③：GitHubで新しいリポジトリを作成</h2>
+<ol>
+<li>GitHubにログイン  </li>
+<li>右上の「＋」→「New repository」をクリック  </li>
+<li>以下を入力：<ul>
+<li>Repository name（例：<code>my-project</code>）</li>
+<li>Public or Private（どちらでもOK）</li>
+<li>「Create repository」をクリック</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="🔗-ステップ④：ローカルフォルダとgithubを接続してプッシュ">🔗 ステップ④：ローカルフォルダとGitHubを接続してプッシュ</h2>
+<p>GitHubで作成したリポジトリ画面に表示される「HTTPS URL」を使います（例：<code>https://github.com/namae123/my-project.git</code>）</p>
+<p>VS Codeのターミナルで以下を実行：</p>
+<pre><code class="language-bash">git remote add origin https://github.com/ユーザー名/リポジトリ名.git
+git branch -M main
+git push -u origin main
+</code></pre>
+<hr>
+<h2 id="🎉-完了！">🎉 完了！</h2>
+<p>GitHub上にVS Codeのフォルダ内容がアップロードされます。<br>ブラウザでリポジトリを開くと、ファイル一覧が表示されているはずです！</p>
+<hr>
+<h2 id="💡補足tips-1">💡補足Tips</h2>
+<ul>
+<li><code>.gitignore</code> を使えば、アップロードしたくないファイルを除外できます</li>
+<li>GitHub Pagesで公開する場合は、<code>index.html</code> をルート(フォルダ直下)に置いておくと便利です</li>
+</ul>
+<hr>
+<p>、ここまで来たらもう一息ですね！<br>GitHubにプッシュしたHTMLファイルを<strong>外部公開（Webサイトとして表示）</strong>するには、GitHub Pagesを使います。以下に、<strong>完全ステップガイド</strong>をまとめました👇</p>
+<hr>
+<h2 id="🌐-github-pagesでhtmlを公開する手順">🌐 GitHub PagesでHTMLを公開する手順</h2>
+<h3 id="✅-前提条件">✅ 前提条件</h3>
+<ul>
+<li>GitHubアカウント：作成済み</li>
+<li>リポジトリ：HTMLファイルをプッシュ済み（<code>index.html</code>があるとベスト）</li>
+</ul>
+<hr>
+<h3 id="🪜-ステップ①：リポジトリ-アップロードしたデータを格納したフォルダ：例-maypage-の「settings」へ">🪜 ステップ①：リポジトリ( アップロードしたデータを格納したフォルダ：例 maypage )の「Settings」へ</h3>
+<ol>
+<li><p>GitHubで対象リポジトリを開く<br>例：<code>https://github.com/mitsuru123/mypage</code></p>
+</li>
+<li><p>上部メニューから「Settings」をクリック</p>
+</li>
+</ol>
+<hr>
+<h3 id="🪜-ステップ②：「pages」セクションを開く">🪜 ステップ②：「Pages」セクションを開く</h3>
+<ol>
+<li><p>左側メニューから「Pages」を選択<br>※「Code and automation」セクションの中にあります</p>
+</li>
+<li><p>「Source」で以下を設定：</p>
+<ul>
+<li>Branch：<code>main</code></li>
+<li>Folder：<code>/ (root)</code>（または <code>/docs</code> フォルダでも可）</li>
+</ul>
+</li>
+<li><p>「Save」ボタンをクリック</p>
+</li>
+</ol>
+<hr>
+<h3 id="🪜-ステップ③：公開urlを確認">🪜 ステップ③：公開URLを確認</h3>
+<p>設定後、数秒〜数分で、ウェブ画面を更新すると以下のような表示が出ます：</p>
+<pre><code class="language-text">Your site is published at:
+https://namae123.github.io/mypage/
+</code></pre>
+<h2 id="このurlが、外部公開されたwebページのurlです！webページのurl">このURLが、<strong>外部公開されたWebページのURL</strong>です！<br><img src="images/GitHabPagesYourURL.png" alt="WebページのURL"></h2>
+<h2 id="💡補足tips-2">💡補足Tips</h2>
+<ul>
+<li>公開するHTMLは <code>index.html</code> にすると、URL直打ちで表示されます</li>
+<li>CSSや画像ファイルも一緒にプッシュしておけば、リンクも機能します</li>
+<li>公開後に内容を更新したい場合は、ファイルを修正 → <code>git add .</code> → <code>git commit</code> → <code>git push</code> でOK</li>
+</ul>
+<hr>
+<h2 id="📦-例：フォルダ構成（vs-code）">📦 例：フォルダ構成（VS Code）</h2>
+<pre><code>mypage/
+├── index.html
+├── style.css
+├── script.js
+└── images/
+    └── logo.png
+</code></pre>
+<p>この構成をそのままGitHubにプッシュすれば、見栄えの良いWebページが公開されます✨</p>
+<hr>
+<p>VS CodeでGitHubにプッシュ済みのリポジトリに対して、<strong>ファイルを更新 → 再プッシュ</strong>する流れを、わかりやすくステップでご案内します👇</p>
+<hr>
+<h2 id="🔁-更新後のgithub再プッシュ手順（vs-code）">🔁 更新後のGitHub再プッシュ手順（VS Code）</h2>
+<h3 id="✅-ステップ①：ファイルを編集・保存">✅ ステップ①：ファイルを編集・保存</h3>
+<p>VS Codeで対象のファイル（例：<code>index.html</code>や<code>style.css</code>など）を編集し、保存します。</p>
+<hr>
+<h3 id="✅-ステップ②：変更を確認（オプション）">✅ ステップ②：変更を確認（オプション）</h3>
+<p>ターミナルを開いて（<code>Ctrl + Shift + ~</code>）、以下を実行：</p>
+<pre><code class="language-bash">git status
+</code></pre>
+<p>→ 変更されたファイルが赤字で表示されます。</p>
+<hr>
+<h3 id="✅-ステップ③：変更をステージング">✅ ステップ③：変更をステージング</h3>
+<pre><code class="language-bash">git add .
+</code></pre>
+<p>→ すべての変更をステージング（＝「準備OK」にする）</p>
+<p>※特定ファイルだけの場合は <code>git add ファイル名</code> でもOK</p>
+<hr>
+<h3 id="✅-ステップ④：コミット（変更履歴を記録）">✅ ステップ④：コミット（変更履歴を記録）</h3>
+<pre><code class="language-bash">git commit -m "更新内容の説明（例：HTMLのタイトル変更）"
+</code></pre>
+<p>→ 変更内容を記録します。メッセージは後で見返すためにも、簡潔に書くのがおすすめです。</p>
+<hr>
+<h3 id="✅-ステップ⑤：githubに再プッシュ">✅ ステップ⑤：GitHubに再プッシュ</h3>
+<pre><code class="language-bash">git push
+</code></pre>
+<p>→ GitHubに変更を反映！<br>すでに <code>origin</code> と <code>main</code> が設定されていれば、これだけでOKです。</p>
+<hr>
+<h2 id="🎉-完了！-1">🎉 完了！</h2>
+<p>GitHub上のリポジトリに、更新されたファイルが反映されます。<br>もしGitHub Pagesで公開している場合は、数秒〜数分でWebページも更新されます✨</p>
+<hr>
+<h2 id="💡補足tips-3">💡補足Tips</h2>
+<ul>
+<li><code>git log</code> で過去のコミット履歴を確認できます</li>
+<li><code>git diff</code> で変更点を比較できます（コミット前に便利）</li>
+</ul>
+<hr>
+<p>以上です。</p>
+
+</body>
+</html>

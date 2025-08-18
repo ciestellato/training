@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        header {
+            margin-bottom: 10px;
+            background: #ddd;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            border-radius: 10px
+        }
+
+        .grid {
+            display: grid;
+            /* 要素をCSSグリッドレイアウトにする */
+            gap: 10px;
+            /* グリッドアイテム間の隙間を10pxに設定 */
+            grid-template-columns: 1fr 3fr 1fr;
+        }
+
+        .main {
+            background: #fcc;
+            /* 左からの並び順 */
+            order: 2;
+            /* 2番目に表示 */
+        }
+
+        .side {
+            background: #fea;
+            order: 3;
+        }
+
+        .list {
+            background: #afd;
+            order: 1;
+            /* 1番目に表示 */
+        }
+
+        .main,
+        .side,
+        .list {
+            padding: 2%;
+            border-radius: 10px
+        }
+
+
+        @media (max-width: 760px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main,
+            .side,
+            .list {
+                order: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>タイトル</header>
+
+    <div class="grid">
+        <article class="main">
+            <h1>The Little Prince</h1>
+            <p>
+                And he went back to meet the fox.
+                "Goodbye," he said.
+                "Goodbye," said the fox. "And now here is my secret, a very simple secret: It is only with the heart
+                that one
+                can see rightly; what is essential is invisible to the eye."
+                "What is essential is invisible to the eye," the little prince repeated, so that he would be sure to
+                remember.
+                "It is the time you have wasted for your rose that makes your rose so important."
+                "It is the time I have wasted for my rose--" said the little prince, so that he would be sure to
+                remember.
+                "Men have forgotten this truth," said the fox. "But you must not forget it. You become responsible,
+                forever,
+                for what you have tamed. You are responsible for your rose . . ."
+                "I am responsible for my rose," the little prince repeated, so that he would be sure to remember.
+            </p>
+        </article>
+
+        <section class="side">
+            <h1>About</h1>
+            <p>
+                The Little Prince (French: Le Petit Prince), first published in 1943, is a novella and the most famous
+                work of the French aristocrat, writer, poet and pioneering aviator Antoine de Saint-Exupéry (1900–1944).
+            </p>
+        </section>
+
+        <section class="list">
+            <h1>Contents</h1>
+            <ul>
+                <li>Story</li>
+                <li>About</li>
+                <li>Contact</li>
+            </ul>
+        </section>
+    </div>
+</body>
+
+</html>

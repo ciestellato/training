@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=
+    , initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+        const str = "JavaScriptは楽しい！";
+        document.write(str + "<hr>");
+
+        // 文字数を取得
+        document.write("str.length: " + str.length + "<br>"); // → 13
+
+        // 指定位置の文字を取得（0番目）
+        document.write("str.charAt(0): " + str.charAt(0) + "<br>"); // → J
+
+        // 部分文字列を取得（開始位置: 0, 終了位置: 10）
+        document.write("str.substring(0, 10): " + str.substring(0, 10) + "<br>"); // → JavaScript
+
+        // 特定の文字列が含まれているか判定
+        document.write("str.includes('楽しい'): " + str.includes("楽しい") + "<br>"); // → true
+
+        // 文字列の位置を検索（最初の "a" の位置）
+        document.write("str.indexOf('a'): " + str.indexOf("a") + "<br>"); // → 1
+
+        // 文字列を置換（"楽しい" → "面白い"）
+        document.write("str.replace('楽しい', '面白い'): " + str.replace("楽しい", "面白い") + "<br>"); // → JavaScriptは面白い！
+
+        // すべて小文字に変換
+        document.write("str.toLowerCase(): " + str.toLowerCase() + "<br>"); // → javascriptは楽しい！
+
+        // すべて大文字に変換
+        document.write("str.toUpperCase(): " + str.toUpperCase() + "<br>"); // → JAVASCRIPTは楽しい！
+
+        // 文字列を分割（"は"で分割）し、配列にする
+        const parts = str.split("は");
+        document.write("str.split('は'): " + parts + "<br>"); // → JavaScript,楽しい！
+
+        // 前後の空白を除去
+        const message = "   Hello World!   ";
+        document.write("message.trim(): " + message.trim() + "<br>"); // → Hello World!
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロフィール | シンプルなウェブサイト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .header {
+            background-color: lightseagreen;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .nav {
+            background-color: blue;
+            color: gray;
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            display: inline-block;
+        }
+
+        .nav a:hover {
+            background-color: #575757;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-content h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+        }
+
+        /* レスポンシブデザインの調整 */
+        @media (max-width: 600px) {
+            .nav a {
+                display: block;
+                padding: 1rem;
+                border-bottom: 1px solid #575757;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>シンプルなウェブサイト</h1>
+    </header>
+
+    <nav class="nav">
+        <a href="index.html">ホーム</a>
+        <a href="profile.html">プロフィール</a>
+        <a href="contact.html">お問い合わせ</a>
+    </nav>
+
+    <div class="container">
+        <section class="main-content">
+            <h2>プロフィール</h2>
+            <h3>名前</h3>
+            <p>田中 太郎</p>
+
+            <h3>経歴</h3>
+            <ul>
+                <li>20XX年 XX専門学校卒業</li>
+                <li>20XX年 株式会社サンプル入社</li>
+                <li>20XX年 広報部において商品紹介ウェブ記事制作などに従事</li>
+            </ul>
+
+            <h3>スキル</h3>
+            <ul>
+                <li>HTML5</li>
+                <li>CSS3</li>
+                <li>JavaScript</li>
+            </ul>
+        </section>
+    </div>
+
+</body>
+
+</html>

@@ -2,41 +2,56 @@
 <html lang="ja">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 
-    <style>
-        .flex-container {
-            /* これがFlexboxを有効にする最も重要な設定です */
-            display: flex;
+  <style>
+    .flex-container {
+      /* これがFlexboxを有効にする最も重要な設定です */
+      display: flex;
 
-            /* flex-direction: column; */
-            /* 縦方向に並べます。 */
+      /* 子要素を縦方向に並べたい場合はコメントアウトを解除 */
+      /* flex-direction: column; */
 
-            /* 見やすくするために背景色や余白を設定 */
-            background-color: #f0f0f0;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
+      /* 背景色を淡いグレーにして視認性を向上 */
+      background-color: #f0f0f0;
 
-        .flex-item {
-            background-color: #4CAF50;
-            color: white;
-            padding: 20px;
-            margin: 5px;
-            font-size: 1.2em;
-            text-align: center;
-        }
-    </style>
+      /* コンテナ内の余白を10px確保し、要素が端にくっつかないようにする */
+      padding: 10px;
+
+      /* 枠線を薄いグレーで表示し、領域を視覚的に区切る */
+      border: 1px solid #ccc;
+    }
+
+    .flex-item {
+      /* 背景色を緑に設定し、カードを目立たせる */
+      background-color: #4CAF50;
+
+      /* テキストの色を白にして背景とのコントラストを強調 */
+      color: white;
+
+      /* 内側の余白を20px確保し、コンテンツをゆったり配置 */
+      padding: 20px;
+
+      /* アイテム間に5pxの余白を設定し、詰まりすぎないようにする */
+      margin: 5px;
+
+      /* テキストサイズを少し大きくして視認性を向上 */
+      font-size: 1.2em;
+
+      /* テキストを中央揃えにして見た目を整える */
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="flex-container">
-        <div class="flex-item">アイテム1</div>
-        <div class="flex-item">アイテム2</div>
-        <div class="flex-item">アイテム3</div>
-    </div>
+  <div class="flex-container">
+    <div class="flex-item">アイテム1</div>
+    <div class="flex-item">アイテム2</div>
+    <div class="flex-item">アイテム3</div>
+  </div>
 </body>
 
 </html>

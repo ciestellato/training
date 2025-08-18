@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!--以下は、縮小表示をしないという設定-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            /* flex-flow: row wrap; */
+            justify-content: center;
+
+            align-items: center;
+            height: 400px;
+            /* 高さがないと垂直（上下）方向で中央揃えできない */
+
+            align-content: space-between;
+
+        }
+
+        .item {
+            flex-basis: 200px;
+            padding: 10px;
+            background-color: lightblue;
+            border: 1px solid blue;
+            margin: 5px;
+
+        }
+
+
+        .item2 {
+            flex-grow: 6;
+            align-self: flex-end;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="item">Item01</div>
+        <div class="item2">Item02</div>
+        <div class="item">Item03</div>
+        <div class="item">Item04</div>
+        <div class="item">Item05</div>
+        <div class="item">Item06</div>
+        <div class="item">Item07</div>
+        <div class="item">Item08</div>
+        <div class="item">Item09</div>
+        <div class="item">Item10</div>
+        <div class="item">Item11</div>
+        <div class="item">Item12</div>
+    </div>
+</body>
+
+</html>

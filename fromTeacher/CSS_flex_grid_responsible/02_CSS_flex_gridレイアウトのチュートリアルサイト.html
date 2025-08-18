@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlexboxとGridのレイアウトサンプル</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        
+        .container {
+            border: 2px solid #3498db;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        .item {
+            padding: 20px;
+            background-color: #e74c3c;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 1.2em;
+        }
+
+        /* --- Flexbox レイアウト --- */
+        
+        /* 基本的な横並び */
+        .flex-container-row {
+            display: flex;
+            /* 子要素を横方向に並べる */
+            flex-direction: row; 
+            /* 子要素を均等に配置 */
+            justify-content: space-around; 
+            /* 垂直方向の中央揃え */
+            align-items: center; 
+        }
+
+        /* 折り返し（レスポンシブなグリッド） */
+        .flex-container-wrap {
+            display: flex;
+            /* 子要素を複数行に折り返す */
+            flex-wrap: wrap;
+            gap: 10px; /* 子要素間の隙間 */
+        }
+        .flex-container-wrap .item {
+            /* 子要素が均等にスペースを埋める */
+            flex: 1 1 200px;
+        }
+        
+        /* 順番の変更 */
+        .flex-container-order {
+            display: flex;
+        }
+        .flex-container-order .item:nth-child(1) {
+            order: 3; /* 1番目の要素を3番目に配置 */
+        }
+        .flex-container-order .item:nth-child(2) {
+            order: 1; /* 2番目の要素を1番目に配置 */
+        }
+        .flex-container-order .item:nth-child(3) {
+            order: 2; /* 3番目の要素を2番目に配置 */
+        }
+
+        /* --- Grid レイアウト --- */
+        
+        /* 2カラムのレスポンシブレイアウト */
+        .grid-container-2col {
+            display: grid;
+            /* 1fr はコンテナの利用可能なスペースを分割する単位 */
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 600px) {
+            .grid-container-2col {
+                /* 画面幅が狭い場合は1カラムにする */
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* タイル（カード）レイアウト */
+        .grid-container-tile {
+            display: grid;
+            /* 画面幅に合わせて自動で列数を調整 */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        /* グリッドテンプレートエリアを使った複雑なレイアウト */
+        .grid-container-area {
+            display: grid;
+            /* レイアウトをエリア名で定義 */
+            grid-template-areas:
+                "header header header"
+                "nav main aside"
+                "footer footer footer";
+            /* 各エリアのサイズを設定 */
+            grid-template-columns: 1fr 3fr 1fr;
+            grid-template-rows: 50px auto 50px;
+            gap: 10px;
+        }
+        
+        .grid-header { grid-area: header; background-color: #f39c12; }
+        .grid-nav { grid-area: nav; background-color: #9b59b6; }
+        .grid-main { grid-area: main; background-color: #2ecc71; }
+        .grid-aside { grid-area: aside; background-color: #e67e22; }
+        .grid-footer { grid-area: footer; background-color: #1abc9c; }
+    </style>
+</head>
+<body>
+    <h1>FlexboxとGridのレイアウトサンプル</h1>
+
+
+    <header>
+        <hr>
+        <p>参考サイト</p>
+        <ul>
+            <li><a href="https://www.webcreatorbox.com/blog/css-flexbox-cheat-sheet" target="_blank">Flexboxのチートシート</a></li>
+            <li><a href="https://www.webcreatorbox.com/blog/css-grid-basic-layout" target="_blank">Gridレイアウトの基本</a></li>
+        </ul>
+        <hr>
+    </header>
+
+       
+    <h2>Flexbox - 横並びと折り返し</h2>
+    <p><code>display: flex</code>, <code>justify-content</code>, <code>align-items</code> の組み合わせ。</p>
+    <div class="container flex-container-row">
+        <div class="item">Item 1</div>
+        <div class="item">Item 2</div>
+        <div class="item">Item 3</div>
+    </div>
+
+    <h2>Flexbox - 折り返し（レスポンシブ）</h2>
+    <p><code>flex-wrap: wrap</code> を使って、画面幅に応じて要素を折り返します。</p>
+    <div class="container flex-container-wrap">
+        <div class="item">Item A</div>
+        <div class="item">Item B</div>
+        <div class="item">Item C</div>
+        <div class="item">Item D</div>
+        <div class="item">Item E</div>
+    </div>
+    
+    <h2>Flexbox - 順序の変更</h2>
+    <p><code>order</code> プロパティを使って、HTMLの記述順と異なる表示順にします。</p>
+    <div class="container flex-container-order">
+        <div class="item">Item 1 (HTML上は1番目だが、order: 3で3番目に)</div>
+        <div class="item">Item 2 (HTML上は2番目だが、order: 1で1番目に)</div>
+        <div class="item">Item 3 (HTML上は3番目だが、order: 2で2番目に)</div>
+    </div>
+
+    <h1>Grid - 基本レイアウト</h1>
+    
+    <h2>Grid - 2カラム（レスポンシブ）</h2>
+    <p><code>grid-template-columns</code> とメディアクエリを使って、画面幅に応じてレイアウトを切り替えます。</p>
+    <div class="container grid-container-2col">
+        <div class="item" style="background-color: #2ecc71;">Main Content</div>
+        <div class="item" style="background-color: #e67e22;">Sidebar</div>
+    </div>
+    
+    <h2>Grid - タイルレイアウト</h2>
+    <p><code>repeat()</code> と <code>auto-fit</code> を使って、画面幅に応じて自動で列数を調整します。</p>
+    <div class="container grid-container-tile">
+        <div class="item" style="background-color: #f39c12;">Card 1</div>
+        <div class="item" style="background-color: #1abc9c;">Card 2</div>
+        <div class="item" style="background-color: #9b59b6;">Card 3</div>
+        <div class="item" style="background-color: #34495e;">Card 4</div>
+        <div class="item" style="background-color: #c0392b;">Card 5</div>
+        <div class="item" style="background-color: #d35400;">Card 6</div>
+    </div>
+    
+    <h2>Grid - テンプレートエリア</h2>
+    <p><code>grid-template-areas</code> でヘッダー、メイン、フッターなどの複雑なレイアウトを作成します。</p>
+    <div class="container grid-container-area">
+        <div class="item grid-header">Header</div>
+        <div class="item grid-nav">Nav</div>
+        <div class="item grid-main">Main Content</div>
+        <div class="item grid-aside">Aside</div>
+        <div class="item grid-footer">Footer</div>
+    </div>
+
+
+
+</body>
+</html>

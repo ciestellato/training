@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ホーム | シンプルなウェブサイト</title>
+    <style>
+        body {
+            /* フォントをArialか、もしなければ一般的なサンセリフ体にする */
+            font-family: Arial, sans-serif;
+            /* ブラウザのデフォルトの余白をなくす */
+            margin: 0;
+            /* 全体の背景色を薄いグレーに設定する */
+            background-color: #f4f4f4;
+            /* テキストの色を濃いグレーに設定する */
+            color: #333;
+        }
+
+        .header {
+            /* ヘッダーの背景色をライトシーグリーンにする */
+            background-color: lightseagreen;
+            /* ヘッダー内のテキストの色を白にする */
+            color: white;
+            /* ヘッダーの内側の余白を上下左右に1rem設定する */
+            padding: 1rem;
+            /* ヘッダー内のテキストを中央に揃える */
+            text-align: center;
+        }
+
+        .nav {
+            /* ナビゲーションメニューの背景色を青にする */
+            background-color: blue;
+            /* ナビゲーションメニュー内のテキストの色をグレーに設定する */
+            color: gray;
+            /* ナビゲーションメニュー内のテキストを中央に揃える */
+            text-align: center;
+            /* ナビゲーションメニューの内側の余白を上下に0.5rem設定する */
+            padding: 0.5rem;
+        }
+
+        .nav a {
+            /* ナビゲーションリンクのテキストの色を白にする */
+            color: white;
+            /* ナビゲーションリンクの下線を消す */
+            text-decoration: none;
+            /* ナビゲーションリンクの内側の余白を上下に0.5rem、左右に1rem設定する */
+            padding: 0.5rem 1rem;
+            /* ナビゲーションリンクをインラインブロック要素として扱い、幅や高さを設定できるようにする */
+            display: inline-block;
+        }
+
+        .nav a:hover {
+            /* ナビゲーションリンクにマウスが重なったときの背景色を濃いグレーにする */
+            background-color: #575757;
+        }
+
+        .container {
+            /* メインコンテンツの外側の余白を上下に0、左右に自動設定して中央に配置する */
+            margin: 0 auto;
+            /* メインコンテンツの内側の余白を上下左右に2rem設定する */
+            padding: 2rem;
+            /* メインコンテンツの最大幅を800pxに制限する */
+            max-width: 800px;
+        }
+
+        .main-content h2 {
+            /* h2要素の下に実線の黒い線を入れる */
+            border-bottom: 2px solid #333;
+            /* h2要素の下側の内側の余白を0.5rem設定する */
+            padding-bottom: 0.5rem;
+        }
+
+        /* レスポンシブデザインの調整 */
+        @media (max-width: 600px) {
+            .nav a {
+                /* 画面幅が600px以下の場合、ナビゲーションリンクをブロック要素（縦並び）にする */
+                display: block;
+                /* ナビゲーションリンクの内側の余白を上下左右に1rem設定する */
+                padding: 1rem;
+                /* ナビゲーションリンクの下側に細い線を入れる */
+                border-bottom: 1px solid #575757;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>シンプルなウェブサイト</h1>
+    </header>
+
+    <nav class="nav">
+        <a href="index.html">ホーム</a>
+        <a href="profile.html">プロフィール</a>
+        <a href="contact.html">お問い合わせ</a>
+    </nav>
+
+    <div class="container">
+        <section class="main-content">
+            <h2>ようこそ</h2>
+            <p>このページは、シンプルなウェブサイトのトップページです。ナビゲーションメニューを使って、他のページに移動できます。</p>
+            <p>このサイトは、基本的なHTMLとCSSのみで作成されており、画面サイズに合わせてレイアウトが変化する**レスポンシブデザイン**に対応しています。</p>
+        </section>
+    </div>
+
+</body>
+
+</html>

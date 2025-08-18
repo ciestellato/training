@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>元のページ</title>
+
+    <style>
+        img {
+            /* マウスカーソルをポインター（ハンドアイコン）にする */
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>画像をクリックして拡大表示</h1>
+    <img src="images/hawai1.png" alt="画像をクリック" width="200" onclick="openImagePage()">
+
+    <script>
+        function openImagePage() {
+            // 新しいウィンドウをサイズ指定で開く
+            window.open('imageSlideshow.html', '_blank', 'width=800,height=600');
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>画像表示ページ</title>
+    <style>
+        body {
+            /* 親要素（body）をFlexコンテナにする */
+            display: flex;
+            /* 子要素を縦方向に並べる */
+            flex-direction: column;
+            /* 子要素を水平方向の中央に配置する */
+            align-items: center;
+            /* 子要素を垂直方向の中央に配置する */
+            justify-content: center;
+
+            /* ページのビューポート（表示領域）の高さいっぱいにする 
+            中央寄せ: display: flex; や justify-content: center; と組み合わせて、
+            ページ全体のコンテンツを画面の真ん中に配置したい場合。
+            vh は「viewport height」の略で、
+            **ビューポートの高さの1%**を単位とする相対的な長さの単位。
+            この単位を使うことで、ユーザーの画面サイズに関わらず、
+            常に一定の比率で要素の高さを設定できるため、レスポンシブデザインの構築に非常に便利
+            */
+            height: 100vh;
+
+            /* ブラウザのデフォルトの余白をなくす */
+            margin: 0;
+            /* 背景色を薄いグレーに設定する */
+            background-color: #f0f0f0;
+        }
+
+        img {
+            /* 画像の周りに2pxの太さ、実線の黒い枠線を引く */
+            border: 2px solid #333;
+        }
+
+        button {
+            /* 上側の余白を20px設定する */
+            margin-top: 20px;
+            /* 上下に10px、左右に20pxの余白をボタンの内側に設定する */
+            padding: 10px 20px;
+            /* フォントサイズを16pxに設定する */
+            font-size: 16px;
+            /* マウスカーソルを手の形（ポインター）にする */
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>イメージスライドショー</h3>
+    <img src="images/hawai1.png" alt="拡大画像" name="slide">
+
+    <button onclick="window.close()">閉じる</button>
+
+    <script>
+        // 表示する画像ファイル名を配列として定義
+        const images = [
+            "images/hawai1.png",
+            "images/hawai2.png",
+            "images/hawai3.png",
+            "images/hawai4.png"
+        ];
+
+        // 現在表示している画像配列のインデックス（初期値は0）。値が今後変更されるので letで宣言
+        let currentIndex = 0;
+
+        // <img>画像要素を取得
+        const slide = document.slide;
+
+        // 画像を切り替える関数（次の画像に更新）
+        function changeImage() {
+            // インデックスを1つ進る。
+            currentIndex = currentIndex + 1;
+            // 画像配列のインデックスの最大値を超えたら、0に戻す
+            if(currentIndex == images.length){
+            	currentIndex = 0;
+            }
+
+            // 画像要素のsrc属性を更新して、次の画像を表示
+            slide.src = images[currentIndex];
+        }
+
+        // changeImage関数を2秒ごとに自動実行する（スライドショーの開始）
+        setInterval(changeImage, 2000); // ←関数名だけ渡すことで、繰り返し実行される
+    </script>
+</body>
+
+</html>

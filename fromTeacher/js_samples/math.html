@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathクラスの関数紹介</title>
+</head>
+
+<body>
+    <h3>JavaScript - Mathクラスの関数紹介</h3>
+
+    <script>
+        // 絶対値を求める（-10 → 10）
+        document.write("Math.abs(-10): " + Math.abs(-10) + "<br>"); // → 10
+
+        // 小数点以下を切り捨てる（3.7 → 3）
+        document.write("Math.floor(3.7): " + Math.floor(3.7) + "<br>"); // → 3
+
+        // 小数点以下を切り上げる（3.2 → 4）
+        document.write("Math.ceil(3.2): " + Math.ceil(3.2) + "<br>"); // → 4
+
+        // 四捨五入する（3.5 → 4）
+        document.write("Math.round(3.5): " + Math.round(3.5) + "<br>"); // → 4
+
+        // 最大値を求める（5, 10, 3 → 10）
+        document.write("Math.max(5, 10, 3): " + Math.max(5, 10, 3) + "<br>"); // → 10
+
+        // 最小値を求める（5, 10, 3 → 3）
+        document.write("Math.min(5, 10, 3): " + Math.min(5, 10, 3) + "<br>"); // → 3
+
+        // 乱数（0以上1未満のランダムな数値）
+        const rand = Math.random();
+        document.write("Math.random(): " + rand + "<br>"); // → 例: 0.726483...
+        document.write("乱数を整数化（0～9）: " + Math.floor(Math.random() * 10) + "<br>");
+
+        // 累乗（2の3乗 → 8）
+        document.write("Math.pow(2, 3): " + Math.pow(2, 3) + "<br>"); // → 8
+
+        // 平方根（√25 → 5）
+        document.write("Math.sqrt(25): " + Math.sqrt(25) + "<br>"); // → 5
+
+        // 円周率（πの値）
+        document.write("Math.PI: " + Math.PI + "<br>"); // → 3.141592653589793
+    </script>
+</body>
+
+</html>

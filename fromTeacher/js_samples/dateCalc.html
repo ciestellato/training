@@ -1,0 +1,23 @@
+<script>
+    /**
+     * 2つの日付の差を日数で返す関数
+     * @param {Date|string} date1 - 開始日
+     * @param {Date|string} date2 - 終了日
+     * @returns {number} - 差分（日数）
+     * どちらを使うべき？
+• 	 Math.floor()：小数点以下切り捨て。厳密に「経過した日数」を求めたいとき（例：16.5日 → 16日）
+• 	 Math.ceil()：小数点以下切り上げ。何日分の作業が必要か」など、端数も1日とみなしたいとき（例：締切まで残り16.5日 → 17日）
+     */
+    function getDateDiffInDays(date1, date2) {
+        const d1 = new Date(date1);
+        const d2 = new Date(date2);
+        // getTime()は1970年１月１日からの経過時間をミリ秒単位で返す
+        const diffTime = d2.getTime() - d1.getTime();
+        // 1秒= 1000ミリ秒、1分=60秒、1時間=60分、1日=24時間
+        // 1000 * 60 * 60 * 24 は、1日のミリ秒を表す
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    // 使用例
+    document.write(getDateDiffInDays('2025-08-01', '2025-08-18')); // → 17
+</script>

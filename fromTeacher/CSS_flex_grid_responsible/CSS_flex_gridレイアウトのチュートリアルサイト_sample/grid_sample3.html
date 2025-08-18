@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        header {
+            margin-bottom: 10px;
+            background: #ddd;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            border-radius: 10px
+        }
+
+        .grid {
+            display: grid;
+            gap: 10px;
+            /* 幅200px のボックスが一列に 4 つ並ぶ */
+            /* minmax(200px, 1fr) 各列の幅を 最小200px、最大1fr にする */
+            /* fr fraction=分数 */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            /* auto-fit で画面幅で自動的に繰り返し表示する。レスポンシ対応 */
+        }
+    </style>
+</head>
+
+<body>
+    <header>タイトル</header>
+
+    <div class="grid">
+        <div class="item">
+            <img src="images/dammy.png" alt="" />
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </p>
+        </div>
+        <div class="item">
+            <img src="images/dammy.png" alt="" />
+            <p>
+                Nulla pharetra porta sagittis. Mauris et suscipit diam. Sed sollicitudin, dui at vulputate varius.
+            </p>
+        </div>
+        <div class="item">
+            <img src="images/dammy.png" alt="" />
+            <p>
+                Integer ornare felis eu risus ultrices pharetra eu non velit.
+            </p>
+        </div>
+        <div class="item">
+            <img src="images/dammy.png" alt="" />
+            <p>
+                Sed a maximus dui, quis semper felis. Quisque tincidunt dapibus pellentesque.
+            </p>
+        </div>
+        <div class="item">
+            <img src="images/dammy.png" alt="" />
+            <p>
+                Sed eu sem lacinia, commodo orci non, vulputate neque.
+            </p>
+        </div>
+        <div class="item">
+            <img src="images/dammy.png" alt="" />
+            <p>
+                Integer ornare felis eu risus ultrices pharetra eu non velit.
+            </p>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

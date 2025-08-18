@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>一般的なブレイクポイント一覧</title>
+    <style>
+        /* ページ全体の基本スタイル設定 */
+        body {
+            font-family: sans-serif;
+            /* 読みやすくて汎用性の高いフォントを使用 */
+            background-color: #f4f4f4;
+            /* 薄いグレーの背景で柔らかい印象に */
+            padding: 20px;
+            /* 画面端との余白を確保 */
+        }
+
+        /* タイトルのスタイル */
+        h1 {
+            text-align: center;
+            /* 中央揃えで見出しを目立たせる */
+            margin-bottom: 30px;
+            /* 下に余白を設けて表との間隔を作る */
+        }
+
+        /* 表全体を囲むコンテナのスタイル */
+        .table-container {
+            display: flex;
+            /* Flexboxで縦並びにする */
+            flex-direction: column;
+            /* 子要素（行）を縦方向に並べる */
+            gap: 10px;
+            /* 行同士の間隔を10pxに設定 */
+        }
+
+        /* テーブルの各行のスタイル */
+        .row {
+            display: flex;
+            /* 行内のセルを横並びにする */
+            flex-wrap: wrap;
+            /* 画面幅に応じて折り返し可能にする */
+            background-color: #fff;
+            /* 白背景でカード風に見せる */
+            border: 1px solid #ccc;
+            /* 薄い枠線で区切りを明確に */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            /* ほんのり影をつけて立体感を出す */
+        }
+
+        /* 各セルのスタイル */
+        .cell {
+            flex: 1 1 100%;
+            /* 初期は1列表示（スマホ向け） */
+            padding: 15px;
+            /* 内側の余白を確保して読みやすく */
+            border-right: 1px solid #eee;
+            /* セル間の区切り線を薄く表示 */
+            box-sizing: border-box;
+            /* paddingやborderを含めて幅を計算 */
+        }
+
+        /* 最後のセルの右枠線を消す（見た目調整） */
+        .row .cell:last-child {
+            border-right: none;
+            /* 最後のセルには右線を表示しない */
+        }
+
+        /* ヘッダー行のスタイル */
+        .header {
+            background-color: #e0e0e0;
+            /* 灰色背景でヘッダーを強調 */
+            font-weight: bold;
+            /* 太字で見出しらしくする */
+        }
+
+        /* タブレットサイズ（768px〜1024px）のレイアウト調整 */
+        @media screen and (min-width: 768px) and (max-width: 1024px) {
+            .cell {
+                flex: 1 1 50%;
+                /* セルを2列表示に変更 */
+            }
+
+            .row.header .cell {
+                flex: 1 1 33.333%;
+                /* ヘッダーは3列表示を維持 */
+            }
+        }
+
+        /* デスクトップサイズ（1025px以上）のレイアウト調整 */
+        @media screen and (min-width: 1025px) {
+            .cell {
+                flex: 1 1 33.333%;
+                /* セルを3列表示に変更 */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>一般的なブレイクポイント（機器による画面幅）一覧</h1>
+    <div class="table-container">
+        <div class="row header">
+            <div class="cell">デバイス種別</div>
+            <div class="cell">画面幅の目安（px）</div>
+            <div class="cell">用途例・補足</div>
+        </div>
+        <div class="row">
+            <div class="cell">モバイル（縦）</div>
+            <div class="cell">〜480px</div>
+            <div class="cell">小型スマホ、縦持ち表示向け</div>
+        </div>
+        <div class="row">
+            <div class="cell">モバイル（横）</div>
+            <div class="cell">481px〜767px</div>
+            <div class="cell">横持ちスマホ、やや広めの表示領域</div>
+        </div>
+        <div class="row">
+            <div class="cell">タブレット</div>
+            <div class="cell">768px〜1024px</div>
+            <div class="cell">iPad、Androidタブレットなど</div>
+        </div>
+        <div class="row">
+            <div class="cell">小型ノートPC</div>
+            <div class="cell">1025px〜1280px</div>
+            <div class="cell">13インチ前後のノートPCなど</div>
+        </div>
+        <div class="row">
+            <div class="cell">デスクトップ</div>
+            <div class="cell">1281px〜</div>
+            <div class="cell">標準的なPC画面、ワイドモニターなど</div>
+        </div>
+    </div>
+</body>
+
+</html>

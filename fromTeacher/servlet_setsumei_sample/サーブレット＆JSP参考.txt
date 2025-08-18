@@ -1,0 +1,4 @@
+httpリクエスト・レスポンスについて分かりやすく解説
+
+https://kiyoakiweb.com/http-communication/
+

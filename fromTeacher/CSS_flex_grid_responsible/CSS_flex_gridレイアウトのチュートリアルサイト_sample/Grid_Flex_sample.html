@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧ページ</title>
+
+    <style>
+        body {
+            margin: 0;
+            /* ブラウザのデフォルト余白を削除し、画面全体を使えるようにする */
+            font-family: 'Segoe UI', sans-serif;
+            /* テキストのフォントを設定。モダンで読みやすいUIフォント */
+            background-color: #f9f9f9;
+            /* ページ全体の背景色を淡いグレーに設定し、柔らかい印象に */
+        }
+
+        .container {
+            display: grid;
+            /* 子要素をグリッドレイアウトで配置。サイドバーとメインを並べる */
+            grid-template-columns: 250px 1fr;
+            /* 左に固定幅250pxのサイドバー、右に残りスペースのメイン領域 */
+            min-height: 100vh;
+            /* コンテナの高さを画面全体に広げる。フッターがなくても下まで埋まる */
+        }
+
+        .sidebar {
+            background-color: #333;
+            /* サイドバーの背景色を濃いグレーに設定 */
+            color: #fff;
+            /* サイドバー内の文字色を白に設定し、背景とのコントラストを強調 */
+            padding: 20px;
+            /* 内側に余白を設定し、コンテンツが端にくっつかないようにする */
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+            /* 見出しの上の余白を削除し、パディングと重ならないようにする */
+        }
+
+        .sidebar ul {
+            list-style: none;
+            /* リストの先頭マーカー（●など）を非表示にする */
+            padding: 0;
+            /* リストの内側余白を削除し、整った配置にする */
+        }
+
+        .sidebar li {
+            margin: 10px 0;
+            /* リスト項目の上下に余白を設定し、読みやすくする */
+        }
+
+        .sidebar a {
+            color: #fff;
+            /* リンク文字色を白に設定し、背景との視認性を確保 */
+            text-decoration: none;
+            /* リンクの下線を削除し、すっきりした見た目に */
+        }
+
+        .main-content {
+            padding: 30px;
+            /* メイン領域の内側に余白を設定し、コンテンツを見やすくする */
+        }
+
+        .product-grid {
+            display: flex;
+            /* 商品カードを横並びに配置するためにフレックスレイアウトを使用 */
+            flex-wrap: wrap;
+            /* 横幅が足りない場合に折り返して複数行に並べる */
+            gap: 20px;
+            /* 商品カード同士の間隔を20pxに設定し、余白を確保 */
+        }
+
+        .product-card {
+            background-color: #fff;
+            /* カードの背景色を白に設定し、清潔感を演出 */
+            border: 1px solid #ddd;
+            /* 薄いグレーの枠線でカードを囲み、視覚的に区切る */
+            border-radius: 8px;
+            /* カードの角を丸めて柔らかい印象に */
+            width: calc(33.333% - 20px);
+            /* 3列レイアウト。gap分を差し引いて均等に配置 */
+            box-sizing: border-box;
+            /* paddingやborderを含めて幅を計算し、レイアウト崩れを防ぐ */
+            padding: 15px;
+            /* カード内の余白を設定し、コンテンツを整える */
+            text-align: center;
+            /* テキストや画像を中央揃えにして見た目を統一 */
+            transition: box-shadow 0.3s;
+            /* ホバー時の影の変化を滑らかにする */
+        }
+
+        .product-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            /* ホバー時に影を表示し、カードに浮き上がるような効果を与える */
+        }
+
+        .product-card img {
+            max-width: 100%;
+            /* 画像の横幅をカード内に収まるように制限 */
+            height: auto;
+            /* アスペクト比を保ったまま高さを自動調整 */
+            border-radius: 4px;
+            /* 画像の角を少し丸めて柔らかい印象に */
+        }
+
+        .product-card h3 {
+            margin: 10px 0 5px;
+            /* 商品名の上下に余白を設定し、他の要素と間隔を取る */
+        }
+
+        .product-card p {
+            color: #555;
+            /* 価格の文字色を少し暗めにして、落ち着いた印象に */
+            font-weight: bold;
+            /* 価格を太字にして強調表示 */
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 200px 1fr;
+                /* サイドバーを少し狭くする */
+            }
+
+            .product-card {
+                width: calc(50% - 20px);
+                /* 2列表示に変更 */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                display: block;
+                /* グリッドを解除して縦並びに */
+            }
+
+            .sidebar {
+                padding: 15px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .product-grid {
+                flex-direction: column;
+                /* 商品カードを縦並びに */
+                gap: 15px;
+            }
+
+            .product-card {
+                width: 100%;
+                /* カードを画面幅いっぱいに */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>メニュー</h2>
+            <ul>
+                <li><a href="#">カテゴリ1</a></li>
+                <li><a href="#">カテゴリ2</a></li>
+                <li><a href="#">カテゴリ3</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <h1>商品一覧</h1>
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="images/dammy.png" alt="商品1">
+                    <h3>商品名1</h3>
+                    <p>¥1,000</p>
+                </div>
+                <div class="product-card">
+                    <img src="images/dammy.png" alt="商品2">
+                    <h3>商品名2</h3>
+                    <p>¥1,200</p>
+                </div>
+                <div class="product-card">
+                    <img src="images/dammy.png" alt="商品3">
+                    <h3>商品名3</h3>
+                    <p>¥980</p>
+                </div>
+                <div class="product-card">
+                    <img src="images/dammy.png" alt="商品4">
+                    <h3>商品名4</h3>
+                    <p>¥1,500</p>
+                </div>
+                <div class="product-card">
+                    <img src="images/dammy.png" alt="商品5">
+                    <h3>商品名5</h3>
+                    <p>¥2,000</p>
+                </div>
+                <div class="product-card">
+                    <img src="images/dammy.png" alt="商品6">
+                    <h3>商品名6</h3>
+                    <p>¥1,800</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

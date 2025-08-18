@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせ | シンプルなウェブサイト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .header {
+            background-color: lightseagreen;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .nav {
+            background-color: blue;
+            color: gray;
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            display: inline-block;
+        }
+
+        .nav a:hover {
+            background-color: #575757;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-content h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+        }
+
+        /* レスポンシブデザインの調整 */
+        @media (max-width: 600px) {
+            .nav a {
+                display: block;
+                padding: 1rem;
+                border-bottom: 1px solid #575757;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>シンプルなウェブサイト</h1>
+    </header>
+
+    <nav class="nav">
+        <a href="index.html">ホーム</a>
+        <a href="profile.html">プロフィール</a>
+        <a href="contact.html">お問い合わせ</a>
+    </nav>
+
+    <div class="container">
+        <section class="main-content">
+            <h2>お問い合わせ</h2>
+            <p>お問い合わせは以下のメールアドレスまでお願いいたします。</p>
+            <p><strong>contact@example.com</strong></p>
+        </section>
+    </div>
+
+</body>
+
+</html>
