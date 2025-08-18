@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    
+    <!-- 以下の設定がないと、モバイルデバイスのブラウザはPCサイトを縮小して表示しようとします。
+     その結果、文字が小さくなり、ユーザーが拡大しないと読めなくなってしまいます。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floatレイアウト</title>
+
+    <!-- CSS指定 -->
+    <style>
+        .container {
+            width: 800px;
+            /* レイアウト全体の幅を800pxに設定 */
+            margin: 0 auto;
+            /* 上下の余白は0、左右は自動で中央寄せ */
+            background-color: #f0f0f0;
+            /* 背景色を薄いグレーに設定 */
+        }
+
+        header {
+            background-color: bisque;
+            /* ヘッダーの背景色をビスク（淡いオレンジ）に設定 */
+            text-align: center;
+            /* ヘッダー内のテキストを中央揃えに */
+            padding: 0.1em;
+            /* ヘッダー内の上下左右に少し余白を追加（emは相対単位） */
+        }
+
+        .sidebar {
+            float: left;
+            /* ●左側に寄せて、他の要素を右に回り込ませる */
+            width: 200px;
+            /* サイドバーの幅を200pxに設定 */
+            background-color: #cce5ff;
+            /* 背景色を淡い青に設定 */
+            padding: 10px;
+            /* 内側に10pxの余白を追加 */
+        }
+
+        .content {
+            float: right;
+            /* ●右側に寄せて、他の要素を左に回り込ませる */
+            width: 560px;
+            /* コンテンツ領域の幅を560pxに設定（800 - 200 - 余白） */
+            padding: 10px;
+            /* 内側に10pxの余白を追加 */
+        }
+
+        .footer {
+            clear: both; 
+            /* ●上のfloat指定を解除し、floatされた要素の下に配置されるようにする */
+            background-color: #ddd;
+            /* 背景色を薄いグレーに設定 */
+            text-align: center;
+            /* テキストを中央揃えに */
+            padding: 10px;
+            /* 内側に10pxの余白を追加 */
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h2>サイトタイトル</h2>
+        </header>
+
+        <div class="sidebar">
+            <h3>メニュー</h3>
+            <ul>
+                <li>ホーム</li>
+                <li>サービス</li>
+                <li>お問い合わせ</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <h3>コンテンツエリア</h3>
+            <p>
+                ここにメインの文章や画像などが入ります。
+                <br>
+                ここにメインの文章や画像などが入ります。
+                <br>
+                ここにメインの文章や画像などが入ります。
+            </p>
+
+        </div>
+
+        <div class="footer">
+            &copy; 2025 サンプルサイト
+        </div>
+    </div>
+</body>
+
+</html>
