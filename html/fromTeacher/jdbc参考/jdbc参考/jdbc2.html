@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>🧭 JDBCでデータを取り出す流れ（かんたん解説）</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>ここでは、専門用語を使わずに「JDBCでデータを取り出すコードの流れ」を、<strong>初めてプログラミングする人にもわかるように</strong>説明します。</p>
+<hr>
+
+
+Javaプログラムとデータベースとの通信イメージ
+<img src="jdbc_img.png" alt="jdbcコードイメージ" title="Javaプログラムとデータベースとの通信イメージ">
+
+<pre><code>import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class SelectEmployees {
+  public static void main(String[] args) {
+      
+    // JDBCドライバを読み込む
+    try {
+        Class.forName(&quot;org.h2.Driver&quot;);
+    } catch (ClassNotFoundException e) {
+        throw new IllegalStateException(&quot;JDBCドライバを読み込めませんでした&quot;);
+    }	
+    
+    // データベースに接続
+    try (Connection conn = DriverManager.getConnection(&quot;jdbc:h2:tcp://localhost/~/example&quot;, &quot;sa&quot;, &quot;&quot;)) {
+
+      // SELECT文を準備
+      String sql = &quot;SELECT ID,NAME,AGE FROM EMPLOYEES&quot;;
+      PreparedStatement pStmt = conn.prepareStatement(sql);
+
+      // SELECT文を実行し、結果表（ResultSet）を取得
+      ResultSet rs = pStmt.executeQuery();
+
+      // 結果表に格納されたレコードの内容を表示
+      while (rs.next()) {
+        String id = rs.getString(&quot;ID&quot;);
+        String name = rs.getString(&quot;NAME&quot;);
+        int age = rs.getInt(&quot;AGE&quot;);
+
+        // 取得したデータを出力
+        System.out.println(&quot;ID:&quot; + id);
+        System.out.println(&quot;名前:&quot; + name);
+        System.out.println(&quot;年齢:&quot; + age + &quot;\n&quot;);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+}
+</code></pre>
+<h2 id="🧭_JDBCでデータを取り出す流れ（かんたん解説）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🧭 JDBCでデータを取り出す流れ（かんたん解説）<a href="#🧭_JDBCでデータを取り出す流れ（かんたん解説）" title="🧭_JDBCでデータを取り出す流れ（かんたん解説）"><i class="headlink" style="display:none;"></i></a></h2>
+<h3 id="①_データベースと話すための準備をする" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">① データベースと話すための準備をする<a href="#①_データベースと話すための準備をする" title="①_データベースと話すための準備をする"><i class="headlink" style="display:none;"></i></a></h3>
+<p>まず、「H2」というデータベースと会話するための“通訳”を呼び出します。これが「ドライバーを読み込む」という作業です。これがないと、Javaはデータベースと話せません。</p>
+<hr>
+<h3 id="②_データベースに「こんにちは」と言ってつながる" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">② データベースに「こんにちは」と言ってつながる<a href="#②_データベースに「こんにちは」と言ってつながる" title="②_データベースに「こんにちは」と言ってつながる"><i class="headlink" style="display:none;"></i></a></h3>
+<p>次に、データベースに「つながっていいですか？」とお願いして、つながります。ここで、どこにあるデータベースなのか（住所）、誰としてつながるのか（ユーザー名）、合言葉（パスワード）を伝えます。</p>
+<hr>
+<h3 id="③_「この情報をください」とお願いする" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">③ 「この情報をください」とお願いする<a href="#③_「この情報をください」とお願いする" title="③_「この情報をください」とお願いする"><i class="headlink" style="display:none;"></i></a></h3>
+<p>つながったら、「EMPLOYEESという場所にある、ID・名前・年齢を見せてください」とお願いする文章（SQL）を作ります。</p>
+<hr>
+<h3 id="④_データベースが返してくれた情報を受け取る" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">④ データベースが返してくれた情報を受け取る<a href="#④_データベースが返してくれた情報を受け取る" title="④_データベースが返してくれた情報を受け取る"><i class="headlink" style="display:none;"></i></a></h3>
+<p>お願いしたら、データベースが「はい、これがその情報です」と返してくれます。それを1行ずつ取り出して、画面に表示します。</p>
+<hr>
+<h3 id="⑤_最後に「ありがとう」と言ってつながりを切る" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">⑤ 最後に「ありがとう」と言ってつながりを切る<a href="#⑤_最後に「ありがとう」と言ってつながりを切る" title="⑤_最後に「ありがとう」と言ってつながりを切る"><i class="headlink" style="display:none;"></i></a></h3>
+<p>すべて終わったら、「もうつながってなくて大丈夫です」と言って、きちんと手を離します。これを忘れると、次に誰かが使おうとしても使えなくなることがあります。</p>
+<hr>
+<h2 id="🧠_まとめると…" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🧠 まとめると…<a href="#🧠_まとめると…" title="🧠_まとめると…"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-text">1. 通訳を呼ぶ（ドライバーを読み込む）
+2. データベースにつながる
+3. 欲しい情報をお願いする（SQLを書く）
+4. 返ってきた情報を取り出す
+5. つながりを切る（後片付け）
+</code></pre>
+<hr>
+<p><br>ここでは「PreparedStatement」と「ResultSet」が何をしているのかを、<strong>初めてJDBCに触れる人でもわかるように</strong>説明します。</p>
+<hr>
+<h2 id="🧾_PreparedStatement（プリペアドステートメント）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🧾 PreparedStatement（プリペアドステートメント）<a href="#🧾_PreparedStatement（プリペアドステートメント）" title="🧾_PreparedStatement（プリペアドステートメント）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-java">PreparedStatement pStmt = conn.prepareStatement(sql);
+</code></pre>
+<p>これは、データベースに「こんなお願いをしますよ」と<strong>事前に伝えるための準備</strong>です。</p>
+<p>たとえるなら：</p>
+<blockquote>
+<p>📄「この紙に書いたお願い（SQL文）を、あとで渡しますね」と言って、先に紙を用意しておく感じ。</p>
+</blockquote>
+<p>このようにしておくと、あとでそのお願いを渡すときに、<strong>安全でスムーズに処理してもらえる</strong>んです。</p>
+<hr>
+<h2 id="📦_ResultSet（リザルトセット）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">📦 ResultSet（リザルトセット）<a href="#📦_ResultSet（リザルトセット）" title="📦_ResultSet（リザルトセット）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-java">ResultSet rs = pStmt.executeQuery();
+</code></pre>
+<p>これは、データベースが「はい、これがあなたのお願いの結果です」と返してくれる<strong>データの入った箱</strong>のようなものです。</p>
+<p>たとえるなら：</p>
+<blockquote>
+<p>📬「お願いしたら、返事が届いた。その返事の中に、たくさんの情報が並んでいる」状態。</p>
+</blockquote>
+<p>この箱の中には、複数の行（レコード）が入っていて、1行ずつ取り出して中身を見ていくことができます。</p>
+<hr>
+<h2 id="🔄_rs.next()_と_rs.getString(...)" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔄 rs.next() と rs.getString(...)<a href="#🔄_rs.next()_と_rs.getString(...)" title="🔄_rs.next()_と_rs.getString(...)"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-java">while (rs.next()) {
+    String id = rs.getString(&quot;ID&quot;);
+    ...
+}
+</code></pre>
+<p>これは、箱の中から<strong>1行ずつ順番に取り出して</strong>、「ID」や「名前」などの情報を読み取っている部分です。</p>
+<p>たとえるなら：</p>
+<blockquote>
+<p>📚「本を1ページずつめくって、そこに書かれている情報を読んでいる」ようなイメージ。</p>
+</blockquote>
+<hr>
+<h2 id="🧠_まとめると…" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🧠 まとめると…<a href="#🧠_まとめると…" title="🧠_まとめると…"><i class="headlink" style="display:none;"></i></a></h2>
+<table>
+<thead>
+<tr>
+<th>役割</th>
+<th>イメージ</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PreparedStatement</td>
+<td>お願い（SQL）を事前に紙に書いて渡す準備</td>
+</tr>
+<tr>
+<td>executeQuery()</td>
+<td>そのお願いを実行して、返事をもらう</td>
+</tr>
+<tr>
+<td>ResultSet</td>
+<td>返事の中に入っているデータの箱</td>
+</tr>
+<tr>
+<td>rs.next()</td>
+<td>箱の中から1行ずつ取り出す</td>
+</tr>
+<tr>
+<td>rs.getString(&quot;ID&quot;)</td>
+<td>取り出した行の中から「ID」の情報を読む</td>
+</tr>
+</tbody></table>
+<hr>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

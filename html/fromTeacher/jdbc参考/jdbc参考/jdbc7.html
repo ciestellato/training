@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>✅ `create(Employee employee)` メソッド（コメント付き）</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>以下に、<code>EmployeesDAO</code> クラスへ追加する <code>create(Employee employee)</code> メソッドの<strong>完全実装版</strong>をご紹介します。<br>このメソッドは、社員情報をデータベースに追加し、<strong>成功すれば true、失敗すれば false を返す</strong>ように設計されています。<br>もちろん、<strong>初学者にもわかりやすいコメント付き</strong>です！</p>
+<hr>
+<h3 id="✅_create(Employee_employee)_メソッド（コメント付き）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">✅ <code>create(Employee employee)</code> メソッド（コメント付き）<a href="#✅_create(Employee_employee)_メソッド（コメント付き）" title="✅_create(Employee_employee)_メソッド（コメント付き）"><i class="headlink" style="display:none;"></i></a></h3>
+<pre><code class="language-java">public boolean create(Employee employee) {
+    try {
+        // JDBCドライバの読み込み（H2データベース用）
+        Class.forName(&quot;org.h2.Driver&quot;);
+    } catch (ClassNotFoundException e) {
+        // ドライバが見つからない場合
+        System.out.println(&quot;JDBCドライバが見つかりません&quot;);
+        return false;
+    }
+
+    // データベースに接続してINSERT文を実行
+    try (Connection conn = DriverManager.getConnection(
+            &quot;jdbc:h2:tcp://localhost/~/example&quot;, // データベースの場所
+            &quot;sa&quot;,                                 // ユーザー名
+            &quot;&quot;                                    // パスワード（空）
+    )) {
+        // 社員情報を追加するSQL文（?は後で値を入れる場所）
+        String sql = &quot;INSERT INTO EMPLOYEES (ID, NAME, AGE) VALUES (?, ?, ?)&quot;;
+
+        // SQL文を準備
+        PreparedStatement pStmt = conn.prepareStatement(sql);
+
+        // ? に値をセット（Employeeオブジェクトから取得）
+        pStmt.setString(1, employee.getId());
+        pStmt.setString(2, employee.getName());
+        pStmt.setInt(3, employee.getAge());
+
+        // SQL文を実行（戻り値は追加された行数）
+        int result = pStmt.executeUpdate();
+
+        // 1件以上追加されたら成功とみなす
+        return result &gt; 0;
+
+    } catch (SQLException e) {
+        // データベース操作で問題が起きた場合
+        System.out.println(&quot;データ追加に失敗しました: &quot; + e.getMessage());
+        return false;
+    }
+}
+</code></pre>
+<hr>
+<h3 id="🧩_補足ポイント" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🧩 補足ポイント<a href="#🧩_補足ポイント" title="🧩_補足ポイント"><i class="headlink" style="display:none;"></i></a></h3>
+<ul>
+<li><code>executeUpdate()</code> は、INSERT/UPDATE/DELETE で使うメソッドで、<strong>処理された行数</strong>を返します。</li>
+<li><code>result &gt; 0</code> で成功判定することで、<strong>0件だった場合（何も追加されなかった）も失敗扱い</strong>にできます。</li>
+<li><code>try-with-resources</code> によって、<strong>接続は自動でクローズ</strong>されるので安心です。</li>
+</ul>
+<hr>
+<p>次は：</p>
+<ul>
+<li><code>update(Employee emp)</code> や <code>delete(String id)</code> の追加</li>
+</ul>
+<p>なども視野に入れると、より実践的なDAO設計になります。  </p>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

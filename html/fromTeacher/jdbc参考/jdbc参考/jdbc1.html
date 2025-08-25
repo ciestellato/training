@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>🔧 コード構造と役割</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>このサンプルコードは、JDBCの「最も基本的な接続処理」をシンプルに実装したものです。以下に<strong>ポイント解説</strong>をまとめました。</p>
+<pre><code>import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class SimpleConnect {
+    public static void main(String[] args) {
+        // JDBCドライバーのロード（JDK 6以降は省略可能だが、明示しておくと安心）
+        try {
+            Class.forName(&quot;org.h2.Driver&quot;);
+        } catch (ClassNotFoundException e) {
+            System.out.println(&quot;JDBCドライバーが見つかりません: &quot; + e.getMessage());
+            return; // ドライバーがなければ接続できないので終了
+        }
+
+        // try-with-resourcesで接続を管理（自動でcloseされる）
+        try (Connection conn = DriverManager.getConnection(
+                &quot;jdbc:h2:tcp://localhost/~/example&quot;, // H2のTCPモードでexample DBに接続
+                &quot;sa&quot;,                                 // ユーザー名（H2のデフォルト）
+                &quot;&quot;                                    // パスワード（空文字がデフォルト）
+        )) {
+            System.out.println(&quot;データベースに接続しました&quot;);
+            // ここではテーブル操作などは行わず、接続確認のみ
+
+        } catch (SQLException e) {
+            // 接続失敗や切断時の例外を処理
+            System.out.println(&quot;データベース接続エラー: &quot; + e.getMessage());
+        }
+    }
+}
+</code></pre>
+<hr>
+<h2 id="🔧_コード構造と役割" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔧 コード構造と役割<a href="#🔧_コード構造と役割" title="🔧_コード構造と役割"><i class="headlink" style="display:none;"></i></a></h2>
+<table>
+<thead>
+<tr>
+<th>セクション</th>
+<th>内容</th>
+<th>初学者向けポイント</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Class.forName(&quot;org.h2.Driver&quot;)</code></td>
+<td>JDBCドライバーのロード</td>
+<td>JDBCを使うには、まずドライバーを読み込む必要があります。JDK 6以降は自動ロードされることもありますが、<strong>明示的に書くことで可読性と保守性が向上</strong>します。</td>
+</tr>
+<tr>
+<td><code>try-catch</code>（ドライバ読み込み）</td>
+<td>ドライバーが見つからない場合の処理</td>
+<td><code>ClassNotFoundException</code> は、ドライバーがクラスパスに存在しないときに発生します。<strong>早期にreturnで終了するのが安全</strong>です。</td>
+</tr>
+<tr>
+<td><code>try-with-resources</code></td>
+<td>接続処理と自動クローズ</td>
+<td><code>Connection</code> は外部リソースなので、<strong>明示的にcloseする必要があります</strong>。<code>try-with-resources</code> を使えば、<strong>自動でcloseされるためデータベースとの接続解除忘れを防げます</strong>。</td>
+</tr>
+<tr>
+<td><code>DriverManager.getConnection(...)</code></td>
+<td>実際の接続処理</td>
+<td>JDBC URLで接続先を指定します。ここではH2のTCPモードで、ユーザーのホームディレクトリにある <code>example</code> データベースに接続しています。</td>
+</tr>
+<tr>
+<td><code>catch(SQLException)</code></td>
+<td>接続失敗時の処理</td>
+<td>JDBC操作では <code>SQLException</code> が頻繁に発生します。<strong>接続失敗・切断失敗・SQL文の誤りなどすべてこの例外で処理</strong>できます。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="💡_初学者が押さえておきたい設計のヒント" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">💡 初学者が押さえておきたい設計のヒント<a href="#💡_初学者が押さえておきたい設計のヒント" title="💡_初学者が押さえておきたい設計のヒント"><i class="headlink" style="display:none;"></i></a></h2>
+<ul>
+<li><strong>ドライバーのロードと接続処理は分ける</strong>：エラーの原因を切り分けやすくなります。</li>
+<li><strong>try-with-resourcesは必須級</strong>：明示的に <code>conn.close()</code> を書かなくて済むので、コードが安全かつ簡潔になります。</li>
+<li><strong>JDBC URLの構造を理解する</strong>：<br>例：<code>jdbc:h2:tcp://localhost/~/example</code>  <ul>
+<li><code>jdbc:h2:</code> → H2データベースを使う  </li>
+<li><code>tcp://localhost</code> → サーバーモードでローカル接続  </li>
+<li><code>~/example</code> → ユーザーのホームディレクトリにある <code>example.mv.db</code> を指定</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="✅_このコードの良い点" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">✅ このコードの良い点<a href="#✅_このコードの良い点" title="✅_このコードの良い点"><i class="headlink" style="display:none;"></i></a></h2>
+<ul>
+<li>入れ子構造がなく、<strong>見通しが良い</strong></li>
+<li><strong>例外処理が明確</strong>で、エラーの原因が分かりやすい</li>
+<li><strong>最低限の構成で、JDBCの基本が学べる</strong></li>
+</ul>
+<hr>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

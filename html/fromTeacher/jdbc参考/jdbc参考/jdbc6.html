@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>● サンプルコード：EmployeesDAO.java</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>以下は、H2データベースの <code>EMPLOYEES</code> テーブルから全レコードを取り出して、<code>Employee</code> クラスのリストとして返す <code>findAll()</code> メソッドを持つ <code>EmployeesDAO</code> クラスのサンプルです。<br><strong>初学者向けに、やさしい言葉でポイント解説</strong>も添えています。</p>
+<hr>
+<h2 id="●_サンプルコード：EmployeesDAO.java" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">● サンプルコード：EmployeesDAO.java<a href="#●_サンプルコード：EmployeesDAO.java" title="●_サンプルコード：EmployeesDAO.java"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-java">import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+// 社員情報を入れるためのクラス（名前・IDなど）
+public class Employee {
+
+    // フィールド（社員のID・名前・年齢）
+    private String id;
+    private String name;
+    private int age;
+
+    // デフォルトコンストラクタ（空の社員オブジェクトを作るとき用）
+    public Employee() {
+    }
+
+    // 引数付きコンストラクタ（ID・名前・年齢を指定して作る）
+    public Employee(String id, String name, int age) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    // IDの取得メソッド
+    public String getId() {
+        return id;
+    }
+
+    // 名前の取得メソッド
+    public String getName() {
+        return name;
+    }
+
+    // 年齢の取得メソッド
+    public int getAge() {
+        return age;
+    }
+
+    // オブジェクトの中身を文字列で確認できるようにする（デバッグや表示用）
+    @Override
+    public String toString() {
+        return &quot;Employee{id=&#39;&quot; + id + &quot;&#39;, name=&#39;&quot; + name + &quot;&#39;, age=&quot; + age + &quot;}&quot;;
+    }
+}
+
+
+// 社員情報をデータベースから取り出すためのクラス
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class EmployeesDAO {
+
+    public List&lt;Employee&gt; findAll() {  // 社員一覧を取得するメソッド
+        List&lt;Employee&gt; list = new ArrayList&lt;&gt;();  // ●結果を格納するリストを用意
+
+        try {
+            // JDBCドライバを読み込む（H2データベース用）
+            Class.forName(&quot;org.h2.Driver&quot;);
+        } catch (ClassNotFoundException e) {
+            // ドライバが見つからなかった場合の処理
+            System.out.println(&quot;JDBCドライバが見つかりません&quot;);
+            return list;  // 空のリストを返して終了
+        }
+
+        // データベースに接続して社員情報を取得
+        try (Connection conn = DriverManager.getConnection(
+                &quot;jdbc:h2:tcp://localhost/~/example&quot;, // データベースの場所
+                &quot;sa&quot;,                                 // ユーザー名（初期設定）
+                &quot;&quot;                                    // パスワード（空）
+        )) {
+
+            // 社員情報（ID・名前・年齢）を取得するSQL文
+            String sql = &quot;SELECT ID, NAME, AGE FROM EMPLOYEES&quot;;
+
+            // SQL文を実行するための準備
+            PreparedStatement pStmt = conn.prepareStatement(sql);
+
+            // SQL文を実行し、結果表（ResultSet）を取得
+            ResultSet rs = pStmt.executeQuery();
+
+            // 結果表に格納されたレコードを1行ずつ処理
+            while (rs.next()) {
+                String id = rs.getString(&quot;ID&quot;);     // IDを取得
+                String name = rs.getString(&quot;NAME&quot;); // 名前を取得
+                int age = rs.getInt(&quot;AGE&quot;);         // 年齢を取得
+
+                // ●取得した情報をもとにEmployeeオブジェクトを作成
+                Employee emp = new Employee(id, name, age);
+
+                // ●作成したオブジェクトをリストに追加
+                list.add(emp);
+            }
+
+        } catch (SQLException e) {
+            // データベース操作で問題が起きた場合の処理
+            System.out.println(&quot;データ取得に失敗しました: &quot; + e.getMessage());
+        }
+
+        return list;  // ●社員情報が入ったリストを返す
+    }
+}
+</code></pre>
+<hr>
+<h2 id="●_初心者向けポイント解説" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">● 初心者向けポイント解説<a href="#●_初心者向けポイント解説" title="●_初心者向けポイント解説"><i class="headlink" style="display:none;"></i></a></h2>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>やさしい説明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Employee</code> クラス</td>
+<td>社員1人分の情報を入れる箱（ID・名前・部署など）</td>
+</tr>
+<tr>
+<td><code>List&lt;Employee&gt;</code></td>
+<td>社員の箱をたくさん並べた棚（社員一覧）</td>
+</tr>
+<tr>
+<td><code>Class.forName(...)</code></td>
+<td>JDBCを使う準備（通訳を呼ぶ）</td>
+</tr>
+<tr>
+<td><code>Connection</code></td>
+<td>データベースとのつながり</td>
+</tr>
+<tr>
+<td><code>PreparedStatement</code></td>
+<td>「社員一覧ください」とお願いする文</td>
+</tr>
+<tr>
+<td><code>ResultSet</code></td>
+<td>もらった社員一覧（表形式）</td>
+</tr>
+<tr>
+<td><code>while (rs.next())</code></td>
+<td>表を1行ずつ読んでいく</td>
+</tr>
+<tr>
+<td><code>list.add(emp)</code></td>
+<td>読んだ社員を棚に追加する</td>
+</tr>
+</tbody></table>
+<hr>
+<p><br>ここでは「JavaのDAOクラスに、テーブルの全データを取り出すメソッド（全件検索）を作る手順」を、<strong>初めての人でもわかるようにやさしく順を追って</strong>説明します。</p>
+<hr>
+<h2 id="●●_DAOクラスに全件検索メソッドを作る手順（初心者向け）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">●● DAOクラスに全件検索メソッドを作る手順（初心者向け）<a href="#●●_DAOクラスに全件検索メソッドを作る手順（初心者向け）" title="●●_DAOクラスに全件検索メソッドを作る手順（初心者向け）"><i class="headlink" style="display:none;"></i></a></h2>
+<h3 id="①_データを入れるためのクラス（モデル）を作る" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">① データを入れるためのクラス（モデル）を作る<a href="#①_データを入れるためのクラス（モデル）を作る" title="①_データを入れるためのクラス（モデル）を作る"><i class="headlink" style="display:none;"></i></a></h3>
+<p>まずは、データベースから取り出した情報を入れるための「箱」を作ります。<br>たとえば、社員情報ならこんな感じ：</p>
+<pre><code class="language-java">public class Employee {
+    private String id;
+    private String name;
+    private int age;
+
+    public Employee() {}  // 空の箱を作るとき用
+    public Employee(String id, String name, int age) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    // 情報を取り出すためのメソッド（getter）
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public int getAge() { return age; }
+}
+</code></pre>
+<hr>
+<h3 id="②_DAOクラスを作る（データベースとやりとりする場所）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">② DAOクラスを作る（データベースとやりとりする場所）<a href="#②_DAOクラスを作る（データベースとやりとりする場所）" title="②_DAOクラスを作る（データベースとやりとりする場所）"><i class="headlink" style="display:none;"></i></a></h3>
+<pre><code class="language-java">public class EmployeesDAO {
+    public List&lt;Employee&gt; findAll() {
+        // ここに全件検索の処理を書いていく
+    }
+}
+</code></pre>
+<p>このクラスは、<strong>データベースと話すための専用の場所</strong>です。<br>「社員一覧をください」とお願いする役割を持ちます。</p>
+<hr>
+<h3 id="③_JDBCドライバーを読み込む" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">③ JDBCドライバーを読み込む<a href="#③_JDBCドライバーを読み込む" title="③_JDBCドライバーを読み込む"><i class="headlink" style="display:none;"></i></a></h3>
+<p>JavaがH2データベースと話せるようにする準備です。</p>
+<pre><code class="language-java">Class.forName(&quot;org.h2.Driver&quot;);
+</code></pre>
+<hr>
+<h3 id="④_データベースに接続する" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">④ データベースに接続する<a href="#④_データベースに接続する" title="④_データベースに接続する"><i class="headlink" style="display:none;"></i></a></h3>
+<p>どこにあるデータベースか、誰としてつながるかを指定します。</p>
+<pre><code class="language-java">Connection conn = DriverManager.getConnection(
+    &quot;jdbc:h2:tcp://localhost/~/example&quot;, &quot;sa&quot;, &quot;&quot;
+);
+</code></pre>
+<hr>
+<h3 id="⑤_SQL文を作って実行する" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">⑤ SQL文を作って実行する<a href="#⑤_SQL文を作って実行する" title="⑤_SQL文を作って実行する"><i class="headlink" style="display:none;"></i></a></h3>
+<p>「社員一覧をください」というお願い文を作って、実行します。</p>
+<pre><code class="language-java">String sql = &quot;SELECT ID, NAME, AGE FROM EMPLOYEES&quot;;
+PreparedStatement pStmt = conn.prepareStatement(sql);
+ResultSet rs = pStmt.executeQuery();
+</code></pre>
+<hr>
+<h3 id="⑥_結果を1行ずつ読み取って、Employeeオブジェクトに変換する" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">⑥ 結果を1行ずつ読み取って、Employeeオブジェクトに変換する<a href="#⑥_結果を1行ずつ読み取って、Employeeオブジェクトに変換する" title="⑥_結果を1行ずつ読み取って、Employeeオブジェクトに変換する"><i class="headlink" style="display:none;"></i></a></h3>
+<pre><code class="language-java">List&lt;Employee&gt; list = new ArrayList&lt;&gt;();
+
+while (rs.next()) {
+    String id = rs.getString(&quot;ID&quot;);
+    String name = rs.getString(&quot;NAME&quot;);
+    int age = rs.getInt(&quot;AGE&quot;);
+
+    Employee emp = new Employee(id, name, age);
+    list.add(emp);
+}
+</code></pre>
+<p><br>このコードは「SQLの結果を1行ずつ読み取り、社員レコードをJavaのオブジェクト（Employeeクラスのデータ）に変換してリストにまとめる」処理です。<br><strong>初心者向けに、1行ずつていねいにコメントを付けて解説</strong>しますね。</p>
+<hr>
+<pre><code class="language-java">// Employeeオブジェクトを入れるためのリスト（箱の並び）を作成
+List&lt;Employee&gt; list = new ArrayList&lt;&gt;();
+</code></pre>
+<ul>
+<li><code>List&lt;Employee&gt;</code> は「Employee型のデータを複数まとめて持つ」ための型です。</li>
+<li><code>new ArrayList&lt;&gt;()</code> で空のリストを作っています。</li>
+<li>ここに、後で1人ずつ社員データを追加していきます。</li>
+</ul>
+<hr>
+<pre><code class="language-java">// SQLの結果（ResultSet）から1行ずつ取り出すループ
+while (rs.next()) {
+</code></pre>
+<ul>
+<li><code>rs.next()</code> は「次の行があるか？」をチェックします。</li>
+<li>行があれば <code>true</code> を返して、ループの中に入ります。</li>
+<li>これで、SQLの結果を1行ずつ順番に処理できます。</li>
+</ul>
+<hr>
+<pre><code class="language-java">    // 現在の行から「ID」列の値を文字列として取り出す
+    String id = rs.getString(&quot;ID&quot;);
+</code></pre>
+<ul>
+<li><code>rs.getString(&quot;ID&quot;)</code> は、現在の行の「ID」列の値を文字列として取得します。</li>
+<li>列名はSQLで指定したものと一致している必要があります。</li>
+</ul>
+<hr>
+<pre><code class="language-java">    // 「NAME」列の値を文字列として取り出す
+    String name = rs.getString(&quot;NAME&quot;);
+</code></pre>
+<ul>
+<li>同じように、名前の列からデータを取り出します。</li>
+</ul>
+<hr>
+<pre><code class="language-java">    // 「AGE」列の値を整数として取り出す
+    int age = rs.getInt(&quot;AGE&quot;);
+</code></pre>
+<ul>
+<li>年齢は数値なので、<code>getInt()</code> を使って整数として取得します。</li>
+</ul>
+<hr>
+<pre><code class="language-java">    // 取り出したデータを使って、Employeeオブジェクトを作成
+    Employee emp = new Employee(id, name, age);
+</code></pre>
+<ul>
+<li>ここで、1人分の社員データを <code>Employee</code> クラスのオブジェクトに変換します。</li>
+<li><code>new Employee(...)</code> で、ID・名前・年齢を持った箱を作ります。</li>
+</ul>
+<hr>
+<pre><code class="language-java">    // 作ったEmployeeオブジェクトをリストに追加
+    list.add(emp);
+</code></pre>
+<ul>
+<li><code>list</code> に、今作った <code>emp</code> を追加します。</li>
+<li>これを繰り返すことで、全社員のデータがリストにたまっていきます。</li>
+</ul>
+<hr>
+<h2 id="●●_最終的にどうなるか" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">●● 最終的にどうなるか<a href="#●●_最終的にどうなるか" title="●●_最終的にどうなるか"><i class="headlink" style="display:none;"></i></a></h2>
+<p>この処理が終わると、<code>list</code> には「Employeeオブジェクトがずらっと並んだ状態」になります。<br>つまり、<strong>データベースの全件がJavaのオブジェクトとして手元にある</strong>ということです。</p>
+<hr>
+<h3 id="⑦_最後にリストを返す" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">⑦ 最後にリストを返す<a href="#⑦_最後にリストを返す" title="⑦_最後にリストを返す"><i class="headlink" style="display:none;"></i></a></h3>
+<pre><code class="language-java">return list;
+</code></pre>
+<hr>
+<h2 id="●_まとめ：全体の流れ" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">● まとめ：全体の流れ<a href="#●_まとめ：全体の流れ" title="●_まとめ：全体の流れ"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-text">1. データを入れる箱（Employee）を作る
+2. DAOクラスを作る
+3. JDBCドライバーを読み込む
+4. データベースにつながる
+5. SQL文を作って実行する
+6. 結果を読み取って箱に入れる
+7. 箱を並べてリストにして返す
+</code></pre>
+<hr>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>🧪 サンプルコード（年齢の更新）</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>以下は、H2データベースの <code>EMPLOYEES</code> テーブルにある「EMP001」の年齢を変更するJavaコードです。<strong>初学者向けに、専門用語を使わず、やさしく解説</strong>します。</p>
+<hr>
+<h2 id="🧪_サンプルコード（年齢の更新）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🧪 サンプルコード（年齢の更新）<a href="#🧪_サンプルコード（年齢の更新）" title="🧪_サンプルコード（年齢の更新）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-java">import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class UpdateEmployeeAge {
+    public static void main(String[] args) {
+        // データベースと話すための準備
+        try {
+            Class.forName(&quot;org.h2.Driver&quot;);
+        } catch (ClassNotFoundException e) {
+            System.out.println(&quot;準備に失敗しました&quot;);
+            return;
+        }
+
+        // データベースに接続して、情報を変更する
+        try (Connection conn = DriverManager.getConnection(
+                &quot;jdbc:h2:tcp://localhost/~/example&quot;, // データベースの場所
+                &quot;sa&quot;,                                 // ユーザー名
+                &quot;&quot;                                    // パスワード（空でOK）
+        )) {
+            // 「この人の年齢を変えてください」という文章を作る
+            String sql = &quot;UPDATE EMPLOYEES SET AGE = ? WHERE ID = ?&quot;;
+            PreparedStatement pStmt = conn.prepareStatement(sql);
+
+            // 新しい年齢と、誰の情報かを?にセットする
+            pStmt.setInt(1, 30);           // 新しい年齢（例：30歳）	AGE = 30
+            pStmt.setString(2, &quot;EMP001&quot;);  // 対象のID 	ID = &quot;EMP001&quot;
+
+            // 実行して変更する。rowsは、変更したレコード数が代入される。今回は変更できれば、int rows = 1 となる
+            int rows = pStmt.executeUpdate();
+
+            // 変更できたか確認
+            if (rows &gt; 0) {
+                System.out.println(&quot;EMP001の年齢を変更しました&quot;);
+            } else {
+                System.out.println(&quot;EMP001が見つかりませんでした&quot;);
+            }
+
+        } catch (SQLException e) {
+            System.out.println(&quot;変更中に問題が発生しました: &quot; + e.getMessage());
+        }
+    }
+}
+</code></pre>
+<hr>
+<h2 id="🔍_初心者向けポイント解説" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔍 初心者向けポイント解説<a href="#🔍_初心者向けポイント解説" title="🔍_初心者向けポイント解説"><i class="headlink" style="display:none;"></i></a></h2>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>わかりやすい説明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>UPDATE ... SET AGE = ? WHERE ID = ?</code></td>
+<td>「この人の年齢を○○に変えてください」というお願い文。</td>
+</tr>
+<tr>
+<td><code>pStmt.setInt(1, 30)</code></td>
+<td>「新しい年齢は30歳です」と伝える。</td>
+</tr>
+<tr>
+<td><code>pStmt.setString(2, &quot;EMP001&quot;)</code></td>
+<td>「EMP001さんの情報を変えてください」と指定する。</td>
+</tr>
+<tr>
+<td><code>executeUpdate()</code></td>
+<td>実際に変更する。「このお願いを送ります！」という合図。</td>
+</tr>
+<tr>
+<td><code>rows &gt; 0</code></td>
+<td>ちゃんと変更できたかどうかを確認する。</td>
+</tr>
+</tbody></table>
+<hr>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
