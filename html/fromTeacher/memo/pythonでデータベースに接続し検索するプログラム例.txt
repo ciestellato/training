@@ -1,0 +1,26 @@
+# pythonでデータベースに接続し検索するプログラム例
+
+import jaydebeapi
+
+# JDBC接続情報
+jdbc_url = "jdbc:h2:tcp://localhost/~/example"
+driver_class = "org.h2.Driver"
+h2_jar_path = "/path/to/h2-2.x.x.jar"  # H2 JDBCドライバのパス
+user = "sa"
+password = ""
+
+# 接続
+conn = jaydebeapi.connect(driver_class, jdbc_url, [user, password], h2_jar_path)
+
+# クエリ実行
+cursor = conn.cursor()
+cursor.execute("SELECT DEPT_ID, DEPT_NAME FROM DEPT")
+
+# 結果取得
+rows = cursor.fetchall()
+for row in rows:
+    print(f"DEPT_ID: {row[0]}, DEPT_NAME: {row[1]}")
+
+# 後処理
+cursor.close()
+conn.close()

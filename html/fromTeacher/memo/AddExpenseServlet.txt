@@ -1,0 +1,90 @@
+package servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class AddExpenseServlet
+ */
+@WebServlet("/addExpense")
+public class AddExpenseServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// 入力フォームの送信データの文字化け防止
+		request.setCharacterEncoding("UTF-8");
+
+		// 送信データの取得
+		/*
+		 * name="category"
+		 * name="amount"
+		 * name="spent_on"
+		 * name="memo"
+		 */
+		String category = request.getParameter("category");	
+		String amount = request.getParameter("amount");	
+		String spent_on = request.getParameter("spent_on");	
+		String memo = request.getParameter("memo");	
+		
+		// JDBCドライバを読み込む
+	    try {
+	        Class.forName("org.h2.Driver");
+	    } catch (ClassNotFoundException e) {
+	        throw new IllegalStateException("JDBCドライバを読み込めませんでした");
+	    }
+		
+		// データベースに接続して、情報を登録する
+		try (Connection conn = DriverManager.getConnection(
+				"jdbc:h2:tcp://localhost/~/example", // データベースの場所
+				"sa", // ユーザー名（H2の初期設定）
+				"" // パスワード（空でOK）
+		)) {
+
+			// 登録する文章（SQL）を作る。？はあとで値を埋める場所
+			String sql = "INSERT INTO EXPENSES (CATEGORY ,AMOUNT ,SPENT_ON ,MEMO ) VALUES(?, ?, ?, ?)";
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+
+			// 1人目の情報を VALUES (?, ?, ?）にセットして登録=> VALUES（"EMP003", "鈴木 太郎", 23）
+			pStmt.setString(1, category);
+			pStmt.setInt(2, Integer.parseInt(amount));
+			java.sql.Date sqlDate = java.sql.Date.valueOf(spent_on);
+			pStmt.setDate(3, sqlDate);
+			pStmt.setString(4, memo);
+
+		
+			// 更新処理は,Update()
+			int count = pStmt.executeUpdate(); // 実行して登録
+			System.out.println(count);
+
+			System.out.println("1つの情報を登録しました");
+
+		} catch (SQLException e) {
+			System.out.println("登録中に問題が発生しました: " + e.getMessage());
+		}
+		
+				
+		// サーブレットでブラウザに表示する場合は下記のコード
+		response.setContentType("text/html; charset=UTF-8");
+		// ブラウザの画面に書き込みをするオブジェクトを取り出す
+		PrintWriter out = response.getWriter();
+		//返信内容を書き込み
+		out.println(category);
+		out.println(amount);
+		out.println(spent_on);
+		out.println(memo);
+		out.println("<br>登録が完了しました。");
+
+	}
+
+}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>🏗️ 1. テーブル作成（CREATE TABLE）</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>H2データベースを使って、<code>employee</code>（従業員）と<code>dept</code>（部署）テーブルを操作する基本的なSQL文を、<strong>初学者向けに分かりやすく</strong>まとめました。各ステートメントには<strong>簡単な解説</strong>も付けています。</p>
+<p>🔍 <strong>参考サイト</strong>:</p>
+<ul>
+<li>H2 Database インストールから基本操作まで   <a href="https://qiita.com/YJ2222/items/ca239cb20e0e88463571">https://qiita.com/YJ2222/items/ca239cb20e0e88463571</a></li>
+<li>H2 Database（H2DB）におけるテーブル作成方法 詳細チュートリアル	 <a href="https://qiita.com/jtths474/items/7ec969bb77bfc871b0ab">https://qiita.com/jtths474/items/7ec969bb77bfc871b0ab</a></li>
+</ul>
+<hr>
+<h2 id="🏗️_1._テーブル作成（CREATE_TABLE）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🏗️ 1. テーブル作成（CREATE TABLE）<a href="#🏗️_1._テーブル作成（CREATE_TABLE）" title="🏗️_1._テーブル作成（CREATE_TABLE）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-sql">CREATE TABLE dept (
+  dept_id INT PRIMARY KEY,
+  dept_name VARCHAR(50)
+);
+
+CREATE TABLE employee (
+  emp_id INT PRIMARY KEY,
+  emp_name VARCHAR(50),
+  salary INT,
+  dept_id INT,
+  FOREIGN KEY (dept_id) REFERENCES dept(dept_id)
+);
+</code></pre>
+<p>🔍 <strong>解説</strong>:</p>
+<ul>
+<li><code>dept</code> は部署テーブル。<code>dept_id</code> が主キー。</li>
+<li><code>employee</code> は従業員テーブル。<code>dept_id</code> は部署との関連を示す外部キー。</li>
+</ul>
+<hr>
+<h2 id="📝_2._データ挿入（INSERT）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">📝 2. データ挿入（INSERT）<a href="#📝_2._データ挿入（INSERT）" title="📝_2._データ挿入（INSERT）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-sql">INSERT INTO dept VALUES (1, &#39;営業部&#39;);
+INSERT INTO dept VALUES (2, &#39;開発部&#39;);
+
+INSERT INTO employee VALUES (101, &#39;田中太郎&#39;, 500000, 1);
+INSERT INTO employee VALUES (102, &#39;佐藤花子&#39;, 600000, 2);
+</code></pre>
+<p>🔍 <strong>解説</strong>:</p>
+<ul>
+<li><code>dept</code> に2つの部署を追加。</li>
+<li><code>employee</code> に2人の従業員を追加。部署IDで紐づけ。</li>
+</ul>
+<hr>
+<h2 id="🔍_3._データ取得（SELECT）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔍 3. データ取得（SELECT）<a href="#🔍_3._データ取得（SELECT）" title="🔍_3._データ取得（SELECT）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-sql">SELECT * FROM employee;
+</code></pre>
+<p>🔍 <strong>解説</strong>:</p>
+<ul>
+<li><code>employee</code> テーブルの全データを表示。</li>
+</ul>
+<hr>
+<h2 id="✏️_4._データ更新（UPDATE）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">✏️ 4. データ更新（UPDATE）<a href="#✏️_4._データ更新（UPDATE）" title="✏️_4._データ更新（UPDATE）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-sql">UPDATE employee
+SET salary = 650000
+WHERE emp_id = 102;
+</code></pre>
+<p>🔍 <strong>解説</strong>:</p>
+<ul>
+<li><code>emp_id</code> が102の佐藤花子さんの給与を更新。</li>
+</ul>
+<hr>
+<h2 id="🗑️_5._データ削除（DELETE）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🗑️ 5. データ削除（DELETE）<a href="#🗑️_5._データ削除（DELETE）" title="🗑️_5._データ削除（DELETE）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-sql">DELETE FROM employee
+WHERE emp_id = 101;
+</code></pre>
+<p>🔍 <strong>解説</strong>:</p>
+<ul>
+<li><code>emp_id</code> が101の田中太郎さんのデータを削除。</li>
+</ul>
+<hr>
+<h2 id="🔗_6._テーブル結合（SELECT_INNER_JOIN）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔗 6. テーブル結合（SELECT INNER JOIN）<a href="#🔗_6._テーブル結合（SELECT_INNER_JOIN）" title="🔗_6._テーブル結合（SELECT_INNER_JOIN）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-sql">SELECT e.emp_name, e.salary, d.dept_name
+FROM employee e
+INNER JOIN dept d ON e.dept_id = d.dept_id;
+</code></pre>
+<p>🔍 <strong>解説</strong>:</p>
+<ul>
+<li><code>employee</code> と <code>dept</code> を部署IDで結合。</li>
+<li>従業員名・給与・部署名を一覧表示。</li>
+</ul>
+<hr>
+<h2 id="💡補足：H2データベースでの実行方法" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">💡補足：H2データベースでの実行方法<a href="#💡補足：H2データベースでの実行方法" title="💡補足：H2データベースでの実行方法"><i class="headlink" style="display:none;"></i></a></h2>
+<p>H2コンソールやJavaアプリから以下のように接続できます：</p>
+<pre><code class="language-java">Connection conn = DriverManager.getConnection(&quot;jdbc:h2:~/test&quot;, &quot;sa&quot;, &quot;&quot;);
+</code></pre>
+<p>その後、上記SQLを <code>Statement</code> や <code>PreparedStatement</code> で実行できます。</p>
+<hr>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

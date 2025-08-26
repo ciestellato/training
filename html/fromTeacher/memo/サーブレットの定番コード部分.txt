@@ -1,0 +1,15 @@
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	// ここにプログラム処理を記述してください
+
+
+	
+	
+	
+	// 返信内容のデータ種類と日本語文字コードを設定
+	response.setContentType("text/html; charset=UTF-8");	
+	// ブラウザの画面に書き込みをするオブジェクトを取り出す
+	PrintWriter out = response.getWriter();
+	//返信内容を書き込み
+	out.println("");
+}

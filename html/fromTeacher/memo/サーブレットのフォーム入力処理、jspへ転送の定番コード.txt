@@ -1,0 +1,35 @@
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// 入力フォームの送信データの文字化け防止
+		request.setCharacterEncoding("UTF-8");
+		
+		// 送信データの取得
+		// <input type="text" name="name">
+		String name = request.getParameter("name");
+
+    		// 複数選択された値を取得
+		/*
+  			<input type="checkbox" name="fruits" value="りんご">りんご<br>
+  			<input type="checkbox" name="fruits" value="バナナ">バナナ<br>
+  			<input type="checkbox" name="fruits" value="みかん">みかん<br>
+		*/
+    		String[] selectedFruits = request.getParameterValues("fruits");
+
+
+        	// リクエスト属性の設定（JSPなどで使える）
+        	request.setAttribute("data", selectedFruits);
+
+        	// 転送先のパス（JSPファイルなど）
+        	RequestDispatcher dispatcher = request.getRequestDispatcher("/forwardTarget.jsp");
+
+        	// リクエストとレスポンスを転送
+        	dispatcher.forward(request, response);
+
+
+		// サーブレットでブラウザに表示する場合は下記のコード
+		response.setContentType("text/html; charset=UTF-8");	
+		// ブラウザの画面に書き込みをするオブジェクトを取り出す
+		PrintWriter out = response.getWriter();
+		//返信内容を書き込み
+		out.println();
+		
+	}

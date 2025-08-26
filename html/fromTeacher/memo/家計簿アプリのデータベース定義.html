@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>🗂️ 出費管理テーブルの作成</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>以下は、<strong>食費や娯楽費などの支出を管理するためのデータベーステーブル定義</strong>と、<strong>基本的なINSERT文・SELECT文の例</strong>です。SQLiteやMySQL、H2など、一般的なRDBMSで使える構文にしています。</p>
+<hr>
+<h2 id="🗂️_出費管理テーブルの作成" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🗂️ 出費管理テーブルの作成<a href="#🗂️_出費管理テーブルの作成" title="🗂️_出費管理テーブルの作成"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-sql">CREATE TABLE expenses (
+    id INT AUTO_INCREMENT PRIMARY KEY,   -- 一意のID
+    category VARCHAR(50),                -- カテゴリー（食費、娯楽費など）
+    amount INT,                          -- 金額（整数のみ）
+    spent_on DATE,                       -- 日付
+    memo TEXT                            -- メモ（任意）
+);
+
+---
+
+## ➕ INSERT文の例（データ登録）
+
+```sql
+
+-- 食費の登録
+INSERT INTO expenses (category, amount, spent_on, memo)
+VALUES (&#39;食費&#39;, 1200, &#39;2025-08-24&#39;, &#39;スーパーで買い物&#39;);
+
+-- 娯楽費の登録
+INSERT INTO expenses (category, amount, spent_on, memo)
+VALUES (&#39;娯楽費&#39;, 3000, &#39;2025-08-23&#39;, &#39;映画とポップコーン&#39;);
+
+-- その他の登録
+INSERT INTO expenses (category, amount, spent_on, memo)
+VALUES (&#39;交通費&#39;, 800, &#39;2025-08-22&#39;, &#39;電車代&#39;);
+</code></pre>
+<hr>
+<h2 id="🔍_SELECT文の例（データ取得）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔍 SELECT文の例（データ取得）<a href="#🔍_SELECT文の例（データ取得）" title="🔍_SELECT文の例（データ取得）"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-sql">-- 全件取得（最新順）
+SELECT * FROM expenses ORDER BY spent_on DESC;
+
+-- カテゴリー別に取得（例：食費のみ）
+SELECT * FROM expenses WHERE category = &#39;食費&#39;;
+
+-- 月別合計（例：2025年8月）
+SELECT category, SUM(amount) AS total
+FROM expenses
+WHERE spent_on BETWEEN &#39;2025-08-01&#39; AND &#39;2025-08-31&#39;
+GROUP BY category;
+
+-- メモに「映画」が含まれる支出
+SELECT * FROM expenses WHERE memo LIKE &#39;%映画%&#39;;
+</code></pre>
+<hr>
+<p>家計簿でよく使われる出費のカテゴリーは、生活のあらゆる場面をカバーするように整理されています。以下は、一般的かつ実用的な分類の例です：</p>
+<hr>
+<h2 id="🏠_基本的な家計簿カテゴリー一覧" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🏠 基本的な家計簿カテゴリー一覧<a href="#🏠_基本的な家計簿カテゴリー一覧" title="🏠_基本的な家計簿カテゴリー一覧"><i class="headlink" style="display:none;"></i></a></h2>
+<table>
+<thead>
+<tr>
+<th>カテゴリー</th>
+<th>説明例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>食費</strong></td>
+<td>スーパー、外食、コンビニ、飲料など</td>
+</tr>
+<tr>
+<td><strong>日用品費</strong></td>
+<td>トイレットペーパー、洗剤、シャンプーなど</td>
+</tr>
+<tr>
+<td><strong>住居費</strong></td>
+<td>家賃、住宅ローン、管理費、修繕費</td>
+</tr>
+<tr>
+<td><strong>光熱費</strong></td>
+<td>電気、ガス、水道、灯油など</td>
+</tr>
+<tr>
+<td><strong>通信費</strong></td>
+<td>携帯電話、インターネット、NHK受信料など</td>
+</tr>
+<tr>
+<td><strong>交通費</strong></td>
+<td>電車、バス、ガソリン、駐車場、自転車修理など</td>
+</tr>
+<tr>
+<td><strong>保険料</strong></td>
+<td>生命保険、医療保険、自動車保険など</td>
+</tr>
+<tr>
+<td><strong>医療費</strong></td>
+<td>病院、薬、歯科、健康診断など</td>
+</tr>
+<tr>
+<td><strong>教育費</strong></td>
+<td>学費、教材、習い事、塾など</td>
+</tr>
+<tr>
+<td><strong>娯楽費</strong></td>
+<td>映画、ゲーム、旅行、カフェ、趣味関連</td>
+</tr>
+<tr>
+<td><strong>交際費</strong></td>
+<td>飲み会、プレゼント、冠婚葬祭など</td>
+</tr>
+<tr>
+<td><strong>貯金・投資</strong></td>
+<td>定期預金、積立、株式、NISAなど</td>
+</tr>
+<tr>
+<td><strong>税金・年金</strong></td>
+<td>所得税、住民税、国民年金、健康保険料など</td>
+</tr>
+<tr>
+<td><strong>その他</strong></td>
+<td>雑費、予期せぬ支出、一時的な出費など</td>
+</tr>
+</tbody></table>
+<hr>
+<p>以下は、<code>expenses</code>テーブルにレコードを登録するための<strong>JSPフォームのサンプルコード</strong>です。カテゴリーは<strong>ドロップダウンリスト</strong>で選択、日付は<strong>カレンダー入力（<code>&lt;input type=&quot;date&quot;&gt;</code>）</strong>で選択できるようにしています。</p>
+<hr>
+<h2 id="📝_addExpense.jsp_—_出費登録フォーム" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">📝 <code>addExpense.jsp</code> — 出費登録フォーム<a href="#📝_addExpense.jsp_—_出費登録フォーム" title="📝_addExpense.jsp_—_出費登録フォーム"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-jsp">&lt;%@ page contentType=&quot;text/html; charset=UTF-8&quot; %&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;出費登録フォーム&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h2&gt;家計簿アプリ-出費を登録する&lt;/h2&gt;
+    &lt;form action=&quot;addExpense&quot; method=&quot;post&quot;&gt;
+        &lt;table&gt;
+            &lt;tr&gt;
+                &lt;td&gt;カテゴリー：&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;select name=&quot;category&quot; required&gt;
+                        &lt;option value=&quot;&quot;&gt;--選択してください--&lt;/option&gt;
+                        &lt;option value=&quot;食費&quot;&gt;食費&lt;/option&gt;
+                        &lt;option value=&quot;日用品費&quot;&gt;日用品費&lt;/option&gt;
+                        &lt;option value=&quot;住居費&quot;&gt;住居費&lt;/option&gt;
+                        &lt;option value=&quot;光熱費&quot;&gt;光熱費&lt;/option&gt;
+                        &lt;option value=&quot;通信費&quot;&gt;通信費&lt;/option&gt;
+                        &lt;option value=&quot;交通費&quot;&gt;交通費&lt;/option&gt;
+                        &lt;option value=&quot;医療費&quot;&gt;医療費&lt;/option&gt;
+                        &lt;option value=&quot;教育費&quot;&gt;教育費&lt;/option&gt;
+                        &lt;option value=&quot;娯楽費&quot;&gt;娯楽費&lt;/option&gt;
+                        &lt;option value=&quot;交際費&quot;&gt;交際費&lt;/option&gt;
+                        &lt;option value=&quot;その他&quot;&gt;その他&lt;/option&gt;
+                    &lt;/select&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;金額：&lt;/td&gt;
+                &lt;td&gt;&lt;input type=&quot;number&quot; name=&quot;amount&quot; step=&quot;1&quot; required&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;日付：&lt;/td&gt;
+                &lt;td&gt;&lt;input type=&quot;date&quot; name=&quot;spent_on&quot; required&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+&lt;tr&gt;
+    &lt;td&gt;メモ：&lt;/td&gt;
+    &lt;td&gt;
+        &lt;textarea name=&quot;memo&quot; rows=&quot;4&quot; cols=&quot;40&quot; maxlength=&quot;255&quot;&gt;&lt;/textarea&gt;
+    &lt;/td&gt;
+&lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td colspan=&quot;2&quot;&gt;
+                    &lt;input type=&quot;submit&quot; value=&quot;登録&quot;&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<hr>
+<h2 id="🔧_補足ポイント" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔧 補足ポイント<a href="#🔧_補足ポイント" title="🔧_補足ポイント"><i class="headlink" style="display:none;"></i></a></h2>
+<ul>
+<li><code>action=&quot;addExpense&quot;</code>：このURLにPOSTされるので、Servlet側で <code>/addExpense</code> をマッピングして処理します。</li>
+<li><code>&lt;input type=&quot;date&quot;&gt;</code>：HTML5のカレンダー入力。モダンブラウザならカレンダーUIが表示されます。</li>
+<li><code>required</code>属性：未入力防止のバリデーション。</li>
+</ul>
+<hr>
+<h2 id="🚀_次のステップ" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🚀 次のステップ<a href="#🚀_次のステップ" title="🚀_次のステップ"><i class="headlink" style="display:none;"></i></a></h2>
+<p>このフォームを使って、Servlet側でデータベースにINSERTする処理を組み合わせれば、家計簿の基本機能が完成します。必要なら、<strong>登録後の一覧表示ページ（list.jsp）</strong>や、<strong>月別集計機能</strong>も追加できます。</p>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>🔍 補足ポイント</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>フォームの <code>&lt;input type=&quot;date&quot;&gt;</code>（datepicker）から送信された日付データは、通常 <code>&quot;yyyy-MM-dd&quot;</code> 形式の文字列としてサーバーに届きます。これを JDBC の <code>PreparedStatement</code> にセットするには、<code>java.sql.Date</code> に変換してから <code>setDate()</code> を使います。</p>
+<p>以下はその具体的なコード例です：</p>
+<pre><code class="language-java">// ① フォームから送信された日付文字列を取得（例: &quot;2025-08-26&quot;）
+String dateStr = request.getParameter(&quot;date&quot;);
+
+// ② 文字列を java.sql.Date に変換
+java.sql.Date sqlDate = java.sql.Date.valueOf(dateStr);
+
+// ③ JDBC接続とPreparedStatementの作成
+Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+String sql = &quot;INSERT INTO your_table (your_date_column) VALUES (?)&quot;;
+PreparedStatement pstmt = conn.prepareStatement(sql);
+
+// ④ プレースホルダーに日付をセット
+pstmt.setDate(1, sqlDate);
+
+// ⑤ 実行
+pstmt.executeUpdate();
+</code></pre>
+<h3 id="🔍_補足ポイント" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔍 補足ポイント<a href="#🔍_補足ポイント" title="🔍_補足ポイント"><i class="headlink" style="display:none;"></i></a></h3>
+<ul>
+<li><code>java.sql.Date.valueOf(String)</code> は <code>&quot;yyyy-MM-dd&quot;</code> 形式の文字列を直接 <code>java.sql.Date</code> に変換できます。</li>
+<li><code>setDate()</code> を使うことで、SQLの <code>DATE</code> 型カラムに正しく挿入されます。</li>
+<li>時刻情報は含まれません。</li>
+</ul>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

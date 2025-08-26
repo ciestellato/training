@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>🧰 ステップ1：SQLiteのインストール（またはDBファイル作成）</title>
+
+<!-- for markdown highlight -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css" integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css" integrity="sha512-KUoB3bZ1XRBYj1QcH4BHCQjurAZnCO3WdrswyLDtp7BMwCw7dPZngSLqILf68SGgvnWHTD5pPaYrXi6wiRJ65g==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1" />
+<!-- for markdown (github style) -->
+<style type="text/css" data-for-md="1">
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+.markdown-body strong,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+    
+<body class="markdown-body">
+<p>Windows環境でEclipseを使ってSQLiteにJDBC接続するには、以下の手順でセットアップできます。
+とても軽量で、ローカル開発にぴったりな構成です。</p>
+<hr>
+<h2 id="🧰_ステップ1：SQLiteのインストール（またはDBファイル作成）" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🧰 ステップ1：SQLiteのインストール（またはDBファイル作成）<a href="#🧰_ステップ1：SQLiteのインストール（またはDBファイル作成）" title="🧰_ステップ1：SQLiteのインストール（またはDBファイル作成）"><i class="headlink" style="display:none;"></i></a></h2>
+<p>SQLiteはインストール不要ですが、公式ツールを使うと便利です。</p>
+<ol>
+<li><a href="https://www.sqlite.org/download.html">SQLite公式ページ</a>から「sqlite-tools-win32-x86」をダウンロード</li>
+<li>ZIPを解凍し、<code>sqlite3.exe</code> を任意のフォルダに配置</li>
+<li>コマンドプロンプトで以下を実行してDBファイルを作成：</li>
+</ol>
+<pre><code class="language-bash">sqlite3 test.db
+</code></pre>
+<p>これで <code>test.db</code> というSQLiteファイルが作成されます。</p>
+
+	
+<a href=https://business-on.playground.style/manual/dev_manual_sqlite3_command>SQLite3 よく使うコマンド集</a>
+<hr>
+<h2 id="📦_ステップ2：JDBCドライバーのダウンロード" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">📦 ステップ2：JDBCドライバーのダウンロード<a href="#📦_ステップ2：JDBCドライバーのダウンロード" title="📦_ステップ2：JDBCドライバーのダウンロード"><i class="headlink" style="display:none;"></i></a></h2>
+<ol>
+<li><a href="https://github.com/xerial/sqlite-jdbc/releases">Xerial SQLite JDBC Driver</a> にアクセス</li>
+<li>最新の <code>.jar</code> ファイル（例：<code>sqlite-jdbc-3.43.2.0.jar</code>）をダウンロード</li>
+</ol>
+<hr>
+<h2 id="🖥️_ステップ3：EclipseプロジェクトにJDBCドライバーを追加" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🖥️ ステップ3：EclipseプロジェクトにJDBCドライバーを追加<a href="#🖥️_ステップ3：EclipseプロジェクトにJDBCドライバーを追加" title="🖥️_ステップ3：EclipseプロジェクトにJDBCドライバーを追加"><i class="headlink" style="display:none;"></i></a></h2>
+<ol>
+<li>EclipseでJavaプロジェクトを作成</li>
+<li>プロジェクトを右クリック → <code>Build Path</code> → <code>Configure Build Path</code></li>
+<li><code>Libraries</code> タブ → <code>Add External JARs</code> → ダウンロードした <code>.jar</code> を選択</li>
+<li><code>Apply and Close</code> を押して完了</li>
+</ol>
+<hr>
+<h2 id="🔌_ステップ4：SQLiteに接続するJavaコード例" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">🔌 ステップ4：SQLiteに接続するJavaコード例<a href="#🔌_ステップ4：SQLiteに接続するJavaコード例" title="🔌_ステップ4：SQLiteに接続するJavaコード例"><i class="headlink" style="display:none;"></i></a></h2>
+<pre><code class="language-java">import java.sql.*;
+
+public class SQLiteExample {
+    public static void main(String[] args) {
+        String url = &quot;jdbc:sqlite:C:/sqlite/test.db&quot;;  // DBファイルの絶対パス
+
+        try (Connection conn = DriverManager.getConnection(url)) {
+            System.out.println(&quot;接続成功！&quot;);
+
+            String sql = &quot;CREATE TABLE IF NOT EXISTS expenses (id INTEGER PRIMARY KEY, category TEXT, amount INTEGER, spent_on TEXT, memo TEXT)&quot;;
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(sql);
+                System.out.println(&quot;テーブル作成完了&quot;);
+            }
+        } catch (SQLException e) {
+            System.out.println(&quot;接続エラー: &quot; + e.getMessage());
+        }
+    }
+}
+</code></pre>
+<hr>
+<h2 id="✅_補足ポイント" onmouseover="this.querySelector('a .headlink').style.display='inline-block'" onmouseout="this.querySelector('a .headlink').style.display='none'">✅ 補足ポイント<a href="#✅_補足ポイント" title="✅_補足ポイント"><i class="headlink" style="display:none;"></i></a></h2>
+<ul>
+<li>SQLiteのJDBC URLは <code>jdbc:sqlite:ファイルパス</code></li>
+<li>ファイルパスは <strong>絶対パス</strong>が確実（Windowsなら <code>C:/...</code>）</li>
+<li>Eclipseで実行する際は、JDKのバージョンとJARの互換性に注意</li>
+</ul>
+<hr>
+<p>これで、EclipseからSQLiteに接続してJDBC経由で操作する準備は完了です！次はデータのINSERTやSELECTなど、家計簿アプリのロジックを組み立てていくフェーズです。</p>
+
+
+<!-- for markdown (headlink hover) -->
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous" data-for-md="1"></script>
+<!-- for markdown parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.16/marked.min.js" integrity="sha512-8d9aScHpB0kf4+i5O3JlEP6VfvvjYYyZXa71ZKq0CzytOfDcH8d4Iej33s/0nNDcqWHhdDuAZKjA2y2qXzvJZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- for markdown highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js" integrity="sha512-yUUc0qWm2rhM7X0EFe82LNnv2moqArj5nro/w1bi05A09hRVeIZbN6jlMoyu0+4I/Bu4Ck/85JQIU82T82M28w==" crossorigin="anonymous" referrerpolicy="no-referrer" data-for-md="1"></script>
+    
+
+<script>
+$(document).on("mouseover", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").text("🔗").show();
+});
+$(document).on("mouseout", "h1,h2,h3,h4,h5", function(e) {
+  $(e.currentTarget).find(".headlink").hide();
+});
+</script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
