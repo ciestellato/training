@@ -1,0 +1,6 @@
+aa
+love
+python -u "c:\Users\0602JP\Documents\training\training\python\ex10-4.py"
+q
+me
+ころ
