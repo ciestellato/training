@@ -1,0 +1,13 @@
+# 機密ファイル
+.env
+
+# Pythonキャッシュ
+__pycache__/
+*.pyc
+
+# Jupyter Notebookのチェックポイント
+.ipynb_checkpoints/
+
+# OSファイル
+.DS_Store
+Thumbs.db
