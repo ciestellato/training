@@ -5,12 +5,15 @@ from datetime import date
 
 load_dotenv()
 api_key = os.getenv("EDINET_API_KEY")
-print("APIキー:", api_key)  # ← ここで確認
+# print("APIキー:", api_key)  # ← ここで確認
 
-url = "https://disclosure.edinet-fsa.go.jp/api/v1/documents.json"
+# v2 APIのエンドポイント
+url = "https://disclosure.edinet-fsa.go.jp/api/v2/documents.json"
+
 params = {
     "date": date.today().strftime("%Y-%m-%d"),
-    "type": 2
+    "type": 2,
+    "Subscription-Key": api_key  # v2ではこのキー名が必要
 }
 headers = {
     "User-Agent": "Mozilla/5.0",

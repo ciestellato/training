@@ -4,25 +4,25 @@ import io
 import os
 from dotenv import load_dotenv
 
-# EDINET APIのエンドポイント
-url = "https://disclosure.edinet-fsa.go.jp/api/v1/documents.json"
-
-# 取得対象の日付（例：2025年9月15日）
-params = {
-    "date": "2025-09-15",
-    "type": 2  # 書類一覧（1: 書類本体, 2: 書類一覧, 3: メタデータ）
-}
-
 # EDINETのAPIキー設定
 load_dotenv()
 api_key = os.getenv("EDINET_API_KEY")
 
+# v2 APIのエンドポイント
+url = "https://disclosure.edinet-fsa.go.jp/api/v2/documents.json"
+
+# 取得対象の日付（例：2025年9月15日）
+params = {
+    "date": "2025-09-15",
+    "type": 2,  # 書類一覧（1: 書類本体, 2: 書類一覧, 3: メタデータ）
+    "Subscription-Key": api_key  # v2ではこのキー名が必要
+}
+
 # APIリクエスト
 headers = {
-    "User-Agent": "Mozilla/5.0",
-    "X-API-KEY": api_key
-
+    "User-Agent": "Mozilla/5.0"
 }
+
 response = requests.get(url, params=params, headers=headers)
 
 # 結果の確認
