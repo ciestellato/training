@@ -1,0 +1,56 @@
+create table users(uid integer primary key,name text,age integer);
+insert into users values(1,'Hiroshi.T',35);
+insert into users values(2,'Yoko.M',28);
+insert into users values(3,'Naoto.H',26);
+insert into users values(4,'Ichiro.K',44);
+insert into users values(5,'Hitomi.S',33);
+insert into users values(6,'Akira.O',25);
+
+create table categories(cid integer primary key,name text);
+insert into categories values(1,'PC');
+insert into categories values(2,'Supply');
+insert into categories values(3,'PC Parts');
+
+create table items(iid integer primary key,name text,price integer,cid integer);
+insert into items values(1,'Desktop PC',100000,1);
+insert into items values(2,'Note PC',85000,1);
+insert into items values(3,'Tablet PC',50000,1);
+insert into items values(4,'Mouse',1000,2);
+insert into items values(5,'Keyboard',1200,2);
+insert into items values(6,'USB Memory',800,2);
+insert into items values(7,'LAN Cable',500,2);
+insert into items values(8,'USB Cable',300,2);
+insert into items values(9,'Mother Board',25000,3);
+insert into items values(10,'LAN Card',3000,3);
+insert into items values(11,'Inkjet Printer',9000,NULL);
+
+create table orders(oid integer primary key, uid integer, odate text);
+insert into orders values(1,1,'2021-04-10');
+insert into orders values(2,1,'2021-04-15');
+insert into orders values(3,2,'2021-05-01');
+insert into orders values(4,2,'2021-05-10');
+insert into orders values(5,2,'2021-05-15');
+insert into orders values(6,3,'2021-04-10');
+insert into orders values(7,4,'2021-04-30');
+insert into orders values(8,4,'2021-05-01');
+insert into orders values(9,6,'2021-05-10');
+insert into orders values(10,6,'2021-05-20');
+
+create table order_details(oid integer, mno integer, iid integer, amount integer, primary key(oid,mno));
+insert into order_details values(1,1,1,1);
+insert into order_details values(1,2,4,1);
+insert into order_details values(1,3,5,1);
+insert into order_details values(2,1,4,1);
+insert into order_details values(3,1,6,2);
+insert into order_details values(4,1,1,1);
+insert into order_details values(4,2,9,1);
+insert into order_details values(4,3,10,1);
+insert into order_details values(5,1,7,10);
+insert into order_details values(6,1,8,5);
+insert into order_details values(7,1,4,10);
+insert into order_details values(7,2,5,10);
+insert into order_details values(8,1,9,1);
+insert into order_details values(8,2,6,1);
+insert into order_details values(9,1,2,2);
+insert into order_details values(10,1,2,10);
+insert into order_details values(10,2,4,10);
