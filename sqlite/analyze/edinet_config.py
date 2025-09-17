@@ -17,19 +17,27 @@ load_dotenv(dotenv_path=env_path)
 
 # --- 設定項目 ---
 class Config:
-    """設定を管理するクラス"""
-    # ローカル環境の基本パス（任意の保存先に変更してください）
-    BASE_DIR = Path("C:/Users/0602JP/Documents/EDINET_DB/")
+    """EDINETデータ取得用の設定クラス"""
+    # アクセス設定
+    API_BASE_URL = "https://disclosure.edinet-fsa.go.jp/api/v2"
+    REQUEST_TIMEOUT = 30
+    DOWNLOAD_TIMEOUT = 60
+
+    # 基本パス（環境変数が未設定ならデフォルト値を使用）
+    BASE_DIR = Path(os.getenv("EDINET_BASE_DIR", "C:/Users/0602JP/Documents/EDINET_DB/"))
     # ダウンロードしたZIPファイルの保存先
     SAVE_FOLDER = BASE_DIR / "01_zip_files/"
 
-    # .envファイルからAPIキーを取得
+    # APIキーの取得とチェック
     API_KEY = os.getenv("EDINET_API_KEY")
+    if not API_KEY:
+        raise ValueError("EDINET_API_KEY が .env に設定されていません。")
 
+    # データ取得設定
     # データの信頼性を担保するため、何日分遡ってデータを再取得するか
     RELIABILITY_DAYS = 7
     # 初回実行時に何年分のデータを取得するか
-    INITIAL_FETCH_YEARS = 5
+    INITIAL_FETCH_YEARS = 1
 
     # ダウンロード対象の書類タイプコード
     # 120: 有価証券報告書, 140: 四半期報告書, 160: 半期報告書
