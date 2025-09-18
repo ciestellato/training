@@ -934,3 +934,72 @@ def test_extract_xbrl_from_zip_corrupt(tmp_path):
     assert extracted_files == []
 ```
 
+check_zip.py
+
+```
+from pathlib import Path
+import zipfile
+
+def preview_zip_contents(zip_path: Path, max_files: int = 50):
+    """ZIPファイルの中身を表示する"""
+    if not zip_path.exists():
+        print(f"❌ ファイルが見つかりません: {zip_path}")
+        return
+
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            file_list = zip_ref.namelist()
+            print(f"📦 ZIPファイル: {zip_path.name}")
+            print(f"📁 含まれるファイル数: {len(file_list)}")
+            print("🔍 ファイル一覧:")
+            for i, f in enumerate(file_list):
+                if i >= max_files:
+                    print("...（省略）")
+                    break
+                print(f"  - {f}")
+    except zipfile.BadZipFile:
+        print(f"⚠️ ZIPファイルが壊れている可能性があります: {zip_path}")
+
+def extract_csv_from_zip(zip_path: str, extract_to: str = "./extracted_csv"):
+    """ZIPファイルからCSVファイルのみを抽出する"""
+    zip_path = Path(zip_path)
+    extract_to = Path(extract_to)
+    extract_to.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            csv_files = [f for f in zip_ref.namelist() if f.endswith('.csv')]
+            zip_ref.extractall(path=extract_to, members=csv_files)
+            return [str(extract_to / f) for f in csv_files]
+    except zipfile.BadZipFile:
+        print(f"⚠️ ZIPファイルが壊れている可能性があります: {zip_path}")
+        return []
+```
+
+test_check_zip.py
+
+```
+import pytest
+from pathlib import Path
+from edinet_config import Config
+from check_zip import extract_csv_from_zip
+
+def get_latest_zip_file() -> Path:
+    zip_files = sorted(Config.SAVE_FOLDER.rglob("*.zip"))
+    if not zip_files:
+        raise FileNotFoundError(f"No ZIP files found in {Config.SAVE_FOLDER}")
+    return zip_files[-1]
+
+def test_extract_csv_from_zip():
+    zip_path = get_latest_zip_file()
+    extract_to = Path("./test_output")
+    extract_to.mkdir(exist_ok=True)
+
+    extracted_files = extract_csv_from_zip(str(zip_path), extract_to=str(extract_to))
+
+    assert len(extracted_files) > 0, "CSVファイルが抽出されませんでした"
+    for file in extracted_files:
+        assert file.endswith(".csv")
+        print(f"✅ 抽出されたCSV: {file}")
+```
+

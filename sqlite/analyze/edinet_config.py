@@ -30,6 +30,12 @@ class Config:
     # ダウンロード失敗ログの保存先
     FAILED_LOG_PATH = BASE_DIR / "failed_downloads.csv"
 
+    # SQLiteデータベースファイルのパス
+    DB_PATH = BASE_DIR / "edinet_data.db"
+    
+    # CSV一時抽出フォルダのパス (SQLite格納後、削除を検討)
+    EXTRACTED_CSV_TEMP_FOLDER = BASE_DIR / "02_extracted_csv_temp/"
+
     # APIキーの取得とチェック
     API_KEY = os.getenv("EDINET_API_KEY")
     if not API_KEY:

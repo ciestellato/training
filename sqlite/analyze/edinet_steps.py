@@ -9,6 +9,10 @@ import warnings
 from edinet_config import Config
 import logging
 import traceback
+import sqlite3 # SQLiteをインポート
+
+# zip_utilsからCSV抽出関数をインポート
+from zip_utils import extract_csv_from_zip 
 
 # urllib3のInsecureRequestWarningを非表示にする
 warnings.filterwarnings('ignore', category=requests.packages.urllib3.exceptions.InsecureRequestWarning)
@@ -20,6 +24,9 @@ def update_summary_file(base_dir: Path, api_key: str) -> pd.DataFrame:
 
     today = date.today()
     summary = pd.DataFrame()
+
+    # Config.INITIAL_FETCH_YEARS から Config.RELIABILITY_DAYS を考慮して start_day を設定
+    # 既存のサマリーファイルが存在しない場合は INITIAL_FETCH_YEARS 分遡る
     start_day = today - timedelta(days=365 * Config.INITIAL_FETCH_YEARS)
 
     if summary_path.exists():
@@ -30,6 +37,7 @@ def update_summary_file(base_dir: Path, api_key: str) -> pd.DataFrame:
 
             if not summary.empty and 'submitDateTime' in summary.columns and not summary['submitDateTime'].isnull().all():
                 latest_date_in_file = summary['submitDateTime'].max().date()
+                # 信頼性確保のため、最新日付からRELIABILITY_DAYS分遡って再取得開始
                 start_day = latest_date_in_file - timedelta(days=Config.RELIABILITY_DAYS)
         except Exception as e:
             logging.warning(f"サマリーファイルの読み込み中にエラーが発生しました: {e}")
@@ -40,37 +48,80 @@ def update_summary_file(base_dir: Path, api_key: str) -> pd.DataFrame:
 
     new_docs = []
     for day in tqdm(day_term, desc="APIからメタデータ取得"):
+        # EDINET API仕様書 [32, 34] に基づくリクエストパラメータ
         params = {'date': day.strftime('%Y-%m-%d'), 'type': 2, 'Subscription-Key': api_key}
         try:
             response = requests.get(
                 Config.API_BASE_URL + "/documents.json",
                 params=params,
-                verify=False,
+                verify=False, # 本番環境ではTrueを検討
                 timeout=Config.REQUEST_TIMEOUT
             )
+            # HTTPステータスコードが4xx/5xxの場合はここでRequestExceptionを発生させる
+            # ただし、EDINET APIはエラー時もHTTP 200を返す場合があるため、JSONレスポンスの解析も必要 [1]
             response.raise_for_status()
             res_json = response.json()
-            if res_json.get('results'):
-                new_docs.extend(res_json['results'])
-        except requests.exceptions.RequestException as e:
-            logging.warning(f"エラー: {day} のデータ取得に失敗 - {e}")
-            logging.debug(traceback.format_exc())
-        time.sleep(0.1)
+            logging.debug(f"APIレスポンス (日: {day.strftime('%Y-%m-%d')}): {res_json}") # デバッグ用にレスポンス全体を出力
 
+            status = None
+            message = None
+
+            # EDINET APIのエラーレスポンス構造を考慮してstatusとmessageを取得 [2, 3]
+            if isinstance(res_json, dict):
+                if 'metadata' in res_json and isinstance(res_json['metadata'], dict):
+                    metadata = res_json['metadata']
+                    status = metadata.get('status')
+                    message = metadata.get('message')
+                elif 'StatusCode' in res_json: # 401 Access denied の場合など [3]
+                    status = res_json.get('StatusCode')
+                    message = res_json.get('message')
+            
+            # ステータスコードに応じた処理 [1]
+            if status == '404' or status == 404: 
+                logging.info(f"情報なし: {day.strftime('%Y-%m-%d')} の書類一覧は見つかりませんでした。")
+            elif status and (str(status) != '200'): # ステータスが200以外の場合
+                log_msg = f"APIエラー: {day.strftime('%Y-%m-%d')} - Status: {status}, Message: {message if message else '詳細不明'}"
+                logging.warning(log_msg)
+            elif res_json.get('results'): # 正常レスポンスで'results'がある場合 [6]
+                new_docs.extend(res_json['results'])
+            elif status == '200' and not res_json.get('results'): # **👈 ここに新しい elif ブロックを追加します**
+                # APIは正常応答 (status: 200, message: OK) だが、resultsが空の場合
+                logging.info(f"情報なし: {day.strftime('%Y-%m-%d')} の提出書類はありませんでした。")
+                logging.debug(f"APIレスポンス (日: {day.strftime('%Y-%m-%d')}): {res_json}") # デバッグ用にレスポンス全体を出力
+            else: # その他の予期せぬレスポンスの場合 (これに入ることは稀になるはず)
+                logging.warning(f"予期せぬAPIレスポンス形式またはデータなし: {day.strftime('%Y-%m-%d')}. レスポンス: {res_json}")
+
+        except requests.exceptions.RequestException as e:
+            # ネットワークエラーやHTTPステータスコードが4xx/5xxだった場合
+            logging.warning(f"エラー: {day.strftime('%Y-%m-%d')} のデータ取得に失敗 (ネットワークまたはHTTPステータスエラー) - {e}")
+            logging.debug(traceback.format_exc())
+        except ValueError as e: # response.json()がJSONとしてパースできない場合
+            logging.error(f"エラー: {day.strftime('%Y-%m-%d')} のAPIレスポンスがJSONとして解析できませんでした。エラー: {e}, レスポンス内容: {response.text[:500]}...")
+            logging.debug(traceback.format_exc())
+        except Exception as e: # その他の予期せぬエラー
+            logging.error(f"エラー: {day.strftime('%Y-%m-%d')} のデータ取得中に予期せぬエラーが発生しました: {e}")
+            logging.debug(traceback.format_exc())
+        time.sleep(0.1) # APIへの負荷軽減のため
+        
     if new_docs:
         temp_df = pd.DataFrame(new_docs)
-        summary = pd.concat([summary, temp_df], ignore_index=True)
+        # 既存のサマリーデータと新しいデータを結合し、重複を排除
+        # docIDは提出書類ごとに付与される一意の番号 [40, 102]
+        summary = pd.concat([summary, temp_df], ignore_index=True) 
+        summary['submitDateTime'] = pd.to_datetime(summary['submitDateTime'], errors='coerce')
+        summary.dropna(subset=['docID'], inplace=True)
+        summary = summary.drop_duplicates(subset='docID', keep='last')
+        summary = summary.sort_values(by='submitDateTime', ascending=True).reset_index(drop=True)
 
-    summary['submitDateTime'] = pd.to_datetime(summary['submitDateTime'], errors='coerce')
-    summary.dropna(subset=['docID'], inplace=True)
-    summary = summary.drop_duplicates(subset='docID', keep='last')
-    summary = summary.sort_values(by='submitDateTime', ascending=True).reset_index(drop=True)
-    try:
-        summary.to_csv(summary_path, index=False, encoding='utf_8_sig')
-        logging.info("✅ サマリーファイルの更新が完了しました！")
-    except Exception as e:
-        logging.error(f"サマリーファイルの保存に失敗しました: {e}")
-        logging.debug(traceback.format_exc())
+        try:
+            summary.to_csv(summary_path, index=False, encoding='utf_8_sig')
+            logging.info("✅ サマリーファイルの更新が完了しました！")
+        except Exception as e:
+            logging.error(f"サマリーファイルの保存に失敗しました: {e}")
+            logging.debug(traceback.format_exc())
+    else:
+        logging.info("新規に取得されたサマリーデータはありません。")
+
     return summary
 
 def step1_create_and_summarize():
@@ -108,9 +159,9 @@ def step2_check_download_status(summary_df: pd.DataFrame):
 
     # --- ▼▼▼ ダウンロード対象の条件を定義 ▼▼▼ ---
     query_str = (
-        "csvFlag == '1' and "
-        "secCode.notna() and secCode != 'None' and "
-        f"docTypeCode in {Config.TARGET_DOC_TYPE_CODES}"
+        "csvFlag == '1' and " # CSV有無フラグが'1' [44]
+        "secCode.notna() and secCode != 'None' and " # 証券コードが存在する
+        f"docTypeCode in {Config.TARGET_DOC_TYPE_CODES}" # 対象書類タイプコード [107]
     )
     target_docs = summary_df.query(query_str)
     # --- ▲▲▲ ダウンロード対象の条件を定義 ▲▲▲ ---
@@ -121,7 +172,7 @@ def step2_check_download_status(summary_df: pd.DataFrame):
     # ダウンロード対象のうち、まだダウンロードされていないものを抽出
     docs_to_download = target_docs[~target_docs['docID'].isin(existing_file_stems)]
 
-    logging.info("\n📊 サマリーと照合した結果:")
+    logging.info("📊 サマリーと照合した結果:")
     logging.info(f"  - ダウンロード対象の総書類数（CSV提供あり）: {len(target_docs)} 件")
     logging.info(f"  - ダウンロードが必要な（未取得の）書類数: {len(docs_to_download)} 件")
     logging.info("-" * 40)
@@ -140,24 +191,48 @@ def download_single_file(doc_id: str, submit_date, save_folder: Path) -> bool:
     target_folder.mkdir(parents=True, exist_ok=True)
     zip_path = target_folder / f"{doc_id}.zip"
 
-    # EDINET API のファイル取得エンドポイント
+    # EDINET API のファイル取得エンドポイント [89]
     url_zip = f"{Config.API_BASE_URL}/documents/{doc_id}"
+    # 必要書類タイプ '5' はCSV形式のZIPファイル [90, 93]
     params_zip = {"type": 5, 'Subscription-Key': Config.API_KEY}
 
     try:
         r = requests.get(url_zip, params=params_zip, stream=True, verify=False, timeout=Config.DOWNLOAD_TIMEOUT)
         r.raise_for_status()
+
+        # Content-Typeをチェックして、ZIPファイルであることを確認 [92, 99]
+        content_type = r.headers.get('Content-Type', '')
+        if 'application/octet-stream' not in content_type: # ZIP形式の場合
+            # エラーレスポンスがJSON形式で返ってくる可能性も考慮 [92]
+            if 'application/json' in content_type:
+                error_json = r.json()
+                status = error_json.get('metadata', {}).get('status', 'N/A')
+                message = error_json.get('metadata', {}).get('message', 'N/A')
+                logging.warning(f"ダウンロード失敗: {doc_id}. APIがエラーJSONを返却。Status: {status}, Message: {message}")
+            else:
+                logging.warning(f"ダウンロード失敗: {doc_id}. 予期せぬContent-Type: {content_type}")
+            if zip_path.exists():
+                zip_path.unlink() # 不完全なファイルを削除
+            return False
+
         with open(zip_path, 'wb') as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
         return True
+
     except requests.exceptions.RequestException as e:
         logging.warning(f"ダウンロード失敗: {doc_id}, エラー: {e}")
         logging.debug(traceback.format_exc())
         if zip_path.exists():
+            zip_path.unlink() # 失敗した場合はファイルを削除
+        return False
+    except Exception as e:
+        logging.error(f"ファイル {doc_id} ダウンロード中に予期せぬエラー: {e}")
+        logging.debug(traceback.format_exc())
+        if zip_path.exists():
             zip_path.unlink()
         return False
-
+    
 def log_failed_download(doc_id, submit_date, error_msg):
     """ステップ3でダウンロードに失敗したファイルを記録する"""
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -242,3 +317,158 @@ def retry_failed_downloads():
         log_failed_download(doc_id, submit_date, "再試行失敗")
 
     logging.info(f"✅ 再試行完了。成功: {len(successful_ids)} 件 / 残り: {len(remaining_df) + len(failed_again)} 件")
+
+def step_store_summary_to_db(summary_df: pd.DataFrame):
+    """
+    ステップ④: 取得したサマリーデータをSQLiteデータベースに保管する。
+    テーブル名: edinet_document_summaries
+    """
+    logging.info("--- ステップ④ サマリーデータのSQLite保管 ---")
+    if summary_df.empty:
+        logging.warning("保管するサマリーデータがありません。")
+        return
+
+    conn = None
+    try:
+        conn = sqlite3.connect(Config.DB_PATH)
+        logging.info(f"SQLiteデータベース '{Config.DB_PATH.name}' に接続しました。")
+
+        # 提出書類一覧のJSON構造 [38-44] を考慮し、DataFrameをSQLiteに書き込み
+        # docIDは一意なためプライマリキーとして設定
+        summary_df.to_sql(
+            "edinet_document_summaries",
+            conn,
+            if_exists='replace', # 毎回全件置き換え (運用に合わせて 'append' や 'upsert' を検討)
+            index=False,
+            dtype={
+                'seqNumber': 'INTEGER',
+                'docID': 'TEXT PRIMARY KEY', # docIDを主キーに設定
+                'edinetCode': 'TEXT',
+                'secCode': 'TEXT',
+                'JCN': 'TEXT',
+                'filerName': 'TEXT',
+                'fundCode': 'TEXT',
+                'ordinanceCode': 'TEXT',
+                'formCode': 'TEXT',
+                'docTypeCode': 'TEXT',
+                'periodStart': 'TEXT',
+                'periodEnd': 'TEXT',
+                'submitDateTime': 'TIMESTAMP',
+                'docDescription': 'TEXT',
+                'issuerEdinetCode': 'TEXT',
+                'subjectEdinetCode': 'TEXT',
+                'subsidiaryEdinetCode': 'TEXT',
+                'currentReportReason': 'TEXT',
+                'parentDocID': 'TEXT',
+                'opeDateTime': 'TIMESTAMP',
+                'withdrawalStatus': 'TEXT',
+                'docInfoEditStatus': 'TEXT',
+                'disclosureStatus': 'TEXT',
+                'xbrlFlag': 'TEXT',
+                'pdfFlag': 'TEXT',
+                'attachDocFlag': 'TEXT',
+                'englishDocFlag': 'TEXT',
+                'csvFlag': 'TEXT',
+                'legalStatus': 'TEXT'
+            }
+        )
+        logging.info(f"✅ サマリーデータを 'edinet_document_summaries' テーブルに保管しました（{len(summary_df)} 件）。")
+
+    except sqlite3.Error as e:
+        logging.error(f"SQLiteデータベース操作中にエラーが発生しました: {e}")
+        logging.debug(traceback.format_exc())
+    except Exception as e:
+        logging.error(f"サマリーデータのSQLite保管中に予期せぬエラーが発生しました: {e}")
+        logging.debug(traceback.format_exc())
+    finally:
+        if conn:
+            conn.close()
+            logging.info("SQLiteデータベース接続を閉じました。")
+    logging.info("-" * 40)
+
+def step_extract_and_index_csv(zip_base_folder: Path):
+    """
+    ステップ⑤: ダウンロード済みZIPファイルからCSVファイルを抽出し、そのパスをSQLiteに記録する。
+    CSVファイルは一時抽出フォルダに保管される。
+    テーブル名: edinet_extracted_csv_details
+    """
+    logging.info("--- ステップ⑤ CSV抽出と抽出パスのSQLite記録 ---")
+
+    # 一時抽出フォルダを準備
+    extract_temp_folder = Config.EXTRACTED_CSV_TEMP_FOLDER
+    extract_temp_folder.mkdir(parents=True, exist_ok=True)
+
+    all_zip_files = list(zip_base_folder.rglob('*.zip'))
+    if not all_zip_files:
+        logging.info("処理対象のZIPファイルが見つかりません。")
+        return
+
+    conn = None
+    try:
+        conn = sqlite3.connect(Config.DB_PATH)
+        logging.info(f"SQLiteデータベース '{Config.DB_PATH.name}' に接続しました。")
+
+        # CSV抽出情報のテーブルを作成（存在しない場合）
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS edinet_extracted_csv_details (
+                docID TEXT NOT NULL,
+                csv_filename TEXT NOT NULL,
+                extracted_path TEXT PRIMARY KEY,
+                extraction_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(docID) REFERENCES edinet_document_summaries(docID)
+            )
+        """)
+        conn.commit()
+
+        processed_zip_count = 0 # 処理したZIPファイルの数
+        total_extracted_csv_count = 0 # 抽出したCSVファイルの総数
+        inserted_path_count = 0 # DBに記録したCSVパスの総数
+
+        for zip_file_path in tqdm(all_zip_files, desc="CSV抽出とDB記録"):
+            doc_id = zip_file_path.stem # ZIPファイル名からdocIDを取得
+            try:
+                # 抽出先フォルダを docID ごとに分けることで、ファイルの衝突を防ぐ
+                current_extract_folder = extract_temp_folder / doc_id
+                
+                extracted_csv_paths = extract_csv_from_zip(zip_file_path, current_extract_folder)
+
+                if extracted_csv_paths:
+                    processed_zip_count += 1
+                    total_extracted_csv_count += len(extracted_csv_paths)
+
+                    for csv_path in extracted_csv_paths:
+                        # 抽出パスをデータベースに記録
+                        conn.execute(
+                            "INSERT OR REPLACE INTO edinet_extracted_csv_details (docID, csv_filename, extracted_path) VALUES (?, ?, ?)",
+                            (doc_id, csv_path.name, str(csv_path))
+                        )
+                        inserted_path_count += 1
+                    conn.commit() # トランザクションをコミット
+                # else: extract_csv_from_zip 内で debug/warning が出力される
+
+            except Exception as e:
+                logging.error(f"ZIPファイル '{zip_file_path.name}' のCSV抽出・DB記録中にエラーが発生しました: {e}")
+                logging.debug(traceback.format_exc())
+        
+        logging.info(
+            f"✅ CSV抽出とSQLite記録処理が完了しました。"
+            f"計 {processed_zip_count} 件のZIPファイルから {total_extracted_csv_count} 件のCSVを抽出し、"
+            f"{inserted_path_count} 件のCSVパスをDBに記録しました。"
+        )
+
+    except sqlite3.Error as e:
+        logging.error(f"SQLiteデータベース操作中にエラーが発生しました: {e}")
+        logging.debug(traceback.format_exc())
+    except Exception as e:
+        logging.error(f"CSV抽出・DB記録処理中に予期せぬエラーが発生しました: {e}")
+        logging.debug(traceback.format_exc())
+    finally:
+        if conn:
+            conn.close()
+            logging.info("SQLiteデータベース接続を閉じました。")
+    
+    # 必要に応じて一時抽出フォルダのクリーンアップを追加
+    # 例: shutil.rmtree(extract_temp_folder)
+    # ただし、後でCSVファイルの内容を分析するために残しておくことも多いので、ここでは自動削除はしない。
+
+    logging.info("-" * 40)
