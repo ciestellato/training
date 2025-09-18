@@ -11,7 +11,9 @@
         - [edinet\_steps.py](#edinet_stepspy)
         - [edinet\_main.py](#edinet_mainpy)
       - [結果](#結果)
-- [進捗ログのCSV出力(2025-09-18\_)](#進捗ログのcsv出力2025-09-18_)
+- [進捗ログのCSV出力(2025-09-18)](#進捗ログのcsv出力2025-09-18)
+- [ダウンロード失敗のリカバリー(2025-09-18)](#ダウンロード失敗のリカバリー2025-09-18)
+- [Zipの中身確認(2025-09-18)](#zipの中身確認2025-09-18)
 
 ## 参考URL
 
@@ -353,7 +355,7 @@ if __name__ == '__main__':
 
 zipファイルのダウンロードに成功した
 
-## 進捗ログのCSV出力(2025-09-18_)
+## 進捗ログのCSV出力(2025-09-18)
 
 ダウンロード履歴をCSVで出力するようにした。
 
@@ -431,6 +433,8 @@ def step3_execute_download(docs_to_download: pd.DataFrame):
     logging.info("✅ ダウンロード処理が完了しました。")
     logging.info("-" * 40)
 ```
+
+## ダウンロード失敗のリカバリー(2025-09-18)
 
 ダウンロードに失敗したファイルのみを記録して、再ダウンロードできる仕組みを作りたい
 
@@ -811,3 +815,122 @@ def retry_failed_downloads():
 
     logging.info(f"✅ 再試行完了。成功: {len(successful_ids)} 件 / 残り: {len(remaining_df) + len(failed_again)} 件")
 ```
+
+## Zipの中身確認(2025-09-18)
+
+zip_utils.py
+
+```
+from pathlib import Path
+import zipfile
+import logging
+
+def inspect_zip_contents(zip_path: Path) -> list[str]:
+    """
+    指定されたZIPファイルの中身（ファイル名一覧）を返す。
+    """
+    if not zip_path.exists():
+        logging.warning(f"ZIPファイルが存在しません: {zip_path}")
+        return []
+
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            file_list = zip_ref.namelist()
+            logging.info(f"{zip_path.name} の内容:")
+            for f in file_list:
+                logging.info(f"  - {f}")
+            return file_list
+    except zipfile.BadZipFile:
+        logging.error(f"ZIPファイルが壊れている可能性があります: {zip_path}")
+        return []
+
+def extract_xbrl_from_zip(zip_path: Path, extract_to: Path) -> list[Path]:
+    """
+    ZIPファイルからXBRLファイルを抽出し、指定フォルダに保存。
+    抽出されたファイルのパス一覧を返す。
+    """
+    extracted_files = []
+    if not zip_path.exists():
+        logging.warning(f"ZIPファイルが存在しません: {zip_path}")
+        return []
+
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            for file_name in zip_ref.namelist():
+                if file_name.lower().endswith(".xbrl"):
+                    zip_ref.extract(file_name, path=extract_to)
+                    extracted_files.append(extract_to / file_name)
+        logging.info(f"{len(extracted_files)} 件のXBRLファイルを抽出しました。")
+        return extracted_files
+    except zipfile.BadZipFile:
+        logging.error(f"ZIPファイルが壊れている可能性があります: {zip_path}")
+        return []
+```
+
+test_zip_utils.py
+
+```
+import pytest
+from pathlib import Path
+from zip_utils import inspect_zip_contents, extract_xbrl_from_zip
+import zipfile
+
+@pytest.fixture
+def sample_zip(tmp_path):
+    """一時的なZIPファイルを作成して返す"""
+    zip_path = tmp_path / "test_sample.zip"
+    with zipfile.ZipFile(zip_path, 'w') as zipf:
+        zipf.writestr("XBRL/PublicDoc/sample.xbrl", "<xbrl>...</xbrl>")
+        zipf.writestr("README.txt", "This is a test file.")
+    return zip_path
+
+def test_inspect_zip_contents_valid(sample_zip):
+    """正常なZIPファイルの中身を確認"""
+    contents = inspect_zip_contents(sample_zip)
+    assert "XBRL/PublicDoc/sample.xbrl" in contents
+    assert "README.txt" in contents
+    assert len(contents) == 2
+
+def test_inspect_zip_contents_missing():
+    """存在しないZIPファイルを指定した場合"""
+    fake_path = Path("non_existent.zip")
+    contents = inspect_zip_contents(fake_path)
+    assert contents == []
+
+def test_inspect_zip_contents_corrupt(tmp_path):
+    """壊れたZIPファイルを指定した場合"""
+    corrupt_zip = tmp_path / "corrupt.zip"
+    corrupt_zip.write_text("これはZIPではありません")
+    contents = inspect_zip_contents(corrupt_zip)
+    assert contents == []
+
+def test_extract_xbrl_from_zip_valid(sample_zip, tmp_path):
+    """正常なZIPからXBRLファイルを抽出できるか"""
+    extract_dir = tmp_path / "extracted"
+    extracted_files = extract_xbrl_from_zip(sample_zip, extract_dir)
+
+    assert len(extracted_files) == 1
+    assert extracted_files[0].name == "sample.xbrl"
+    assert extracted_files[0].exists()
+    assert extracted_files[0].read_text().startswith("<xbrl>")
+
+def test_extract_xbrl_from_zip_no_xbrl(tmp_path):
+    """XBRLファイルが含まれていないZIPの処理"""
+    zip_path = tmp_path / "no_xbrl.zip"
+    with zipfile.ZipFile(zip_path, 'w') as zipf:
+        zipf.writestr("README.txt", "No XBRL here.")
+    extract_dir = tmp_path / "extracted"
+    extracted_files = extract_xbrl_from_zip(zip_path, extract_dir)
+
+    assert extracted_files == []
+
+def test_extract_xbrl_from_zip_corrupt(tmp_path):
+    """壊れたZIPファイルの処理"""
+    corrupt_zip = tmp_path / "corrupt.zip"
+    corrupt_zip.write_text("Not a zip file")
+    extract_dir = tmp_path / "extracted"
+    extracted_files = extract_xbrl_from_zip(corrupt_zip, extract_dir)
+
+    assert extracted_files == []
+```
+
