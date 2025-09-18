@@ -42,3 +42,13 @@ def extract_xbrl_from_zip(zip_path: Path, extract_to: Path) -> list[Path]:
     except zipfile.BadZipFile:
         logging.error(f"ZIPファイルが壊れている可能性があります: {zip_path}")
         return []
+
+def extract_csv_from_zip(zip_path: Path, extract_to: Path) -> list[Path]:
+    """ZIPファイルからCSVファイルを抽出し、保存先を返す"""
+    extracted_files = []
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        for file_name in zip_ref.namelist():
+            if file_name.lower().endswith(".csv"):
+                zip_ref.extract(file_name, path=extract_to)
+                extracted_files.append(extract_to / file_name)
+    return extracted_files
