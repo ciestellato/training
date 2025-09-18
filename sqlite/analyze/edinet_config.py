@@ -27,6 +27,8 @@ class Config:
     BASE_DIR = Path(os.getenv("EDINET_BASE_DIR", "C:/Users/0602JP/Documents/EDINET_DB/"))
     # ダウンロードしたZIPファイルの保存先
     SAVE_FOLDER = BASE_DIR / "01_zip_files/"
+    # ダウンロード失敗ログの保存先
+    FAILED_LOG_PATH = BASE_DIR / "failed_downloads.csv"
 
     # APIキーの取得とチェック
     API_KEY = os.getenv("EDINET_API_KEY")

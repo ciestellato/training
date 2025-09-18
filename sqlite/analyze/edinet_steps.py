@@ -2,7 +2,7 @@ import os
 import time
 import requests
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from pathlib import Path
 from tqdm import tqdm
 import warnings
@@ -128,6 +128,48 @@ def step2_check_download_status(summary_df: pd.DataFrame):
 
     return docs_to_download
 
+def download_single_file(doc_id: str, submit_date, save_folder: Path) -> bool:
+    """1件のEDINETファイルをダウンロードし、保存。成功ならTrue、失敗ならFalse"""
+    if pd.isna(submit_date):
+        target_folder = save_folder / "unknown_date"
+    else:
+        year = submit_date.year
+        quarter = (submit_date.month - 1) // 3 + 1
+        target_folder = save_folder / str(year) / f"Q{quarter}"
+
+    target_folder.mkdir(parents=True, exist_ok=True)
+    zip_path = target_folder / f"{doc_id}.zip"
+
+    # EDINET API のファイル取得エンドポイント
+    url_zip = f"{Config.API_BASE_URL}/documents/{doc_id}"
+    params_zip = {"type": 5, 'Subscription-Key': Config.API_KEY}
+
+    try:
+        r = requests.get(url_zip, params=params_zip, stream=True, verify=False, timeout=Config.DOWNLOAD_TIMEOUT)
+        r.raise_for_status()
+        with open(zip_path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+        return True
+    except requests.exceptions.RequestException as e:
+        logging.warning(f"ダウンロード失敗: {doc_id}, エラー: {e}")
+        logging.debug(traceback.format_exc())
+        if zip_path.exists():
+            zip_path.unlink()
+        return False
+
+def log_failed_download(doc_id, submit_date, error_msg):
+    """ステップ3でダウンロードに失敗したファイルを記録する"""
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    failed_record = pd.DataFrame([{
+        "docID": doc_id,
+        "submitDateTime": submit_date,
+        "errorMessage": error_msg,
+        "timestamp": timestamp
+    }])
+    failed_log_path = Config.FAILED_LOG_PATH
+    failed_record.to_csv(failed_log_path, mode='a', header=not failed_log_path.exists(), index=False, encoding='utf_8_sig')
+
 def step3_execute_download(docs_to_download: pd.DataFrame):
     """
     ステップ③: 実際にファイルのダウンロードを実行し、年/四半期フォルダに保存する。
@@ -143,34 +185,60 @@ def step3_execute_download(docs_to_download: pd.DataFrame):
     for _, row in tqdm(docs_to_download.iterrows(), total=len(docs_to_download), desc="ZIPダウンロード進捗"):
         doc_id = row['docID']
         submit_date = row['submitDateTime']
-
+        
         # --- ファイル整理のロジック ---
-        if pd.isna(submit_date):
-            target_folder = Config.SAVE_FOLDER / "unknown_date"
-        else:
-            year = submit_date.year
-            quarter = (submit_date.month - 1) // 3 + 1
-            target_folder = Config.SAVE_FOLDER / str(year) / f"Q{quarter}"
+        success = download_single_file(doc_id, submit_date, Config.SAVE_FOLDER)
+        if not success:
+            log_failed_download(doc_id, submit_date, "初回ダウンロード失敗")
 
-        target_folder.mkdir(parents=True, exist_ok=True)
-        zip_path = target_folder / f"{doc_id}.zip"
-
-        # EDINET API のファイル取得エンドポイント
-        url_zip = f"{Config.API_BASE_URL}/documents/{doc_id}"
-        params_zip = {"type": 5, 'Subscription-Key': Config.API_KEY}
-
-        try:
-            r = requests.get(url_zip, params=params_zip, stream=True, verify=False, timeout=Config.DOWNLOAD_TIMEOUT)
-            r.raise_for_status()
-            with open(zip_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-        except requests.exceptions.RequestException as e:
-            logging.warning(f"ダウンロード失敗: {doc_id}, エラー: {e}")
-            logging.debug(traceback.format_exc())
-            if zip_path.exists():
-                zip_path.unlink()
         time.sleep(0.1)
 
     logging.info("✅ ダウンロード処理が完了しました。")
     logging.info("-" * 40)
+
+def retry_failed_downloads():
+    """失敗したダウンロードを再試行し、成功したものはログから削除する"""
+    failed_log_path = Config.FAILED_LOG_PATH
+
+    if not failed_log_path.exists():
+        logging.info("再試行対象の失敗ログは存在しません。")
+        return
+
+    try:
+        failed_df = pd.read_csv(failed_log_path, encoding='utf_8_sig')
+    except Exception as e:
+        logging.error(f"失敗ログの読み込みに失敗しました: {e}")
+        logging.debug(traceback.format_exc())
+        return
+
+    if failed_df.empty:
+        logging.info("失敗ログは空です。")
+        return
+
+    logging.info(f"🔁 {len(failed_df)} 件の失敗ファイルを再試行します。")
+    successful_ids = []
+    failed_again = [] # 再失敗記録用
+
+    for _, row in tqdm(failed_df.iterrows(), total=len(failed_df), desc="再試行中"):
+        doc_id = row['docID']
+        submit_date = pd.to_datetime(row['submitDateTime'], errors='coerce')
+
+        success = download_single_file(doc_id, submit_date, Config.SAVE_FOLDER)
+
+        if success:
+            successful_ids.append(doc_id)
+        else:
+            logging.warning(f"再試行失敗: {doc_id}")
+            failed_again.append((doc_id, submit_date))
+
+        time.sleep(0.1)
+        
+    # 成功したIDをログから削除
+    remaining_df = failed_df[~failed_df['docID'].isin(successful_ids)]
+    remaining_df.to_csv(failed_log_path, index=False, encoding='utf_8_sig')
+
+    # 再記録（失敗したものだけ）
+    for doc_id, submit_date in failed_again:
+        log_failed_download(doc_id, submit_date, "再試行失敗")
+
+    logging.info(f"✅ 再試行完了。成功: {len(successful_ids)} 件 / 残り: {len(remaining_df) + len(failed_again)} 件")

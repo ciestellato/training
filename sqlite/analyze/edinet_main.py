@@ -1,7 +1,8 @@
 from edinet_steps import (
     step1_create_and_summarize,
     step2_check_download_status,
-    step3_execute_download
+    step3_execute_download,
+    retry_failed_downloads
 )
 import logging
 import traceback
@@ -27,18 +28,33 @@ def main() -> bool:
     try:
         logging.info("処理を開始します。")
 
-        summary_data = step1_create_and_summarize()
+        # 🔁 Step 0: 前回の失敗ファイルを再試行
 
+        logging.info("🔁 Step 0: 前回の失敗ファイルを再試行します。")
+        retry_failed_downloads()
+
+        # 🧾 Step 1: サマリー作成
+
+        summary_data = step1_create_and_summarize()
         if summary_data.empty:
             logging.warning("サマリーデータが空です。ダウンロード処理はスキップされます。")
             return False
 
+        # 📋 Step 2: ダウンロード対象の抽出
+
         files_to_download = step2_check_download_status(summary_data)
+
+        # 📦 Step 3: ダウンロード実行
 
         if files_to_download.empty:
             logging.info("新規ダウンロード対象はありません。")
         else:
             step3_execute_download(files_to_download)
+
+        # 🔁 Step 4: 今回の失敗ファイルを再試行
+        
+        logging.info("🔁 Step 4: 今回の失敗ファイルを再試行します。")
+        retry_failed_downloads()
 
         logging.info("全ての処理が完了しました。🎉")
         return True
