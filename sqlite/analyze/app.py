@@ -9,7 +9,7 @@ import plotly.express as px
 import logging
 import io
 import sys
-from flask import request
+from flask import session, request
 
 # 既存のEDINETモジュールをインポート
 from edinet_config import Config
@@ -39,6 +39,12 @@ auth = dash_auth.BasicAuth(
     VALID_USERNAME_PASSWORD_PAIRS
 )
 
+# Flaskの `before_request` を使ってセッションにユーザー名を保存
+@app.server.before_request
+def store_user_in_session():
+    if request.authorization:
+        session['username'] = request.authorization.username
+
 # ✅ Flaskセッションのための secret_key を設定
 app.server.secret_key = os.urandom(24)  # 任意の安全な文字列
 
@@ -61,7 +67,7 @@ logging.getLogger().addHandler(dash_handler)
 
 app.layout = html.Div([
     # ユーザーのログイン状態とロールを保持するためのStore
-    dcc.Store(id='login-status-store', data={'username': None, 'role': None}),
+    dcc.Store(id='login-status-store', storage_type='session'),
     
     html.H1("EDINET Data Dashboard", style={'textAlign': 'center', 'color': '#2C3E50', 'padding': '20px 0'}),
     html.Hr(style={'borderColor': '#EAECEE'}),
@@ -123,11 +129,15 @@ app.layout = html.Div([
         # --- データベース閲覧・可視化パネル ---
         html.Div([
             html.H2("財務データ可視化", style={'borderBottom': '1px solid #ccc', 'paddingBottom': '10px', 'color': '#34495E'}),
+            # 会社名入力
             html.Div([
                 html.Label("会社名または証券コード:", style={'fontWeight': 'bold'}),
                 dcc.Input(id='company-search-input', type='text', placeholder='例: 株式会社○○ または 1234',
                           style={'width': '100%', 'padding': '8px', 'borderRadius': '4px', 'border': '1px solid #ddd'}),
             ], style={'marginBottom': '15px'}),
+            # 🔽 会社名候補表示用のドロップダウン
+            dcc.Dropdown(id='company-dropdown', placeholder='会社を選択', style={'marginBottom': '20px'}),
+            # 会計期間入力
             html.Div([
                 html.Label("会計期間終了日 (YYYY-MM-DD):", style={'fontWeight': 'bold'}),
                 dcc.Input(id='period-end-input', type='text', placeholder='例: 2024-03-31',
@@ -136,6 +146,8 @@ app.layout = html.Div([
             ], style={'marginBottom': '20px'}),
             html.Button("BS/PL概要を表示", id='fetch-financial-data-button', n_clicks=0,
                         style={'backgroundColor': '#6C757D', 'color': 'white', 'padding': '10px 15px', 'border': 'none', 'borderRadius': '4px', 'cursor': 'pointer'}),
+            # 📊 財務データのタブ表示領域
+            html.Div(id='financial-tabs-container', style={'marginTop': '20px'}),
             dcc.Loading(
                 id="loading-financial-data", type="circle",
                 children=[
@@ -162,15 +174,18 @@ app.layout = html.Div([
     Input('interval-component', 'n_intervals'),
     prevent_initial_call=True
 )
-def set_login_status(_):
+def update_login_status(_):
     try:
-        username = request.authorization.username
+        username = session.get('username')
+        if not username:
+            raise ValueError("セッションにユーザー名が存在しません")
+
         role = 'admin' if username == 'admin' else 'user'
         return {'username': username, 'role': role}
     except Exception as e:
-        logging.warning(f"ログインユーザーの取得に失敗しました: {e}")
+        logging.warning(f"ログイン状態の取得に失敗しました: {e}")
         return {'username': None, 'role': None}
-    
+
 # --- ロールに応じた表示切り替えコールバック ---
 @callback(
     Output('admin-sections', 'style'),
@@ -185,6 +200,80 @@ def toggle_sections(login_data):
     elif role == 'user':
         return {'display': 'none'}, {'display': 'block'}
     return {'display': 'none'}, {'display': 'none'}
+
+# 会社名のあいまい検索と候補表示
+@callback(
+    Output('company-dropdown', 'options'),
+    Input('company-search-input', 'value'),
+    prevent_initial_call=True
+)
+def search_company_candidates(search_text):
+    if not search_text:
+        raise dash.exceptions.PreventUpdate
+
+    conn = sqlite3.connect(Config.DB_PATH)
+
+    if search_text.isdigit() and len(search_text) == 4:
+        # 証券コードによる検索
+        query = """
+            SELECT DISTINCT filerName, secCode
+            FROM edinet_document_summaries
+            WHERE secCode = ?
+        """
+        df = pd.read_sql_query(query, conn, params=[search_text])
+    else:
+        # 会社名によるあいまい検索
+        query = """
+            SELECT DISTINCT filerName, secCode
+            FROM edinet_document_summaries
+            WHERE filerName LIKE ?
+            ORDER BY filerName
+        """
+        df = pd.read_sql_query(query, conn, params=[f"%{search_text}%"])
+
+    conn.close()
+
+    return [
+    {'label': f"{row['filerName']} ({row['secCode']})", 'value': row['secCode']}
+    for _, row in df.iterrows()
+    if pd.notnull(row['secCode'])
+    ]
+
+# 選択された会社の財務データ取得
+@callback(
+    Output('financial-tabs-container', 'children'),
+    Input('company-dropdown', 'value'),
+    prevent_initial_call=True
+)
+def display_financial_tabs(sec_code):
+    if not sec_code:
+        raise dash.exceptions.PreventUpdate
+
+    conn = sqlite3.connect(Config.DB_PATH)
+    query = """
+        SELECT fd.*, s.periodEnd
+        FROM edinet_financial_data fd
+        JOIN edinet_document_summaries s ON fd.docID = s.docID
+        WHERE s.secCode = ?
+        ORDER BY s.periodEnd DESC
+    """
+    df = pd.read_sql_query(query, conn, params=[sec_code])
+    conn.close()
+
+    if df.empty:
+        return html.Div("財務データが見つかりませんでした。")
+
+    tabs = []
+    for period_end, group in df.groupby('periodEnd'):
+        tab_label = f"{pd.to_datetime(period_end).year}年{pd.to_datetime(period_end).month}月期"
+        table = dash.dash_table.DataTable(
+            columns=[{"name": i, "id": i} for i in group.columns],
+            data=group.to_dict('records'),
+            page_size=15
+        )
+        tabs.append(dcc.Tab(label=tab_label, children=[table]))
+
+    return dcc.Tabs(children=tabs)
 
 # 設定適用コールバック
 @callback(
@@ -362,7 +451,7 @@ def fetch_and_display_financial_data(n_clicks, company_search, period_end):
                 y="金額",
                 color="会社名",
                 barmode="group",
-                title=f"{df['会社名'].iloc} のBS/PL概要 ({df['会計期間_終了日'].iloc})",
+                title=f"{df['会社名'].iloc[0]} のBS/PL概要 ({df['会計期間_終了日'].iloc[0]})",
                 text="金額" # 金額を棒グラフの上に表示
             )
             # 金額が大きい場合に単位を調整するなどの整形は別途必要
