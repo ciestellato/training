@@ -318,7 +318,7 @@ def retry_failed_downloads():
 
     logging.info(f"✅ 再試行完了。成功: {len(successful_ids)} 件 / 残り: {len(remaining_df) + len(failed_again)} 件")
 
-def step4_store_summary_to_db(summary_df: pd.DataFrame):
+def step5_store_summary_to_db(summary_df: pd.DataFrame):
     """
     ステップ④: 取得したサマリーデータをSQLiteデータベースに保管する。
     テーブル名: edinet_document_summaries
@@ -411,7 +411,7 @@ def step4_store_summary_to_db(summary_df: pd.DataFrame):
             logging.info("SQLiteデータベース接続を閉じました。")
     logging.info("-" * 40)
     
-def step5_extract_and_index_csv(zip_base_folder: Path):
+def step6_extract_and_index_csv(zip_base_folder: Path):
     """
     ステップ⑤: ダウンロード済みZIPファイルからCSVファイルを抽出し、そのパスをSQLiteに記録する。
     CSVファイルは一時抽出フォルダに保管される。
@@ -496,4 +496,140 @@ def step5_extract_and_index_csv(zip_base_folder: Path):
     # 例: shutil.rmtree(extract_temp_folder)
     # ただし、後でCSVファイルの内容を分析するために残しておくことも多いので、ここでは自動削除はしない。
 
+    logging.info("-" * 40)
+
+def step7_parse_and_store_csv_data_to_db():
+    """
+    ステップ⑦: 抽出されたCSVファイルを解析し、財務数値をSQLiteデータベースに保管する。
+    テーブル名: edinet_financial_data (例)
+    """
+    logging.info("--- ステップ⑦ CSV解析と財務数値のSQLite保管 ---")
+
+    conn = None
+    try:
+        conn = sqlite3.connect(Config.DB_PATH)
+        logging.info(f"SQLiteデータベース '{Config.DB_PATH.name}' に接続しました。")
+
+        # 財務データ格納用テーブルの作成（存在しない場合）
+        # docID, secCode, fiscalYear, term, accountName の組み合わせを主キーにすることを検討
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS edinet_financial_data (
+                docID TEXT NOT NULL,
+                secCode TEXT,
+                fiscalYear INTEGER,
+                term TEXT,
+                accountName TEXT NOT NULL,
+                amount REAL,
+                unit TEXT,
+                currency TEXT,
+                PRIMARY KEY (docID, accountName, fiscalYear, term),
+                FOREIGN KEY(docID) REFERENCES edinet_document_summaries(docID)
+            )
+        """)
+        conn.commit()
+
+        # edinet_extracted_csv_details テーブルから、処理対象のCSVパスを取得
+        # まだ解析されていないCSVファイルのみを対象とすることが望ましい
+        # (例: 新しいフラグを edinet_extracted_csv_details に追加し、処理済みをマークするなど)
+        csv_paths_df = pd.read_sql_query(
+            "SELECT docID, extracted_path FROM edinet_extracted_csv_details", conn
+        )
+
+        if csv_paths_df.empty:
+            logging.info("解析対象のCSVファイルパスが見つかりません。")
+            return
+
+        all_financial_data = []
+        processed_csv_count = 0
+
+        for _, row in tqdm(csv_paths_df.iterrows(), total=len(csv_paths_df), desc="CSVファイル解析"):
+            doc_id = row['docID']
+            csv_path = Path(row['extracted_path'])
+
+            if not csv_path.exists():
+                logging.warning(f"CSVファイルが存在しません: {csv_path}。スキップします。")
+                continue
+
+            try:
+                # CSVファイルを読み込み、財務数値を解析するロジックをここに記述
+                # 例: df_csv = pd.read_csv(csv_path)
+                #    # EDINET CSVの構造に合わせてデータを抽出・整形
+                #    # 例えば、特定の列を勘定科目、金額として抽出
+                #    # temp_data = df_csv[['勘定科目名', '金額', '単位', '期間']]
+                #    # temp_data['docID'] = doc_id
+                #    # all_financial_data.append(temp_data)
+
+                # ここでは具体的なCSVレイアウトが不明なため、ダミーデータを例示
+                # 実際のEDINET CSVの構造に合わせて解析処理を実装してください。
+                dummy_data = {
+                    'docID': doc_id,
+                    'secCode': 'xxxx', # docIDから取得する、またはedinet_document_summariesから結合
+                    'fiscalYear': 2023,
+                    'term': 'Annual',
+                    'accountName': '売上高',
+                    'amount': 100000000,
+                    'unit': '円',
+                    'currency': 'JPY'
+                }
+                all_financial_data.append(dummy_data)
+                processed_csv_count += 1
+
+            except Exception as e:
+                logging.error(f"CSVファイル '{csv_path.name}' の解析中にエラーが発生しました: {e}")
+                logging.debug(traceback.format_exc())
+
+        if all_financial_data:
+            financial_df = pd.DataFrame(all_financial_data)
+            
+            # DataFrameをSQLiteテーブルに格納 (INSERT OR REPLACEで重複を避け、更新)
+            # if_exists='append' とし、INSERT OR REPLACE を直接SQLで実行する方が柔軟性があります
+            # pandas.to_sql では if_exists='replace' または 'append' しか選べないため、
+            # 独自のupsertロジックを実装するか、一時テーブル経由でINSERT OR REPLACEを行う
+            # 前回の `step_store_summary_to_db` と同様の手法が利用可能です
+            
+            # --- Upsertロジックの例（前回のsummary_dfと同様） ---
+            # 1. 一時テーブルに書き込む
+            financial_df.to_sql(
+                "temp_edinet_financial_data",
+                conn,
+                if_exists='replace',
+                index=False,
+                dtype={
+                    'docID': 'TEXT',
+                    'secCode': 'TEXT',
+                    'fiscalYear': 'INTEGER',
+                    'term': 'TEXT',
+                    'accountName': 'TEXT',
+                    'amount': 'REAL',
+                    'unit': 'TEXT',
+                    'currency': 'TEXT'
+                }
+            )
+            # 2. INSERT OR REPLACE でメインテーブルへ移動
+            columns = ', '.join(financial_df.columns)
+            conn.execute(f"""
+                INSERT OR REPLACE INTO edinet_financial_data ({columns})
+                SELECT {columns} FROM temp_edinet_financial_data
+            """)
+            conn.commit()
+            # 3. 一時テーブルを削除
+            conn.execute("DROP TABLE temp_edinet_financial_data")
+            conn.commit()
+            # --- Upsertロジックの例 終了 ---
+
+            logging.info(f"✅ {processed_csv_count} 件のCSVファイルを解析し、"
+                         f"{len(financial_df)} 件の財務数値を 'edinet_financial_data' テーブルに保管しました。")
+        else:
+            logging.info("解析・保管された財務数値データはありません。")
+
+    except sqlite3.Error as e:
+        logging.error(f"SQLiteデータベース操作中にエラーが発生しました: {e}")
+        logging.debug(traceback.format_exc())
+    except Exception as e:
+        logging.error(f"CSV解析と財務数値のSQLite保管中に予期せぬエラーが発生しました: {e}")
+        logging.debug(traceback.format_exc())
+    finally:
+        if conn:
+            conn.close()
+            logging.info("SQLiteデータベース接続を閉じました。")
     logging.info("-" * 40)
