@@ -318,7 +318,7 @@ def retry_failed_downloads():
 
     logging.info(f"✅ 再試行完了。成功: {len(successful_ids)} 件 / 残り: {len(remaining_df) + len(failed_again)} 件")
 
-def step_store_summary_to_db(summary_df: pd.DataFrame):
+def step4_store_summary_to_db(summary_df: pd.DataFrame):
     """
     ステップ④: 取得したサマリーデータをSQLiteデータベースに保管する。
     テーブル名: edinet_document_summaries
@@ -333,46 +333,71 @@ def step_store_summary_to_db(summary_df: pd.DataFrame):
         conn = sqlite3.connect(Config.DB_PATH)
         logging.info(f"SQLiteデータベース '{Config.DB_PATH.name}' に接続しました。")
 
-        # 提出書類一覧のJSON構造 [38-44] を考慮し、DataFrameをSQLiteに書き込み
-        # docIDは一意なためプライマリキーとして設定
+        # 1. メインテーブルのスキーマを定義し、存在しない場合は作成する
+        #    docIDは一意の識別子としてPRIMARY KEYに設定する
+        columns_with_types = {
+            'seqNumber': 'INTEGER',
+            'docID': 'TEXT PRIMARY KEY', # docIDを主キーとして定義
+            'edinetCode': 'TEXT',
+            'secCode': 'TEXT',
+            'JCN': 'TEXT',
+            'filerName': 'TEXT',
+            'fundCode': 'TEXT',
+            'ordinanceCode': 'TEXT',
+            'formCode': 'TEXT',
+            'docTypeCode': 'TEXT',
+            'periodStart': 'TEXT',
+            'periodEnd': 'TEXT',
+            'submitDateTime': 'TIMESTAMP',
+            'docDescription': 'TEXT',
+            'issuerEdinetCode': 'TEXT',
+            'subjectEdinetCode': 'TEXT',
+            'subsidiaryEdinetCode': 'TEXT',
+            'currentReportReason': 'TEXT',
+            'parentDocID': 'TEXT',
+            'opeDateTime': 'TIMESTAMP',
+            'withdrawalStatus': 'TEXT',
+            'docInfoEditStatus': 'TEXT',
+            'disclosureStatus': 'TEXT',
+            'xbrlFlag': 'TEXT',
+            'pdfFlag': 'TEXT',
+            'attachDocFlag': 'TEXT',
+            'englishDocFlag': 'TEXT',
+            'csvFlag': 'TEXT',
+            'legalStatus': 'TEXT'
+        }
+        
+        create_table_sql_parts = [f"{col_name} {col_type}" for col_name, col_type in columns_with_types.items()]
+        create_table_sql = f"CREATE TABLE IF NOT EXISTS edinet_document_summaries ({', '.join(create_table_sql_parts)})"
+        conn.execute(create_table_sql)
+        conn.commit()
+
+        # 2. 現在のサマリーデータを一時テーブルに書き込む
+        #    一時テーブルではdocIDをPRIMARY KEYにする必要はないが、型はメインテーブルに合わせる
+        temp_dtype_map = {k: v.replace(' PRIMARY KEY', '') for k, v in columns_with_types.items()}
         summary_df.to_sql(
-            "edinet_document_summaries",
+            "temp_edinet_document_summaries", # 一時テーブル名
             conn,
-            if_exists='replace', # 毎回全件置き換え (運用に合わせて 'append' や 'upsert' を検討)
+            if_exists='replace', # 一時テーブルは毎回置き換える
             index=False,
-            dtype={
-                'seqNumber': 'INTEGER',
-                'docID': 'TEXT PRIMARY KEY', # docIDを主キーに設定
-                'edinetCode': 'TEXT',
-                'secCode': 'TEXT',
-                'JCN': 'TEXT',
-                'filerName': 'TEXT',
-                'fundCode': 'TEXT',
-                'ordinanceCode': 'TEXT',
-                'formCode': 'TEXT',
-                'docTypeCode': 'TEXT',
-                'periodStart': 'TEXT',
-                'periodEnd': 'TEXT',
-                'submitDateTime': 'TIMESTAMP',
-                'docDescription': 'TEXT',
-                'issuerEdinetCode': 'TEXT',
-                'subjectEdinetCode': 'TEXT',
-                'subsidiaryEdinetCode': 'TEXT',
-                'currentReportReason': 'TEXT',
-                'parentDocID': 'TEXT',
-                'opeDateTime': 'TIMESTAMP',
-                'withdrawalStatus': 'TEXT',
-                'docInfoEditStatus': 'TEXT',
-                'disclosureStatus': 'TEXT',
-                'xbrlFlag': 'TEXT',
-                'pdfFlag': 'TEXT',
-                'attachDocFlag': 'TEXT',
-                'englishDocFlag': 'TEXT',
-                'csvFlag': 'TEXT',
-                'legalStatus': 'TEXT'
-            }
+            dtype=temp_dtype_map
         )
-        logging.info(f"✅ サマリーデータを 'edinet_document_summaries' テーブルに保管しました（{len(summary_df)} 件）。")
+        
+        # 3. INSERT OR REPLACE を使って一時テーブルからメインテーブルへデータを移動する
+        #    これにより、docIDが既存の場合はレコードが更新され、新しい場合は挿入される
+        columns = ', '.join(summary_df.columns)
+        conn.execute(f"""
+            INSERT OR REPLACE INTO edinet_document_summaries ({columns})
+            SELECT {columns} FROM temp_edinet_document_summaries
+        """)
+        conn.commit()
+
+        # 4. 一時テーブルを削除する
+        conn.execute("DROP TABLE temp_edinet_document_summaries")
+        conn.commit()
+
+        logging.info(f"✅ サマリーデータを 'edinet_document_summaries' テーブルに保管しました（{len(summary_df)} 件）。"
+                     f"既存のレコードは更新され、新しいレコードが追加されました。")
 
     except sqlite3.Error as e:
         logging.error(f"SQLiteデータベース操作中にエラーが発生しました: {e}")
@@ -385,8 +410,8 @@ def step_store_summary_to_db(summary_df: pd.DataFrame):
             conn.close()
             logging.info("SQLiteデータベース接続を閉じました。")
     logging.info("-" * 40)
-
-def step_extract_and_index_csv(zip_base_folder: Path):
+    
+def step5_extract_and_index_csv(zip_base_folder: Path):
     """
     ステップ⑤: ダウンロード済みZIPファイルからCSVファイルを抽出し、そのパスをSQLiteに記録する。
     CSVファイルは一時抽出フォルダに保管される。

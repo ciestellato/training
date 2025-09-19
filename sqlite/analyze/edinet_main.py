@@ -3,8 +3,8 @@ from edinet_steps import (
     step2_check_download_status,
     step3_execute_download,
     retry_failed_downloads,
-    step_store_summary_to_db,
-    step_extract_and_index_csv 
+    step4_store_summary_to_db,
+    step5_extract_and_index_csv 
 )
 import logging
 import traceback
@@ -59,10 +59,10 @@ def main() -> bool:
         retry_failed_downloads()
 
         # 📊 Step 5: サマリーデータをSQLiteに保管
-        step_store_summary_to_db(summary_data)
+        step4_store_summary_to_db(summary_data)
 
         # 📄 Step 6: ダウンロード済みZIPからCSVを抽出し、パスをSQLiteに記録
-        step_extract_and_index_csv(Config.SAVE_FOLDER)
+        step5_extract_and_index_csv(Config.SAVE_FOLDER)
 
         logging.info("全ての処理が完了しました。🎉")
         return True
