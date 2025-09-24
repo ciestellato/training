@@ -9,8 +9,12 @@ from edinet_steps import (
 )
 import logging
 import traceback
-from edinet_config import Config
 from pathlib import Path
+from edinet_config import Config
+
+# 初期化関数とEngine/Sessionをインポート
+from database_setup import initialize_database
+# from .database import Engine # Engineも必要に応じてインポート
 
 # ログファイルの保存先を指定
 log_path = Config.BASE_DIR / "edinet_log.txt"
@@ -30,6 +34,10 @@ def main() -> bool:
     """EDINETデータの取得とダウンロード処理"""
     try:
         logging.info("処理を開始します。")
+
+        # ***** データベース初期化の実行 *****
+        initialize_database() 
+        # **********************************
 
         # 🔁 Step 0: 前回の失敗ファイルを再試行
 
