@@ -1,10 +1,6 @@
 import os
-import time
 import requests
-import pandas as pd
-from datetime import date, timedelta, datetime
 from pathlib import Path
-from tqdm import tqdm  # notebookではなく通常版
 import warnings
 from dotenv import load_dotenv  # .envファイルから読み込む
 
@@ -25,6 +21,8 @@ class Config:
 
     # 基本パス（環境変数が未設定ならデフォルト値を使用）
     BASE_DIR = Path(os.getenv("EDINET_BASE_DIR", "C:/Users/0602JP/Documents/EDINET_DB/"))
+    
+    # -- ダウンロード関係 --
     # ダウンロードしたZIPファイルの保存先
     SAVE_FOLDER = BASE_DIR / "01_zip_files/"
     # ダウンロード失敗ログの保存先
@@ -32,6 +30,10 @@ class Config:
 
     # SQLiteデータベースファイルのパス
     DB_PATH = BASE_DIR / "edinet_data.db"
+
+    # logの保存先
+    script_path = Path(__file__).resolve().parent
+    LOG_PATH = script_path / "logs" / "edinet_log.txt"
     
     # CSV一時抽出フォルダのパス (SQLite格納後、削除を検討)
     EXTRACTED_CSV_TEMP_FOLDER = BASE_DIR / "02_extracted_csv_temp/"

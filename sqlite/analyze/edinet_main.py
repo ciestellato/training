@@ -1,4 +1,8 @@
-from edinet_steps import (
+import logging
+import traceback
+
+from edinet_config import Config
+from edinet_pipeline.edinet_steps import (
     step1_create_and_summarize,
     step2_check_download_status,
     step3_execute_download,
@@ -7,17 +11,11 @@ from edinet_steps import (
     step6_extract_and_index_csv,
     step7_parse_and_store_csv_data_to_db
 )
-import logging
-import traceback
-from pathlib import Path
-from edinet_config import Config
 
-# 初期化関数とEngine/Sessionをインポート
-from database_setup import initialize_database
-# from .database import Engine # Engineも必要に応じてインポート
+from edinet_pipeline.database_setup import initialize_database
 
 # ログファイルの保存先を指定
-log_path = Config.BASE_DIR / "edinet_log.txt"
+log_path = Config.LOG_PATH
 
 # ログ設定：INFO以上を表示、ファイルとコンソール両方に出力
 logging.basicConfig(
