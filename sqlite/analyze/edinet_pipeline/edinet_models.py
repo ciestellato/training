@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, Text, DateTime
+from sqlalchemy import Column, Integer, Text, DateTime, String, Date, Float, ForeignKey, Index
+from sqlalchemy.orm import relationship
 from .base import Base 
 
 class EdinetDocumentSummary(Base):
@@ -43,3 +44,34 @@ class EdinetDocumentSummary(Base):
     englishDocFlag = Column(Text)          # 英文ファイル有無フラグ
     csvFlag = Column(Text)                 # CSV有無フラグ
     legalStatus = Column(Text)             # 縦覧区分 (API仕様書№40)
+
+    # 関連付けるリレーションシップ名を定義
+    extracted_details = relationship("EdinetExtractedCsvDetails", back_populates="summary") # <- これも追加 (モデル定義にはありませんでしたが、リレーションシップのために必要)
+
+class EdinetExtractedCsvDetails(Base):
+    """CSV抽出詳細テーブルのモデル"""
+    __tablename__ = 'edinet_extracted_csv_details'
+    
+    # 既存のテーブル構造に合わせてカラムを定義
+    id = Column(Integer, primary_key=True, index=True)
+    docID = Column(String, ForeignKey('edinet_document_summaries.docID'), nullable=False)
+    csv_path = Column(String, unique=True, nullable=False)
+    extracted_at = Column(Date)
+
+    # リレーションシップ（オプション）
+    summary = relationship("EdinetDocumentSummary", back_populates="extracted_details")
+
+class EdinetFinancialData(Base):
+    """財務データテーブルのモデル"""
+    __tablename__ = 'edinet_financial_data'
+    
+    # 財務データの要素（例：element_id, value, context, unitなど）を定義
+    id = Column(Integer, primary_key=True, index=True)
+    docID = Column(String, nullable=False, index=True)
+    element_id = Column(String, nullable=False)
+    context_ref = Column(String)
+    unit_ref = Column(String)
+    value = Column(Float)
+    
+    # 必要に応じてインデックスを追加
+    __table_args__ = (Index('idx_financial_data_lookup', 'docID', 'element_id'),) 

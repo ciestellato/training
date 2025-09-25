@@ -5,18 +5,18 @@ from datetime import date, timedelta, datetime
 from pathlib import Path
 from tqdm import tqdm
 import warnings
-from edinet_config import Config
 import logging
 import traceback
-import sqlite3 # SQLiteをインポート
 from sqlalchemy.dialects import sqlite
 from sqlalchemy import text # text()関数を使用して、Core SQL操作を行う
 
-# zip_utilsからCSV抽出関数をインポート
-from .zip_utils import extract_csv_from_zip 
+from edinet_config import Config
+from .zip_utils import extract_csv_from_zip # zip_utilsからCSV抽出関数をインポート 
 from .database_setup import Engine # データベースモジュールから Engine をインポート
+from .database_setup import get_db # DIヘルパー関数をインポート
+from .edinet_models import EdinetExtractedCsvDetails
 from edinet_api import update_summary_file,download_single_file
-from . import storage_repo
+from . import storage_repo  # .pyファイルをまるごとインポートするときの書き方
 from . import file_processor
 
 # urllib3のInsecureRequestWarningを非表示にする
@@ -57,9 +57,9 @@ def step2_check_download_status(summary_df: pd.DataFrame):
 
     # --- ▼▼▼ ダウンロード対象の条件を定義 ▼▼▼ ---
     query_str = (
-        "csvFlag == '1' and " # CSV有無フラグが'1' [44]
+        "csvFlag == '1' and " # CSV有無フラグが'1'
         "secCode.notna() and secCode != 'None' and " # 証券コードが存在する
-        f"docTypeCode in {Config.TARGET_DOC_TYPE_CODES}" # 対象書類タイプコード [107]
+        f"docTypeCode in {Config.TARGET_DOC_TYPE_CODES}" # 対象書類タイプコード
     )
     target_docs = summary_df.query(query_str)
     # --- ▲▲▲ ダウンロード対象の条件を定義 ▲▲▲ ---
@@ -182,8 +182,12 @@ def step6_extract_and_index_csv(zip_base_folder: Path):
     ステップ⑤: ダウンロード済みZIPファイルからCSVファイルを抽出し、そのパスをSQLiteに記録する。
     """
     logging.info("--- ステップ⑤ CSV抽出と抽出パスのSQLite記録 ---")
-    # ファイル処理層に抽出と、リポジトリ層へのインデックス作成を依頼
-    file_processor.extract_and_index_all_csvs(zip_base_folder, storage_repo)
+    # セッションを取得する
+    # get_db() はジェネレータなので、with文で安全に利用する
+    with get_db() as db:
+        # file_processor層に、リポジトリ層モジュールとデータベースセッションの両方を渡す
+        file_processor.extract_and_index_all_csvs(zip_base_folder, storage_repo, db)
+        
     logging.info("-" * 40)
 
 def step7_parse_and_store_csv_data_to_db():
@@ -192,13 +196,40 @@ def step7_parse_and_store_csv_data_to_db():
     """
     logging.info("--- ステップ⑦ CSV解析と財務数値のSQLite保管 ---")
 
-    # 1. リポジトリから解析対象のCSVパスを取得
-    csv_paths_df = file_processor.get_csv_paths_from_repo()
-    
+    csv_paths_df = pd.DataFrame()
+
+    # 1. リポジトリから解析対象のCSVパスを取得 (SQLAlchemyセッションを使用)
+    try:
+        # get_db() を使用してセッションを安全に開始
+        with get_db() as db: 
+            # EdinetExtractedCsvDetails テーブル全体から docID と csv_path を取得
+            # docID と csv_path は ORMモデル (EdinetExtractedCsvDetails) で定義されている [3, 4]
+            # パフォーマンス向上のため、データベースから直接Pandas DataFrameに読み込む
+            
+            # SQL文を定義（ここでは、EdinetExtractedCsvDetailsからdocIDとcsv_pathを取得）
+            # ORMのBase定義がdb.bind (Engine)にリンクされているため、read_sqlが使用可能
+            
+            # テーブル名: edinet_extracted_csv_details [3]
+            sql_query = """
+                SELECT 
+                    docID, 
+                    csv_path AS extracted_path
+                FROM 
+                    edinet_extracted_csv_details
+            """
+            
+            csv_paths_df = pd.read_sql(sql_query, db.bind)
+            
+    except Exception as e:
+        logging.error(f"CSVパスの取得中にエラーが発生しました: {e}")
+        # エラーが発生した場合はここで処理を中断
+        raise 
+        
     # 2. ファイル処理層でCSVを解析し、整形されたDataFrameを取得
     financial_df = file_processor.parse_all_financial_csvs(csv_paths_df)
 
     # 3. リポジトリ層を使ってデータベースに保管
     if not financial_df.empty:
         storage_repo.store_financial_data(financial_df)
+    
     logging.info("-" * 40)

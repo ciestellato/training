@@ -1,0 +1,20 @@
+# EDINETデータ処理プロジェクトの依存関係
+
+# データ操作/分析
+pandas
+tqdm
+python-dotenv
+
+# APIリクエスト
+requests
+
+# データベース操作 (ORMおよびSQLite接続)
+SQLAlchemy
+
+# Webインターフェース (Dash/Plotly) 関連
+dash
+dash-auth
+plotly
+
+# その他の依存関係
+pytest

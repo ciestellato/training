@@ -1,16 +1,23 @@
+import io
 import pandas as pd
 from pathlib import Path
 import logging
+import csv
 import sqlite3
+from sqlalchemy.orm import Session
 from tqdm import tqdm
+from typing import Optional
+
 from edinet_config import Config
+from .edinet_models import EdinetExtractedCsvDetails
+from .database_setup import Base  # Baseは既存のファイルからインポート
 from .zip_utils import extract_csv_from_zip # 既存のZIP抽出ユーティリティを利用
 
 """責任範囲：ローカルでのファイル操作やデータ解析。"""
 
 # --- 1. ZIPからCSVを抽出する (旧 step6 のファイル操作ロジック) ---
 
-def extract_and_index_all_csvs(zip_base_folder: Path, repo):
+def extract_and_index_all_csvs(zip_base_folder: Path, repo, db: Session):
     """
     指定されたフォルダ内の全てのZIPからCSVを抽出し、パスをリポジトリ (DB) に記録する。
     repo は storage_repo.py モジュールを指すことを想定。
@@ -38,8 +45,9 @@ def extract_and_index_all_csvs(zip_base_folder: Path, repo):
 
             if extracted_csv_paths:
                 for csv_path in extracted_csv_paths:
-                    # DBへの記録はリポジトリに委託
-                    repo.index_extracted_csv_path(doc_id, csv_path.name, str(csv_path))
+                    # DBへの記録はセッションを渡して実行
+                    # repoはここではstorage_repoモジュールを指す
+                    repo.index_extracted_csv_path(doc_id, csv_path.name, db) # <= db セッションを渡す
                     inserted_path_count += 1
 
         except Exception as e:
@@ -50,26 +58,87 @@ def extract_and_index_all_csvs(zip_base_folder: Path, repo):
 
 # --- 2. データベースから解析対象のCSVパスを読み込む ---
 
-def get_csv_paths_from_repo() -> pd.DataFrame:
+def get_csv_paths_from_repo(docID: str, db: Session) -> list[str]:
     """
-    DB (edinet_extracted_csv_details) から解析対象のCSVパスを読み込む。
+    指定されたdocIDに関連するCSVパスを取得します。
     """
-    conn = None
-    try:
-        conn = sqlite3.connect(Config.DB_PATH)
-        # 既存のステップ7のロジック [10] を流用
-        csv_paths_df = pd.read_sql_query(
-            "SELECT docID, extracted_path FROM edinet_extracted_csv_details", conn
-        )
-        return csv_paths_df
-    except sqlite3.Error as e:
-        logging.error(f"CSVパスの読み込み中にエラーが発生しました: {e}")
-        return pd.DataFrame()
-    finally:
-        if conn:
-            conn.close()
+    results = db.query(EdinetExtractedCsvDetails.csv_path)\
+                .filter(EdinetExtractedCsvDetails.docID == docID)\
+                .all()
+    
+    # 結果がタプルのリストで返されるため、文字列のリストに変換
+    return [path for path in results]
 
 # --- 3. CSVファイルを解析し、財務データDataFrameを生成する (旧 step7 の解析ロジック) ---
+
+def robust_read_edinet_csv(cleaned_data: str, file_path: str) -> Optional[pd.DataFrame]: 
+    """
+    EDINET CSV/TSVファイルを、カンマ区切り、タブ区切り、引用符緩和の順で
+    堅牢に読み込む関数。
+    """
+    # 読み込みオプション
+    base_options = {
+        'engine': 'python',
+        'on_bad_lines': 'warn'  # 不良行を検出した場合に警告を出す
+    }
+    df = []
+
+    # 1. カンマ区切り (デフォルトのCSV) として試行
+    try:
+        df = pd.read_csv(io.StringIO(cleaned_data), sep=',', **base_options)
+        logging.debug(f"成功: {file_path} をカンマ区切りで読み込みました。")
+    except pd.errors.ParserError:
+        logging.warning(f"警告: {file_path} のカンマ区切り解析に失敗しました。")
+        pass # 失敗したら次に進む
+
+    # 2. タブ区切り (TSV) として試行
+    if df is None:
+        try:
+            df = pd.read_csv(io.StringIO(cleaned_data), sep='\t', **base_options)
+            logging.debug(f"成功: {file_path} をタブ区切りで読み込みました。")
+        except pd.errors.ParserError:
+            logging.warning(f"警告: {file_path} のタブ区切り解析に失敗しました。")
+            pass # 失敗したら次に進む
+
+    # 3. 最終手段: タブ区切り + 引用符処理を無効化 (QUOTE_NONE) して試行
+    # 注: データ内にカンマやタブが含まれていた場合、列が崩れるリスクがあります。
+    if df is None:
+        try:
+            options_no_quote = base_options.copy()
+            options_no_quote['quoting'] = csv.QUOTE_NONE
+            df = pd.read_csv(io.StringIO(cleaned_data), sep='\t', **options_no_quote)
+            logging.warning(f"成功: {file_path} をタブ区切り、引用符無効化で読み込みました。データ品質を確認してください。")
+        except pd.errors.ParserError as e:
+            logging.warning(f"警告: {file_path} のタブ区切り+QUOTE_NONE解析に失敗しました。")
+            pass # 失敗したら次に進む
+
+    # 4. カンマ区切り + 引用符処理を無効化 (QUOTE_NONE) して試行
+    # カンマ区切りだが、引用符が不規則で通常解析に失敗するケースに対応
+    if df is None:
+        try:
+            options_no_quote = base_options.copy()
+            options_no_quote['quoting'] = csv.QUOTE_NONE
+            df = pd.read_csv(io.StringIO(cleaned_data), sep=',', **options_no_quote)
+            logging.warning(f"成功: {file_path} をカンマ区切り、引用符無効化で読み込みました。データ品質を確認してください。")
+        except pd.errors.ParserError as e:
+            logging.error(f"致命的エラー: {file_path} の解析がすべての試行で失敗しました: {e}")
+            return None
+        
+    # 読み込みが一度でも成功した場合、要素IDチェックに進む
+    if df is not None:
+        
+        # 5. カラム名（ヘッダー）の前後にある空白を削除する (前回の修正点)
+        df.columns = df.columns.str.strip() 
+
+        # 6. 「要素ID」カラムが存在するか確認し、存在しなければスキップ (ご要望の追加ロジック)
+        if '要素ID' not in df.columns:
+            # 要素IDがない場合、これは財務数値CSVとして処理すべきでないファイルであると判断し、Noneを返す
+            logging.warning(f"CSVファイル '{file_path}' は「要素ID」を含まないため、財務データ解析をスキップします。")
+            return None # Noneを返してスキップさせる
+
+        return df
+
+    return None # 読み込み試行全体が失敗した場合
 
 def parse_all_financial_csvs(csv_paths_df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -93,12 +162,22 @@ def parse_all_financial_csvs(csv_paths_df: pd.DataFrame) -> pd.DataFrame:
     for _, row in tqdm(csv_paths_df.iterrows(), total=len(csv_paths_df), desc="CSVファイル解析"):
         doc_id = row['docID']
         csv_path = Path(row['extracted_path'])
+        df_csv = None
         
         if not csv_path.exists():
             logging.warning(f"CSVファイルが存在しません: {csv_path}。スキップします。")
             continue
 
         try:
+            # --- 分岐ロジック (1/2)---
+            # 1. 監査報告書など、財務数値でないCSVファイルの除外 (または専用処理)
+            # CSVファイル名には、XBRLタクソノミに基づき接頭辞が付与されていることが多い
+            if csv_path.name.startswith("jpaud-"):
+                # 監査報告書なので、財務数値抽出の対象外とする
+                logging.debug(f"監査報告書ファイルを除外しました: {csv_path.name}")
+                continue
+                
+
             # 実際のEDINET CSVの構造に合わせて解析処理を実装
             
             # EDINETのCSVファイルは、XBRLから変換された形式（例: [11] のような要素IDベース）
@@ -108,17 +187,24 @@ def parse_all_financial_csvs(csv_paths_df: pd.DataFrame) -> pd.DataFrame:
             # 必要な勘定科目（例: 売上高、資産合計）を抽出し、DataFrameを整形するロジックを実装する前提で、
             # サンプルデータの抽出処理を記述します。
             
-            df_csv = pd.read_csv(csv_path, encoding='utf-16')
+            # まずファイルをバイナリモードで開き、UTF-16でデコード
+            with open(csv_path, 'rb') as f:
+                # 1. バイナリを読み込み、UTF-16 LEを試す (EDINET CSVはLE形式が多い傾向がある)
+                # UTF-16 の代わりに 'utf-16-le' を明示的に指定することで、BOMがない場合の処理を安定させる
+                decoded_data = f.read().decode('utf-16-le', errors='ignore') 
             
-            # --- 分岐ロジック ---
+            # 2. ヌル文字（\x00）を強制的に削除する
+            # UTF-16ファイルを間違ったエンコーディングで扱うと発生しやすい問題に対処
+            cleaned_data = decoded_data.replace('\x00', '')
             
-            # 1. 監査報告書など、財務数値でないCSVファイルの除外 (または専用処理)
-            # CSVファイル名には、XBRLタクソノミに基づき接頭辞が付与されていることが多い
-            if csv_path.name.startswith("jpaud-"):
-                # 監査報告書なので、財務数値抽出の対象外とする
-                logging.debug(f"監査報告書ファイルを除外しました: {csv_path.name}")
+            # 3. 堅牢な読み込み関数を使用してDataFrameを取得
+            df_csv = robust_read_edinet_csv(cleaned_data, csv_path.name)
+            
+            # 4. 読み込みが失敗した場合は、次のファイルに進む
+            if df_csv is None:
                 continue
-                
+
+            # --- 分岐ロジック (2/2)---
             # 2. 財務数値CSVを処理
             if '要素ID' not in df_csv.columns:
                 # 財務数値CSVだが、ヘッダーが想定外

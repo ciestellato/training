@@ -1,10 +1,13 @@
 import pandas as pd
 import logging
 import sqlite3
-from sqlalchemy import text
+from sqlalchemy import text, Float
+from sqlalchemy.orm import Session
+from datetime import date
 
 from .database_setup import Engine # 初期化されたEngineをインポート
 from edinet_config import Config # ConfigはDB_PATHなどに必要
+from .edinet_models import EdinetExtractedCsvDetails, EdinetFinancialData
 
 """責任範囲：データベースへのアクセス（永続化）処理。"""
 
@@ -47,90 +50,82 @@ def store_document_summaries(summary_df: pd.DataFrame):
 
 # --- 2. CSV抽出パスのインデックス作成 (旧 step6 のDB記録ロジック) ---
 
-def index_extracted_csv_path(doc_id: str, csv_filename: str, extracted_path: str):
+def index_extracted_csv_path(docID: str, csv_path: str, db: Session):
     """
-    抽出されたCSVファイルのパスをデータベースに記録する。
-    テーブル: edinet_extracted_csv_details
+    抽出されたCSVパスをデータベースに記録します。
+    :param docID: EDINET書類ID
+    :param csv_path: 抽出されたCSVファイルのパス
+    :param db: SQLAlchemy Sessionオブジェクト (依存性注入されることを想定)
     """
-    # NOTE: SQLite接続を都度行うか、SessionLocalを使うか、Engineの接続を使うかは設計によるが、
-    # ここでは既存のstep6のロジック [6] に倣い、生のsqlite3接続を使用する（またはEngine.connect()を使う）。
-    # ここでは簡潔のため、sqlite3を直接使用するパターンを維持します。
-    conn = None
-    try:
-        conn = sqlite3.connect(Config.DB_PATH)
-        # テーブル作成ロジック（initialize_dbで既に実行済みだが、念のため）
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS edinet_extracted_csv_details (
-                docID TEXT NOT NULL,
-                csv_filename TEXT NOT NULL,
-                extracted_path TEXT PRIMARY KEY,
-                extraction_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY(docID) REFERENCES edinet_document_summaries(docID)
-            )
-        """)
-        
-        # INSERT OR REPLACE でパスを記録
-        conn.execute(
-            "INSERT OR REPLACE INTO edinet_extracted_csv_details (docID, csv_filename, extracted_path) VALUES (?, ?, ?)",
-            (doc_id, csv_filename, extracted_path)
-        )
-        conn.commit()
+    
+    # 既存のレコードがあるか確認（更新が必要な場合）
+    existing_entry = db.query(EdinetExtractedCsvDetails).filter_by(docID=docID).first()
 
-    except sqlite3.Error as e:
-        logging.error(f"CSVパスのDB記録中にSQLiteエラーが発生しました: {e}")
-        raise
-    finally:
-        if conn:
-            conn.close()
+    if existing_entry:
+        # 更新
+        existing_entry.csv_path = csv_path
+        existing_entry.extracted_at = date.today()
+        # db.add(existing_entry) # 変更されたオブジェクトは自動的に追跡される
+        
+    else:
+        # 新規挿入
+        new_entry = EdinetExtractedCsvDetails(
+            docID=docID,
+            csv_path=csv_path,
+            extracted_at=date.today()
+        )
+        db.add(new_entry)
+    
+    # 変更を確定
+    db.commit()
+    db.refresh(new_entry or existing_entry)
+    
+    return True
 
 # --- 3. 財務データの保管 (旧 step7 のコアロジック) ---
 
-def store_financial_data(financial_df: pd.DataFrame):
+def store_financial_data(df_financial_data: pd.DataFrame, engine=Engine):
     """
-    解析済みの財務データDataFrameをデータベースにUpsertする。
-    テーブル: edinet_financial_data
+    Pandas DataFrameの財務データをSQLAlchemy Engineを介して格納します。
+    （元の実装のように、一時テーブルを使ってUpsertを行う想定）
     """
-    if financial_df.empty:
-        logging.info("保管する財務データがありません。")
-        return
+    temp_table_name = 'edinet_financial_data_temp'
+    target_table_name = EdinetFinancialData.__tablename__ # 'edinet_financial_data'
 
-    # Engineではなく、直接SQLite接続を使用してUpsertを実行する (既存のstep7 [4] のロジックを移植)
-    conn = None
-    try:
-        conn = sqlite3.connect(Config.DB_PATH)
+    # 1. SQLAlchemy Engineを使ってトランザクションを開始
+    with engine.begin() as connection:
         
-        # 財務データテーブルの定義 (PKはdocID, accountName, fiscalYear, termの組み合わせ)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS edinet_financial_data (
-                docID TEXT NOT NULL,
-                secCode TEXT,
-                fiscalYear INTEGER,
-                term TEXT,
-                accountName TEXT NOT NULL,
-                amount REAL,
-                unit TEXT,
-                currency TEXT,
-                PRIMARY KEY (docID, accountName, fiscalYear, term),
-                FOREIGN KEY(docID) REFERENCES edinet_document_summaries(docID)
-            )
-        """)
+        # 2. データのロード (Pandas to_sqlにSQLAlchemyのConnectionを使用)
+        # to_sqlはデフォルトで生のコネクションではなくSQLAlchemyのコネクションを使用可能
+        df_financial_data.to_sql(
+            temp_table_name,
+            con=connection, # SQLAlchemyの接続オブジェクトを使用
+            if_exists='replace',
+            index=False,
+            dtype={
+                'value': Float  # データ型を明示的に指定可能
+            }
+        )
+
+        # 3. UPSERT/MERGE操作 (生のSQLをSQLAlchemy Coreのtext()でラップ)
+        # SQLiteでは標準のUPSERT(ON CONFLICT)を使用するか、またはMERGEの代わりとなるINSERT OR REPLACEを使用
         
-        # 一時テーブル経由で INSERT OR REPLACE を実行
-        financial_df.to_sql("temp_edinet_financial_data", conn, if_exists='replace', index=False)
+        # 簡易的なMERGE/UPSERT操作 (SQLiteのINSERT OR IGNOREやREPLACEを使用する)
+        # ここでは、データ量が多いため、既存データが衝突しない前提で速度優先でINSERTを行うか、
+        # または、複雑なWHERE句を伴うMERGE操作が必要であれば、SQLAlchemy CoreのDELETE+INSERTを使用します。
+        
+        # 例: 既存データとの衝突を考慮した挿入（ここではシンプルに一時テーブルから移動）
+        # ※実際のUpsertロジックは元の実装に合わせて記述してください。
 
-        columns = ', '.join(financial_df.columns)
-        conn.execute(f"""
-            INSERT OR REPLACE INTO edinet_financial_data ({columns})
-            SELECT {columns} FROM temp_edinet_financial_data
-        """)
-        conn.execute("DROP TABLE temp_edinet_financial_data")
-        conn.commit()
+        connection.execute(text(f"""
+            INSERT OR REPLACE INTO {target_table_name} 
+            (docID, element_id, context_ref, unit_ref, value)
+            SELECT docID, element_id, context_ref, unit_ref, value
+            FROM {temp_table_name};
+        """))
 
-        logging.info(f"✅ {len(financial_df)} 件の財務数値をDBに保管しました。")
+        # 4. 一時テーブルの削除
+        connection.execute(text(f"DROP TABLE IF EXISTS {temp_table_name};"))
 
-    except sqlite3.Error as e:
-        logging.error(f"財務データのDB保管中にSQLiteエラーが発生しました: {e}")
-        raise
-    finally:
-        if conn:
-            conn.close()
+    # トランザクションが成功すれば自動でコミットされます。
+    return True

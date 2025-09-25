@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
 
 from .edinet_models import Base
 from edinet_config import Config
@@ -22,6 +23,7 @@ def initialize_database():
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=Engine)
 
 # 依存性注入（DI）のためのセッション取得ヘルパー関数
+@contextmanager
 def get_db():
     db = SessionLocal()
     try:
