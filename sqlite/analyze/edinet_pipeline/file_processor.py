@@ -77,68 +77,53 @@ def robust_read_edinet_csv(cleaned_data: str, file_path: str) -> Optional[pd.Dat
     堅牢に読み込む関数。
     """
     # 読み込みオプション
-    base_options = {
-        'engine': 'python',
-        'on_bad_lines': 'warn'  # 不良行を検出した場合に警告を出す
+    common_options = {
+        'engine': 'python',      # Pythonエンジンを使用することで、より柔軟な解析を可能にする
+        'on_bad_lines': 'warn'   # 不良行を検出した場合に処理を続行しつつ警告を出す [1]
     }
-    df = []
+    
+    # 試行パターンを定義
+    # 1. タブ区切り + 引用符処理あり
+    trials = [
+        {'sep': '\t', 'quoting': csv.QUOTE_ALL, 'comment': 'タブ区切り + 引用符あり'},
+        {'sep': '\t', 'quoting': csv.QUOTE_NONE, 'comment': 'タブ区切り + 引用符無視'},
+        # 以前警告が出ていたカンマ区切りは後に回す
+        {'sep': ',', 'quoting': csv.QUOTE_ALL, 'comment': 'カンマ区切り + 引用符あり'},
+        {'sep': ',', 'quoting': csv.QUOTE_NONE, 'comment': 'カンマ区切り + 引用符無視'},
+    ]
 
-    # 1. カンマ区切り (デフォルトのCSV) として試行
-    try:
-        df = pd.read_csv(io.StringIO(cleaned_data), sep=',', **base_options)
-        logging.debug(f"成功: {file_path} をカンマ区切りで読み込みました。")
-    except pd.errors.ParserError:
-        logging.warning(f"警告: {file_path} のカンマ区切り解析に失敗しました。")
-        pass # 失敗したら次に進む
-
-    # 2. タブ区切り (TSV) として試行
-    if df is None:
+    df = None
+    
+    for trial in trials:
         try:
-            df = pd.read_csv(io.StringIO(cleaned_data), sep='\t', **base_options)
-            logging.debug(f"成功: {file_path} をタブ区切りで読み込みました。")
-        except pd.errors.ParserError:
-            logging.warning(f"警告: {file_path} のタブ区切り解析に失敗しました。")
-            pass # 失敗したら次に進む
+            options = {**common_options, **trial}
+            
+            # quoting オプションを個別に取得・削除
+            quoting = options.pop('quoting')
+            comment = options.pop('comment')
 
-    # 3. 最終手段: タブ区切り + 引用符処理を無効化 (QUOTE_NONE) して試行
-    # 注: データ内にカンマやタブが含まれていた場合、列が崩れるリスクがあります。
-    if df is None:
-        try:
-            options_no_quote = base_options.copy()
-            options_no_quote['quoting'] = csv.QUOTE_NONE
-            df = pd.read_csv(io.StringIO(cleaned_data), sep='\t', **options_no_quote)
-            logging.warning(f"成功: {file_path} をタブ区切り、引用符無効化で読み込みました。データ品質を確認してください。")
+            df = pd.read_csv(io.StringIO(cleaned_data), quoting=quoting, **options)
+
+            # カラム名の空白除去（EDINETデータではよく発生する）
+            df.columns = df.columns.str.strip()
+            
+            logging.debug(f"成功: {file_path} を {comment} で読み込みました。")
+            break # 成功したらループを抜ける
+            
         except pd.errors.ParserError as e:
-            logging.warning(f"警告: {file_path} のタブ区切り+QUOTE_NONE解析に失敗しました。")
-            pass # 失敗したら次に進む
-
-    # 4. カンマ区切り + 引用符処理を無効化 (QUOTE_NONE) して試行
-    # カンマ区切りだが、引用符が不規則で通常解析に失敗するケースに対応
-    if df is None:
-        try:
-            options_no_quote = base_options.copy()
-            options_no_quote['quoting'] = csv.QUOTE_NONE
-            df = pd.read_csv(io.StringIO(cleaned_data), sep=',', **options_no_quote)
-            logging.warning(f"成功: {file_path} をカンマ区切り、引用符無効化で読み込みました。データ品質を確認してください。")
-        except pd.errors.ParserError as e:
-            logging.error(f"致命的エラー: {file_path} の解析がすべての試行で失敗しました: {e}")
-            return None
-        
-    # 読み込みが一度でも成功した場合、要素IDチェックに進む
-    if df is not None:
-        
-        # 5. カラム名（ヘッダー）の前後にある空白を削除する (前回の修正点)
-        df.columns = df.columns.str.strip() 
-
-        # 6. 「要素ID」カラムが存在するか確認し、存在しなければスキップ (ご要望の追加ロジック)
-        if '要素ID' not in df.columns:
-            # 要素IDがない場合、これは財務数値CSVとして処理すべきでないファイルであると判断し、Noneを返す
-            logging.warning(f"CSVファイル '{file_path}' は「要素ID」を含まないため、財務データ解析をスキップします。")
-            return None # Noneを返してスキップさせる
-
+            logging.debug(f"失敗: {file_path} ({comment}) - ParserError: {e}")
+            df = None
+        except Exception:
+            # その他のエラー処理
+            df = None
+    
+    # 最終チェック
+    if df is not None and '要素ID' in df.columns:
         return df
-
-    return None # 読み込み試行全体が失敗した場合
+    
+    # 要素IDがない場合、または全ての試行が失敗した場合
+    logging.warning(f"CSVファイル '{file_path}' は「要素ID」を含まないか、読み込みに失敗したため、解析をスキップします。")
+    return None
 
 def parse_all_financial_csvs(csv_paths_df: pd.DataFrame) -> pd.DataFrame:
     """
