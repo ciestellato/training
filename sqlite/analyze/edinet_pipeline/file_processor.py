@@ -15,7 +15,7 @@ from .zip_utils import extract_csv_from_zip # 既存のZIP抽出ユーティリ�
 
 """責任範囲：ローカルでのファイル操作やデータ解析。"""
 
-# --- 1. ZIPからCSVを抽出する (旧 step6 のファイル操作ロジック) ---
+# --- 1. ZIPからCSVを抽出する ---
 
 def extract_and_index_all_csvs(zip_base_folder: Path, repo, db: Session):
     """
@@ -39,7 +39,7 @@ def extract_and_index_all_csvs(zip_base_folder: Path, repo, db: Session):
         doc_id = zip_file_path.stem 
         
         try:
-            # 抽出を実行 [9]
+            # 抽出を実行
             current_extract_folder = extract_temp_folder / doc_id
             extracted_csv_paths = extract_csv_from_zip(zip_file_path, current_extract_folder)
 
@@ -161,9 +161,9 @@ def parse_all_financial_csvs(csv_paths_df: pd.DataFrame) -> pd.DataFrame:
 
     for _, row in tqdm(csv_paths_df.iterrows(), total=len(csv_paths_df), desc="CSVファイル解析"):
         doc_id = row['docID']
-        csv_path = Path(row['extracted_path'])
-        df_csv = None
-        
+        extracted_rel_path = row['extracted_path'] 
+        csv_path = Config.EXTRACTED_CSV_TEMP_FOLDER / doc_id / "XBRL_TO_CSV" / extracted_rel_path
+
         if not csv_path.exists():
             logging.warning(f"CSVファイルが存在しません: {csv_path}。スキップします。")
             continue
