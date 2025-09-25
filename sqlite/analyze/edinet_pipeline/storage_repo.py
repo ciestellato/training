@@ -57,7 +57,9 @@ def index_extracted_csv_path(docID: str, csv_path: str, db: Session):
     :param csv_path: 抽出されたCSVファイルのパス
     :param db: SQLAlchemy Sessionオブジェクト (依存性注入されることを想定)
     """
-    
+    # 最後にリフレッシュするオブジェクトを保持する変数
+    entry_to_refresh = None
+
     # 既存のレコードがあるか確認（更新が必要な場合）
     existing_entry = db.query(EdinetExtractedCsvDetails).filter_by(docID=docID).first()
 
@@ -65,7 +67,7 @@ def index_extracted_csv_path(docID: str, csv_path: str, db: Session):
         # 更新
         existing_entry.csv_path = csv_path
         existing_entry.extracted_at = date.today()
-        # db.add(existing_entry) # 変更されたオブジェクトは自動的に追跡される
+        entry_to_refresh = existing_entry
         
     else:
         # 新規挿入
@@ -75,11 +77,15 @@ def index_extracted_csv_path(docID: str, csv_path: str, db: Session):
             extracted_at=date.today()
         )
         db.add(new_entry)
+        entry_to_refresh = new_entry
     
     # 変更を確定
     db.commit()
-    db.refresh(new_entry or existing_entry)
     
+    if entry_to_refresh:
+        # 最後にオブジェクトをリフレッシュ
+        db.refresh(entry_to_refresh)
+        
     return True
 
 # --- 3. 財務データの保管 (旧 step7 のコアロジック) ---
