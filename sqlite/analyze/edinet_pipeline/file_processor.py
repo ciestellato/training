@@ -206,10 +206,24 @@ def parse_all_financial_csvs(csv_paths_df: pd.DataFrame) -> pd.DataFrame:
             extracted_records = df_csv[df_csv['要素ID'].isin(target_element_ids)].copy()
             
             if not extracted_records.empty:
+                # --- 1. データ型変換とクレンジング ---
+
+                # 全角ハイフン（－）をNaNに置換
+                # EDINETのCSV解析では、値がない場合にこの文字がよく使用される
+                extracted_records['値'] = extracted_records['値'].replace({'－': None})
+                
+                # NaNを数値（Float）型に変換しようとするとエラーになる可能性があるため、
+                # PandasがNaNを扱えるようオブジェクト型を維持しつつ、後で数値に変換を試みる
+
+                # リネーム
                 temp_data = extracted_records.rename(columns={
                     '項目名': 'accountName',
                     '値': 'amount',
-                    '単位': 'unit'
+                    '単位': 'unit',
+                    '要素ID': 'element_id',
+                    '値': 'value',
+                    'ユニットID': 'unit_ref',
+                    'コンテキストID': 'context_ref'
                 })
                 # その他のメタ情報を付与
                 temp_data['docID'] = doc_id
@@ -217,10 +231,14 @@ def parse_all_financial_csvs(csv_paths_df: pd.DataFrame) -> pd.DataFrame:
                 # 注: 期間の特定 (fiscalYear, term) は 'コンテキストID' や '期間・時点' 列から複雑なロジックで導出する必要があります。
                 temp_data['fiscalYear'] = 9999 # 仮
                 temp_data['term'] = 'Annual' # 仮
-                temp_data['currency'] = temp_data['ユニットID'].apply(lambda x: 'JPY' if x == 'JPY' else None)
+                temp_data['currency'] = temp_data['unit_ref'].apply(lambda x: 'JPY' if x == 'JPY' else None)
                 
+                # 2. 値のカラムを強制的に数値型に変換 (NaNは許容される)
+                # エラーが出ないように、エラー発生時はNaNにする (coerce)
+                temp_data['value'] = pd.to_numeric(temp_data['value'], errors='coerce')
+
                 # 必要なカラムのみに絞り込み
-                final_cols = ['docID', 'secCode', 'fiscalYear', 'term', 'accountName', 'amount', 'unit', 'currency']
+                final_cols = ['docID', 'secCode', 'fiscalYear', 'term', 'accountName', 'unit', 'currency', 'element_id', 'context_ref', 'unit_ref', 'value']
                 all_financial_data.append(temp_data[final_cols])
             
             # --- 解析ダミーロジック 終了 ---
