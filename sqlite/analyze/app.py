@@ -1,6 +1,6 @@
 import os
 import dash
-from dash import dcc, html, Input, Output, State, callback
+from dash import dcc, html, Input, Output, State, callback, no_update
 import dash_auth
 import pandas as pd
 import sqlite3
@@ -9,11 +9,12 @@ import plotly.express as px
 import logging
 import io
 import sys
-from flask import session, request
+from flask import session, redirect, url_for, request, Response
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 
 # 既存のEDINETモジュールをインポート
 from edinet_config import Config
-from edinet_steps import (
+from edinet_pipeline.edinet_steps import (
     step1_create_and_summarize,
     step2_check_download_status,
     step3_execute_download,
@@ -33,11 +34,79 @@ VALID_USERNAME_PASSWORD_PAIRS = {
 # Dashアプリのインスタンス化
 app = dash.Dash(__name__)
 
-# --- dash-auth の初期化 ---
+# --- dash-auth の初期化 --- （Flask-Loginを使うから不要？？）
 auth = dash_auth.BasicAuth(
     app,
     VALID_USERNAME_PASSWORD_PAIRS
 )
+
+# ** Flask-Login設定 *********************************** はじめ
+
+# 1. ユーザーモデルの定義
+class User(UserMixin):
+    def __init__(self, username):
+        self.id = username
+# 2. Flask-Loginの初期化
+login_manager = LoginManager()
+login_manager.init_app(app.server)
+# 認証が必要なページにアクセスした際にリダイレクトするログインビューを設定
+login_manager.login_view = '/login' 
+
+# 3. ユーザーローダー関数の定義
+@login_manager.user_loader
+def load_user(user_id):
+    """ユーザーIDからUserオブジェクトをロードする関数"""
+    if user_id in VALID_USERNAME_PASSWORD_PAIRS:
+        return User(user_id)
+    return None
+
+# ** Flask-Login設定 *********************************** おわり
+
+# Flask-Loginを用いたログインルートの定義
+@app.server.route('/login', methods=['GET', 'POST'])
+def login_route():
+    if request.method == 'POST':
+        # フォームからの認証情報を取得
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # 認証チェック
+        if username in VALID_USERNAME_PASSWORD_PAIRS and VALID_USERNAME_PASSWORD_PAIRS[username] == password:
+            user = load_user(username)
+            login_user(user) # Flask-Loginを使ってセッションを確立
+            
+            # ログイン成功後、メインダッシュボードへリダイレクト
+            # (リダイレクト先は適宜変更してください)
+            return redirect('/') 
+        else:
+            # 認証失敗
+            error = 'Invalid credentials. Please try again.'
+            
+    # ログインフォームの表示 (ここでは簡易HTMLで例示)
+    return '''
+        <!DOCTYPE html>
+        <html>
+        <head><title>Login</title></head>
+        <body>
+            <h1>EDINET Data Dashboard Login</h1>
+            <p style="color:red;">{}</p>
+            <form method="POST">
+                <input type="text" name="username" placeholder="Username" required><br>
+                <input type="password" name="password" placeholder="Password" required><br>
+                <input type="submit" value="Log In">
+            </form>
+        </body>
+        </html>
+    '''.format(error if 'error' in locals() else '')
+# 注: 実際のDashアプリケーションでは、この/loginページ全体をDashコンポーネント（HTML/DCC/Bootstrapなど）で構築することが一般的です。ここでは認証ロジックを示すため、Flaskの簡易HTMLで記述しています。
+
+# Flask-Loginを用いたログアウトルートの定義
+@app.server.route('/logout')
+def logout_route():
+    # Flask-Loginの機能を使って現在のセッションを破棄
+    logout_user() 
+    # ユーザーをログインページにリダイレクト
+    return redirect('/login') 
 
 # Flaskの `before_request` を使ってセッションにユーザー名を保存
 @app.server.before_request
@@ -69,6 +138,16 @@ app.layout = html.Div([
     # ユーザーのログイン状態とロールを保持するためのStore
     dcc.Store(id='login-status-store', storage_type='session'),
     
+    # ページ遷移をトリガーするためのLocationコンポーネント
+    dcc.Location(id='url', refresh=True), 
+
+    # ユーザー情報とログアウトボタンを表示するエリア
+    html.Div(id='auth-header', style={'textAlign': 'right', 'padding': '10px'}, children=[
+        html.Span(id='current-username', style={'marginRight': '10px', 'fontWeight': 'bold'}),
+        html.Button("ログアウト", id='logout-button', n_clicks=0, 
+                    style={'backgroundColor': '#DC3545', 'color': 'white', 'padding': '5px 10px', 'border': 'none', 'borderRadius': '4px', 'cursor': 'pointer', 'marginLeft': '10px'})
+    ]),
+
     html.H1("EDINET Data Dashboard", style={'textAlign': 'center', 'color': '#2C3E50', 'padding': '20px 0'}),
     html.Hr(style={'borderColor': '#EAECEE'}),
 
@@ -186,6 +265,37 @@ def update_login_status(_):
         logging.warning(f"ログイン状態の取得に失敗しました: {e}")
         return {'username': None, 'role': None}
 
+# --- ユーザー状態表示コールバック (ログイン中のみユーザー名とボタンを表示) ---
+@callback(
+    Output('auth-header', 'style'),
+    Output('current-username', 'children'),
+    [Input('login-status-store', 'data')]
+)
+def update_user_status_display(login_data):
+    # login_dataがNoneでないことを確認する
+    if login_data is None:
+        login_data = {} # Noneの場合は空の辞書として扱うことで .get() の呼び出しを安全にする
+
+    username = login_data.get('username')
+    if username:
+        # ログイン中の場合: ユーザー名を表示し、ヘッダーを表示状態にする
+        return {'textAlign': 'right', 'padding': '10px', 'display': 'block'}, f"ログイン中: {username}"
+    # ログアウト状態の場合、ヘッダーを非表示にする (BasicAuthが認証を要求するまではユーザー名が取得できないため)
+    return {'display': 'none'}, ""
+
+
+# --- ログアウト処理コールバック ---
+@callback(
+    Output('url', 'pathname'), 
+    Input('logout-button', 'n_clicks'),
+    prevent_initial_call=True
+)
+def perform_logout_and_redirect(n_clicks):
+    if n_clicks and n_clicks > 0:
+        # Flask-Loginを使用したクリーンなログアウトルートにリダイレクトさせる
+        return '/logout' 
+    return dash.no_update
+
 # --- ロールに応じた表示切り替えコールバック ---
 @callback(
     Output('admin-sections', 'style'),
@@ -194,11 +304,16 @@ def update_login_status(_):
     prevent_initial_call=True
 )
 def toggle_sections(login_data):
+    # login_data が None の場合、空の辞書として扱う
+    if login_data is None:
+        login_data = {}
+    
     role = login_data.get('role')
     if role == 'admin':
         return {'display': 'block'}, {'display': 'none'}
     elif role == 'user':
         return {'display': 'none'}, {'display': 'block'}
+    # ログイン状態が確立していない、または無効なロールの場合は両方非表示
     return {'display': 'none'}, {'display': 'none'}
 
 # 会社名のあいまい検索と候補表示

@@ -10,8 +10,8 @@ from typing import Optional
 
 from edinet_config import Config
 from .edinet_models import EdinetExtractedCsvDetails
-from .database_setup import Base  # Baseは既存のファイルからインポート
-from .zip_utils import extract_csv_from_zip # 既存のZIP抽出ユーティリティを利用
+from .database_setup import Base
+from .zip_utils import extract_csv_from_zip
 
 """責任範囲：ローカルでのファイル操作やデータ解析。"""
 
