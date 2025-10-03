@@ -31,7 +31,8 @@
 │   └── layout.py         # Dashのレイアウト定義
 
 ├── /assets/              # Webアプリケーション用静的ファイル置き場
-│   └── style.css         # 外観用スタイルシート
+│   ├── style.css         # 外観用スタイルシート
+│   └── script.js         # JavaScript
 
 └── /logs/                # ⑤ 実行ログファイル
     └── application.log   # ロギング出力先
