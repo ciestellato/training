@@ -103,7 +103,14 @@ def get_main_layout():
             # ログ出力更新用のインターバルコンポーネント (これは管理者/ユーザー関係なく機能させるため、メインレイアウト直下)
             dcc.Interval(
                 id='interval-component',
-                interval=1*1000, # 1秒ごとに更新
+                # interval=1*1000, # 1秒ごとに更新
                 n_intervals=0
             )
-        ], className='panel')
+        ])
+
+def get_login_required_layout():
+    """未ログイン時に表示する簡易レイアウト"""
+    return html.Div([
+        html.H2("ログインが必要です"),
+        html.A("ログインページへ", href="/login")
+    ])

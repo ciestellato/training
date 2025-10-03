@@ -52,3 +52,6 @@ class Config:
     # ダウンロード対象の書類タイプコード
     # 120: 有価証券報告書, 140: 四半期報告書, 160: 半期報告書
     TARGET_DOC_TYPE_CODES = ['120', '140', '160']
+
+    # Flaskセッションのための secret_key を設定
+    FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY")

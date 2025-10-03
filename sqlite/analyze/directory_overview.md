@@ -2,12 +2,14 @@
 
 ```
 /edinet_analysis_project
-├── .env                  # 環境変数ファイル（EDINET APIキーなど）
-├── app.py                # Dashアプリケーションのエントリーポイント
-├── edinet_config.py      # ① 全体の設定ファイル (Configクラスを定義)
-├── edinet_main.py        # ② メインのデータパイプラインエントリーポイント
-├── logging_setup.py      # ロギング設定とバッファ定義
-├── requirements.txt      # 必要なライブラリの一覧（pip install -r 用）
+├── .env                    # 環境変数ファイル（EDINET APIキーなど）
+├── directory_overview.md   # ★このファイル★ ディレクトリ構造メモ
+├── app.py                  # Dashアプリケーションのエントリーポイント
+├── edinet_api.py           # EDINETとの通信
+├── edinet_config.py        # ① 全体の設定ファイル (Configクラスを定義)
+├── edinet_main.py          # ② メインのデータパイプラインエントリーポイント
+├── logging_setup.py        # ロギング設定とバッファ定義
+├── requirements.txt        # 必要なライブラリの一覧（pip install -r 用）
 
 ├── /edinet_pipeline/     # ③ ソースコード本体 (Pythonパッケージ)
 │   ├── __init__.py       # パッケージとして機能させるためのファイル
@@ -25,10 +27,13 @@
 │   └── /extracted_csvs/  # ZIPから抽出されたCSVデータの一時/永続保存先
 
 ├── /webapp/              # Webアプリケーション（Dash）関連のモジュール
-│   ├── __init__.py       # パッケージとして機能させるためのファイル
-│   ├── auth.py           # Flask-Loginの認証設定とユーザーモデル
-│   ├── callbacks.py      # Dashのコールバック処理
-│   └── layout.py         # Dashのレイアウト定義
+│   ├── __init__.py             # パッケージとして機能させるためのファイル
+│   ├── auth.py                 # Flask-Loginの認証設定とユーザーモデル
+│   ├── callbacks_auth.py       # Dashのコールバック処理(WEBアプリログイン認証)
+│   ├── callbacks_config.py     # Dashのコールバック処理(設定関連)
+│   ├── callbacks_financial.py  # Dashのコールバック処理(財務関連)
+│   ├── callbacks_processing.py # Dashのコールバック処理(処理実行)
+│   └── layout.py               # Dashのレイアウト定義
 
 ├── /assets/              # Webアプリケーション用静的ファイル置き場
 │   ├── style.css         # 外観用スタイルシート
