@@ -1,12 +1,9 @@
 from dash import dcc, html
 from edinet_config import Config # 設定値の参照用
-from logging_setup import DashLogHandler, log_buffer # ロギングバッファを参照するため、log_bufferをインポート（または config に移動）
+# ロギングバッファを参照するため、log_bufferをインポート（または config に移動）
+from logging_setup import DashLogHandler, log_buffer 
 # ロギング設定をインポート
 import logging_setup
-
-# DashLogHandlerとlog_bufferの定義/設定も、可能であれば別のロギング設定ファイルに分離することを検討すべきです。
-# ただし、現状のapp.py [6, 7] の定義に依存するため、ここでは簡略化のため、app.pyに一時的に残します。
-# ログ出力エリア（html.Pre(id='log-output')）が layout に含まれるためです。
 
 def get_main_layout():
     """アプリケーションの全体レイアウトを返す"""

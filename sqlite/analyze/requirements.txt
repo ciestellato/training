@@ -13,8 +13,10 @@ SQLAlchemy
 
 # Webインターフェース (Dash/Plotly) 関連
 dash
-dash-auth
 plotly
+
+# Webアプリのユーザー認証機能構築に使用
+Flask-Login
 
 # その他の依存関係
 pytest
