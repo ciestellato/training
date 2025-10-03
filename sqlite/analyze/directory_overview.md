@@ -30,6 +30,9 @@
 │   ├── callbacks.py      # Dashのコールバック処理
 │   └── layout.py         # Dashのレイアウト定義
 
+├── /assets/              # Webアプリケーション用静的ファイル置き場
+│   └── style.css         # 外観用スタイルシート
+
 └── /logs/                # ⑤ 実行ログファイル
     └── application.log   # ロギング出力先
 ```
