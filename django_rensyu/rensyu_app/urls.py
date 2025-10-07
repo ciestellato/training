@@ -22,5 +22,7 @@ app_name = 'rensyu_app'  # ← これが必要！
 urlpatterns = [
     path('', views.home_view, name='home'),
     path('profile/', views.profile_view, name='profile'),
+    path('profile/<int:profile_id>/', views.profile_by_id, name='profile_by_id'),
+    path('profile/email/<str:profile_email>/', views.profile_by_email, name='profile_by_email'),
     path('about/', views.about_view, name='about'),
 ]
