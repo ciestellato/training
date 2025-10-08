@@ -1,0 +1,66 @@
+●make_django.bat を、任意のフォルダに置き、コマンドプロンプトを開いて実行すると開発環境が作成される
+
+---------------------------------------
+
+●conf\setting.py に自作アプリ名を追記し、日本語・日本時間の設定を行う
+
+# Application definition
+
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "calculator",
+]
+
+
+LANGUAGE_CODE = "ja"
+
+TIME_ZONE = "Asia/Tokyo"
+
+---------------------------------------
+
+●conf\urls.py に全体のurl設定を行う
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("calculator/", include('calculator.urls')),
+]
+
+---------------------------------------
+
+●calculator\urls.py にアプリ内のurl設定を行う
+
+from django.urls import path
+from . import views
+
+app_name = 'calculator'
+
+urlpatterns = [
+    # test動作用
+    path('index/', views.index, name='index'),
+]
+
+---------------------------------------
+
+●calculator\views.py に http://127.0.0.1:8000/calculator/index/ で呼び出される関数を記述する
+
+from django.shortcuts import render
+
+# Create your views here.
+
+def index(request):
+    return render(request, 'calculator/index.html')
+    
+---------------------------------------
+●サーバ起動で動作確認して、以下のurlにブラウザからアクセスする
+
+(venv) 任意のフォルダ名\django_web>python manage.py runserver
+
+http://127.0.0.1:8000/calculator/index/
