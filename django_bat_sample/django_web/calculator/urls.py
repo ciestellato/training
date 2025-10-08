@@ -3,6 +3,8 @@ from . import views
 app_name = 'calculator'
 
 urlpatterns = [
-	# test動作用
+	# calculator/index/
 	path('index/', views.index, name='index'),
+    # calculator/
+    path('', views.bmi_view, name='bmi'),
 ]
