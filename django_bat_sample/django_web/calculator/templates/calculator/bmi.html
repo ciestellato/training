@@ -11,6 +11,9 @@
     <!-- 身長と体重の入力フォーム -->
     <form method="post">
         {% csrf_token %}  <!-- セキュリティ対策：クロスサイトリクエスト防止 -->
+        <label>表示名:</label>
+        <input type="text" name="nick_name" maxlength="20" required><br><br>
+        
         <label>身長(cm):</label>
         <input type="number" name="height" step="0.1" required><br><br>
 
@@ -22,7 +25,7 @@
 
     <!-- BMI結果の表示 -->
     {% if bmi %}
-        <h2>あなたのBMIは {{ bmi }} です。</h2>
+        <h2>{{ nick_name }}さんのBMIは {{ bmi }} です。</h2>
     {% endif %}
 </body>
 </html>
