@@ -9,7 +9,7 @@ from django.shortcuts import render, HttpResponse
 def hello_view(request):
     # 表示データ取得
     # return HttpResponse("hello_view() OK.")
-    context = {'message': 'こんにちは、Django!'}
+    context = {'message': 'こんにちは、Django!',}
     return render(request, template_name='calculator/hello.html', context=context)
 
 def test(request):
