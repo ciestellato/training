@@ -8,7 +8,8 @@ from django.shortcuts import render, HttpResponse
 
 def hello_view(request):
     # 表示データ取得
-    return HttpResponse("hello_view() OK.")
+    # return HttpResponse("hello_view() OK.")
+    return render(request, template_name='calculator/hello.html')
 
 def test(request):
     return HttpResponse("test page OK.")
