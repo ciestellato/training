@@ -6,6 +6,9 @@ from django.shortcuts import render, HttpResponse
 
 # Create your views here.
 
+def hello_view(request):
+    # 表示データ取得
+    return HttpResponse("hello_view() OK.")
 
 def test(request):
     return HttpResponse("test page OK.")
