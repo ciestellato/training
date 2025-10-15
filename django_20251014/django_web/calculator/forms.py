@@ -1,6 +1,12 @@
 from django import forms
 from .models import BmiRecord
 
+# 氏名のinputタグを生成するクラス
+# 送信データを格納するクラスも兼ねる
+class ProfileForm(forms.Form):
+    simei = forms.CharField(label='お名前')
+
+
 # BMI計算フォーム
 
 

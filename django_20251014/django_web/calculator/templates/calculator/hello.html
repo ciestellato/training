@@ -1,3 +1,14 @@
-<h3>hello.html</h3>
-<!-- 辞書のキー項目名 -->
-{{ message }}
+<h3>hello.html Formクラス利用したバージョン</h3>
+<!--入力フォーム-->
+<form method="post">
+    <!-- ＜input type=hidden value="ワンタイムパスワード文字列"＞ -->
+    {% csrf_token %} 
+    {{ form.as_p }}
+    <button type="submit">登録する</button>
+</form>
+
+<!--context辞書のキー項目名-->
+{% if simei  %}
+    {{ simei }}
+{% endif %}
+<br>

@@ -3,14 +3,26 @@ from django.shortcuts import render
 from .forms import BmiRecordForm
 from .forms import BmiForm  # BmiForm をインポート
 from django.shortcuts import render, HttpResponse
+from .forms import ProfileForm
 
 # Create your views here.
-
 def hello_view(request):
-    # 表示データ取得
-    # return HttpResponse("hello_view() OK.")
-    context = {'message': 'こんにちは、Django!',}
-    return render(request, template_name='calculator/hello.html', context=context)
+    simei = None # HTMLに渡すデータ
+    form = None # HTMLに渡すデータ
+    if request.method == 'POST':  # フォームがPOST送信された
+        # フォームを生成,全送信データをセット
+        form = ProfileForm(request.POST)
+        # 値のチェック
+        if form.is_valid():
+            # 適正データ
+            simei = form.cleaned_data['simei']
+
+    # GET＝アドレス指定でアクセス
+    else:
+        # 空のフォームオブジェクト
+        form = ProfileForm()
+    return render(request, 'calculator/hello.html', {'form':form, 'simei':simei,} )
+
 
 def test(request):
     return HttpResponse("test page OK.")
