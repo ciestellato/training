@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse
 from .forms import UserForm
+from user.models import User
 
 # Create your views here.
 # user
@@ -26,3 +27,9 @@ def register_user(request):
 def thanks(request):
     # ユーザ登録完了 path('thanks/', views.thanks, name='thanks'),
     return render(request, 'user/thanks.html')
+
+def list_view(request):
+    # Userデータの全件検索
+    records = User.objects.all()
+    print(records)
+    return render(request, 'user/list.html',{'records':records})
