@@ -1,3 +1,6 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
 <ul style="list-style-type: none;">
     <h3>●BMI_calculator</h3>
     <li><a href="{% url 'calculator:bmi' %}">bmi（htmlタグのフォームでBMI計算。レコード保存なし）</a></li>
