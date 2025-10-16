@@ -1,0 +1,23 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<a href="{% url 'home:index' %}">ホームに戻る</a>
+<hr>
+<h2>登録済み試験一覧</h2>
+<ul>
+    {% for r in records %}
+    <li>{{ r.name }}: {{ r.date }}
+        [<a href="{% url 'school:exam_record_edit' r.id %}">編集</a>]
+        [<a href="{% url 'school:exam_record_delete' r.id %}">削除</a>]
+    </li>
+    {% endfor %}
+</ul>
+
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

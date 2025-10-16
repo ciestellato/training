@@ -1,0 +1,11 @@
+<!-- exam_confirm_delete.html 削除確認画面 -->
+ {% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+ <h2>削除確認</h2>
+<p>{{ record.name }}({{ record.date }}) の試験情報を削除してもよろしいですか？</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">削除する</button>
+</form>
+<a href="{% url 'school:exam_record_list_edit_delete' %}">キャンセル</a>

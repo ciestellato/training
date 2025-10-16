@@ -1,0 +1,11 @@
+<!-- exam_edit_form.html 編集画面 -->
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<h2>試験情報の編集</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">更新</button>
+</form>
+<a href="{% url 'school:exam_record_list_edit_delete' %}">一覧に戻る</a>
