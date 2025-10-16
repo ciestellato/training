@@ -29,4 +29,6 @@ urlpatterns = [
     path("product/", include('product.urls')),
     # employee
     path("employee/", include('employee.urls')),
+    # school
+    path("school/", include('school.urls')),
 ]
