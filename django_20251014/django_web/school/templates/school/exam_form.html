@@ -1,0 +1,10 @@
+<h1>{{ title }}</h1>
+
+<form method="post" action=".">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">登録</button>
+</form>
+<p><a href="{% url 'school:score_create' %}">成績登録ページ</a></p>
