@@ -1,0 +1,7 @@
+<h2>従業員登録</h2>
+<form method="post">
+  {% csrf_token %}  <!-- セキュリティ対策：CSRFトークン -->
+  {{ form.as_p }}    <!-- フォームを段落形式で表示 -->
+  <button type="submit">登録</button>
+</form>
+<a href="{% url 'employee:emp_list' %}">一覧に戻る</a>

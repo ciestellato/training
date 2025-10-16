@@ -1,9 +1,11 @@
 from .models import BmiRecord
-from django.shortcuts import render
 from .forms import BmiRecordForm
 from .forms import BmiForm  # BmiForm をインポート
 from django.shortcuts import render, HttpResponse
 from .forms import ProfileForm
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def hello_view(request):
@@ -100,7 +102,7 @@ def bmi_record_form(request):
         'submitted': False
     })
 
-
+from django.shortcuts import get_object_or_404
 def bmi_record_list(request):
     # BmiRecordsテーブルの一覧
     records = BmiRecord.objects.all().order_by('-id')  # 新しい順に並べる
@@ -114,10 +116,49 @@ def bmi_record_list_edit_delete(request):
 
 
 def bmi_record_edit(request, id):
-    # 編集
-    return HttpResponse(f'id:{id}のレコードを[編集]します')
+    # idで検索
+    record = get_object_or_404(BmiRecord, pk=id)
+
+    # ボタンを押された
+    if request.method == 'POST':
+        # POSTデータと既存のレコードを使ってフォームを生成（instance指定で更新モードになる）。
+        form = BmiRecordForm(request.POST, instance=record)#
+
+        # フォームのバリデーション（入力チェック）を実行。
+        if form.is_valid():
+            # 入力が正しければ、フォームの内容でレコードを保存（更新）。
+            form.save()
+
+            # 更新成功メッセージを表示（テンプレート側で messages を使って表示可能。 ※messagesは自動でhtmlに渡される）。
+            messages.success(request, '更新しました')
+
+            # 一覧画面にリダイレクト（URL名 'calculator:bmi_record_list_edit_delete' が定義されている必要あり）。
+            return redirect('calculator:bmi_record_list_edit_delete')
+
+
+
+
+    # 編集フォーム入力内容に検索レコードをセット：オブジェクト生成
+    form = BmiRecordForm(instance=record)
+
+    # フォームをテンプレートに渡して表示。テンプレート 'calculator/bmi_form.html' を使用。
+    return render(request, 'calculator/bmi_edit_form.html', {'form': form})
 
 
 def bmi_record_delete(request, id):
+    # 指定されたIDに対応するBmiRecordオブジェクトを取得。存在しない場合は404エラー画面を表示。
+    record = get_object_or_404(BmiRecord, pk=id)
     # 削除
-    return HttpResponse(f'id:{id}のレコードを[削除]します')
+    # リクエストがPOST（削除ボタンが押された）だった場合、削除処理を実行する。
+    if request.method == 'POST':
+        # 対象のレコードをデータベースから削除する。
+        record.delete()
+
+        # 削除成功メッセージを表示（テンプレート側で messages を使って表示可能）。
+        messages.success(request, '削除しました')
+
+        # 一覧画面にリダイレクト（URL名 'calculator:bmi_record_list_edit_delete' が定義されている必要あり）。
+        return redirect('calculator:bmi_record_list_edit_delete')
+    
+    # GETリクエストの場合（削除確認画面の表示）、対象レコードをテンプレートに渡して表示。
+    return render(request, 'calculator/bmi_confirm_delete.html', {'record': record})

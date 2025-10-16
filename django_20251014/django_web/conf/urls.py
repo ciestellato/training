@@ -27,4 +27,6 @@ urlpatterns = [
     path("user/", include('user.urls')),
     # product
     path("product/", include('product.urls')),
+    # employee
+    path("employee/", include('employee.urls')),
 ]

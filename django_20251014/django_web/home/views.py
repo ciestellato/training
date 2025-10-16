@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.contrib import messages
+
 
 # Create your views here.
 
@@ -7,3 +9,8 @@ from django.shortcuts import render
 
 def index(request):
     return render(request, 'home/index.html')
+
+def message_veiw(request):
+    messages.success(request, "保存が完了しました！")
+    messages.error(request, "エラーが発生しました。")
+    return render(request, 'home/message.html')

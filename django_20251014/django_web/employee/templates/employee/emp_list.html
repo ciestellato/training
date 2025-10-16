@@ -1,0 +1,15 @@
+<h2>従業員一覧</h2>
+<table border="1">
+  <tr>
+    <th>氏名</th>
+    <th>年齢</th>
+    <th>所属部署</th>
+  </tr>
+  {% for emp in employees %}
+  <tr>
+    <td>{{ emp.name }}</td>
+    <td>{{ emp.age }}</td>
+    <td>{{ emp.dept.name }}</td>  <!-- ForeignKeyの部署名を表示 -->
+  </tr>
+  {% endfor %}
+</table>

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse
 from .forms import UserForm
 from user.models import User
+from django.contrib import messages
 
 # Create your views here.
 # user
@@ -29,7 +30,9 @@ def thanks(request):
     return render(request, 'user/thanks.html')
 
 def list_view(request):
+    messages.success(request, "保存が完了しました！")
+    messages.error(request, "エラーが発生しました。")
+    
     # Userデータの全件検索
     records = User.objects.all()
-    print(records)
     return render(request, 'user/list.html',{'records':records})

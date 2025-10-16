@@ -6,3 +6,12 @@
     <li>{{ r.username }}: {{ r.email }}</li>
     {% endfor %}
 </ul>
+
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
