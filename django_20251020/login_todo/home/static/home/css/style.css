@@ -1,0 +1,17 @@
+body {
+    background-color: #f9f9f9;
+    font-family: sans-serif;
+    padding: 20px;
+}
+
+h1 {
+    color: #2c3e50;
+    border-bottom: 2px solid #ccc;
+}
+
+.banner {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    margin-top: 20px;
+}

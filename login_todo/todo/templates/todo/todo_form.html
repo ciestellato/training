@@ -1,0 +1,9 @@
+<!-- タスク新規作成ページ -->
+<h1>Add New Task</h1>
+<form method="post">
+    {% csrf_token %} <!-- セキュリティ対策 -->
+    {{ form.as_p }} <!-- フォームを段落形式で表示 -->
+    <button type="submit">Save</button>
+</form>
+<!-- 一覧ページへのリンク -->
+<p><a href="{% url 'todo:list' %}">Back to List</a></p>

@@ -1,0 +1,28 @@
+<!-- タスク一覧ページ -->
+<h1>Your ToDo List</h1>
+{{ request.user.username }}さん
+<ul>
+    {% for todo in todos %}
+    <li>
+        {% if todo.is_finished %}
+        <!-- 完了済みのタスクは打ち消し線とチェックマーク -->
+        ✅ <s>{{ todo.title }}</s> - {{ todo.description }}
+        {% else %}
+        <!-- 未完了のタスクは通常表示 -->
+        ⏳ {{ todo.title }} - {{ todo.description }}
+        {% endif %}
+    </li>
+    {% empty %}
+    <!-- タスクが1件もない場合の表示 -->
+    <li>No tasks found.</li>
+    {% endfor %}
+</ul>
+<!-- 新規作成ページへのリンク -->
+<p><a href="{% url 'todo:create' %}">Add New Task</a></p>
+<!-- ログアウトリンク -->
+
+<!-- ログアウト -->
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">ログアウト</button>
+</form>

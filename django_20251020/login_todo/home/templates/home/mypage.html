@@ -1,0 +1,13 @@
+<h1>Welcome, {{ request.user.username }}!</h1>
+
+<p>This is your personal page.</p>
+
+<!-- todoリストページへのリンク -->
+<p><a href="{% url 'todo:list' %}">todo list</a></p>
+
+
+<!-- ログアウト -->
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">ログアウト</button>
+</form>

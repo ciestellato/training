@@ -1,0 +1,21 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ホームページ</title>
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+</head>
+
+<body>
+    <h1>ようこそ!</h1>
+    <p>これはホームアプリのトップページです。</p>
+
+    <img src="{% static 'home/images/banner.png' %}" alt="バナー画像" class="banner">
+
+    <p><a href="{% url 'home:register' %}">ユーザー登録</a></p>
+</body>
+
+</html>

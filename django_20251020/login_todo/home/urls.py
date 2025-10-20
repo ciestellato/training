@@ -1,0 +1,13 @@
+from django.urls import path
+from . import views
+
+app_name = 'home'
+
+urlpatterns = [
+    # ルート/
+    path('', views.index, name='index'),
+    # ルート/mypage/
+    path('mypage/', views.mypage, name='mypage'),
+    #  ルート/register/  ログインユーザー登録処理
+    path('register/', views.register, name='register'),
+]
