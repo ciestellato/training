@@ -1,0 +1,6 @@
+<h1>Contact Us</h1>
+<form method="post">
+  {% csrf_token %}  <!-- セキュリティ対策 -->
+  {{ form.as_p }}    <!-- フォームを段落形式で表示 -->
+  <button type="submit">Send</button>
+</form>
