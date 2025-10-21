@@ -1,0 +1,21 @@
+<!-- set.html: セッションに 'username' を保存した後の確認画面 -->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>セッション保存</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <!-- 保存完了メッセージ -->
+  <h1>セッションにユーザー名を保存しました。</h1>
+
+  <!-- 保存した値を確認するリンク -->
+  <p><a href="{% url 'session:get_session' %}">セッションから値を取得する</a></p>
+
+  <!-- セッションを削除するリンク -->
+  <p><a href="{% url 'session:delete_session' %}">セッションを削除する</a></p>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!-- delete.html: セッションから 'username' を削除した後の確認画面 -->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>セッション削除</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <!-- 削除完了メッセージ -->
+  <h1>セッションのユーザー名を削除しました。</h1>
+
+  <!-- 再度保存するリンク -->
+  <p><a href="{% url 'session:set_session' %}">セッションに値を保存する</a></p>
+
+  <!-- 現在のセッション状態を確認するリンク -->
+  <p><a href="{% url 'session:get_session' %}">セッションから値を取得する</a></p>
+</body>
+</html>

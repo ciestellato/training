@@ -1,0 +1,137 @@
+/* カラーパレット */
+:root {
+    --primary: #134686;
+    --accent: #ED3F27;
+    --highlight: #FEB21A;
+    --background: #FDF4E3;
+    --text-dark: #222;
+    --text-light: #fff;
+}
+
+/* 全体の背景とフォント */
+body {
+    background-color: var(--background);
+    color: var(--text-dark);
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* ヘッダー */
+header {
+    background-color: var(--primary);
+    color: var(--text-light);
+    padding: 1rem;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav a {
+    color: var(--highlight);
+    margin: 0 1rem;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: var(--accent);
+}
+
+/* メインセクション */
+main {
+    padding: 2rem;
+}
+
+/* フォーム */
+form {
+    background-color: #fff;
+    padding: 1rem;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    max-width: 400px;
+}
+
+label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.3rem;
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+}
+
+/* ボタン */
+button {
+    margin-top: 1rem;
+    background-color: var(--accent);
+    color: var(--text-light);
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--highlight);
+    color: var(--text-dark);
+}
+
+/* フッター */
+footer {
+    background-color: var(--primary);
+    color: var(--text-light);
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+}
+
+/* 見出し */
+h1, h2, h3 {
+    color: var(--primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.6rem;
+}
+
+h3 {
+    font-size: 1.3rem;
+}
+
+/* リンク */
+a {
+    color: var(--primary);
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+/* リスト */
+ul, ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}

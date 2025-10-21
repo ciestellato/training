@@ -1,0 +1,9 @@
+
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+<!-- セッションから取得した username を表示 -->
+{% if username %}
+  <p>ユーザー名：{{ username }}</p>
+{% else %}
+  <p>セッションにユーザー名は保存されていません。</p>
+{% endif %}
