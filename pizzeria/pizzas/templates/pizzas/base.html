@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Pizza</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style00.css' %}">
+</head>
+<body>
+    <p>
+        <a href="{% url 'pizzas:index' %}">ピッツェリア</a> / 
+        <a href="{% url 'pizzas:pizzas' %}">ピザ一覧</a>
+    </p>
+    {% block content %}{% endblock content %}
+</body>
+</html>

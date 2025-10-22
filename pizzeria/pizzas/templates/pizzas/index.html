@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>Pizza</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style00.css' %}">
-</head>
-<body>
+{% extends "pizzas/base.html" %}
+
+{% block content %}
     <p>
         ピザピザピザ
     </p>
-</body>
-</html>
+
+
+{% endblock content %}
