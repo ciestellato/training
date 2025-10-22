@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>学習ノート</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <p>
+        <a href="{% url 'learning_logs:index' %}">学習ノート</a>
+    </p>
+    {% block content %}{% endblock content %}
+</body>
+</html>
