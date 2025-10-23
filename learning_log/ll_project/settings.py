@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'learning_logs',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -125,3 +126,6 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ログイン機能追加
+LOGIN_REDIRECT_URL = 'learning_logs:index'
