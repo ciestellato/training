@@ -23,8 +23,7 @@ def topic(request, topic_id):
     topic = Topic.objects.get(id=topic_id)
 
     # トピックが現在のユーザーが所持するものであることを確認する
-    if topic.owner != request.user:
-        raise Http404
+    check_topic_owner(topic, request.user)
     
     entries = topic.entry_set.order_by('-date_added')
     context = {'topic': topic, 'entries': entries}
@@ -53,6 +52,9 @@ def new_topic(request):
 def new_entry(request, topic_id):
     """特定のトピックに新規記事を追加する"""
     topic = Topic.objects.get(id=topic_id)
+    
+    # トピックが現在のユーザーが所持するものであることを確認する
+    check_topic_owner(topic, request.user)
 
     if request.method != 'POST':
         # データは送信されていないので空のフォームを生成する
@@ -76,8 +78,7 @@ def edit_entry(request, entry_id):
     entry = Entry.objects.get(id=entry_id)
     topic = entry.topic
     # トピックが現在のユーザーが所持するものであることを確認する
-    if topic.owner != request.user:
-        raise Http404
+    check_topic_owner(topic, request.user)
 
     if request.method != 'POST':
         # 初回リクエスト時は現在の記事の内容がフォームに埋め込まれている
@@ -91,3 +92,11 @@ def edit_entry(request, entry_id):
     
     context = {'entry': entry, 'topic': topic, 'form': form}
     return render(request, 'learning_logs/edit_entry.html', context)
+
+def check_topic_owner(topic, user):
+    """現在ログイン中のユーザーがリクエストされたトピックのオーナーか確認する。
+
+    ユーザーがオーナーではない場合404エラーを発生させる。
+    """
+    if topic.owner != user:
+        raise Http404
