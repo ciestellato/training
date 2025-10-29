@@ -31,14 +31,20 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 自分のアプリケーション
+    'learning_logs',
+    'accounts',
+
+    # サードパーティのアプリケーション
+    'django_bootstrap5',
+
+    # デフォルトのdjangoアプリケーション
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'learning_logs',
-    'accounts',
 ]
 
 MIDDLEWARE = [

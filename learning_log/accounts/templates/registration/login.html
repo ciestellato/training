@@ -1,14 +1,16 @@
-{% extends "learning_logs/base.html" %}
+{% extends 'learning_logs/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block page_header %}
+  <h2>アカウントにログイン</h2>
+{% endblock page_header %}
 
 {% block content %}
-    {% if form.errors %}
-        <p>ユーザー名とパスワードが一致しません。もう一度お試しください。</p>
-    {% endif %}
 
-    <form action="{% url 'accounts:login' %}" method="post">
-        {% csrf_token %}
-        {{ form.as_div }}
+  <form action="{% url 'accounts:login' %}" method='post'>
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% bootstrap_button button_type="submit" content="ログイン" %}
+  </form>
 
-        <button name="submit">ログイン</button>
-    </form>
 {% endblock content %}
